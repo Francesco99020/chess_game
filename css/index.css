@@ -1,0 +1,47 @@
+*{
+    margin-top: 0;
+    margin-left: 0;
+}
+body{
+    position: relative;
+
+}
+.wrapper{
+    position: center;
+    margin: auto;
+    justify-content: center;
+    margin-top: 10vh;
+    width: 80vw;
+    height: 70vh;
+    display: grid;
+    grid-template-columns: 80px 80px 80px 80px 80px 80px 80px 80px;
+    grid-template-rows: 80px 80px 80px 80px 80px 80px 80px 80px;
+}
+.tile{
+    width: 20px;
+    height: 20px;
+    background-origin: 1px solid rgba(0,0,0,0.8);
+    padding: 10px;
+}
+.even{
+    background-color: white;
+    border: 1px solid black;
+}
+.odd{
+    background-color: black;
+    border: 1px solid black;
+}
+svg{
+    width: 75px;
+    opacity:75px; 
+    fill:#ffffff; 
+    fill-opacity:1; 
+    fill-rule:nonzero; 
+    stroke:#000000; 
+    stroke-width:1.5; 
+    stroke-linecap:round; 
+    stroke-linejoin:miter; 
+    stroke-miterlimit:4; 
+    stroke-dasharray:none; 
+    stroke-opacity:1;
+}
