@@ -20,28 +20,16 @@ body{
 .tile{
     width: 20px;
     height: 20px;
-    background-origin: 1px solid rgba(0,0,0,0.8);
+    background-origin: 1px solid rgba(0, 0, 0, 0.8);
     padding: 10px;
+    display: flex;
+    justify-content: center;
 }
 .even{
     background-color: white;
     border: 1px solid black;
 }
 .odd{
-    background-color: black;
+    background-color: rgb(64, 0, 255);;
     border: 1px solid black;
-}
-svg{
-    width: 75px;
-    opacity:75px; 
-    fill:#ffffff; 
-    fill-opacity:1; 
-    fill-rule:nonzero; 
-    stroke:#000000; 
-    stroke-width:1.5; 
-    stroke-linecap:round; 
-    stroke-linejoin:miter; 
-    stroke-miterlimit:4; 
-    stroke-dasharray:none; 
-    stroke-opacity:1;
 }
