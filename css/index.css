@@ -6,6 +6,16 @@ body{
     position: relative;
 
 }
+.header{
+    position: relative;
+    margin: 3vh auto;
+    clear: left;
+    height: auto;
+    text-align: center;
+}
+#announcer{
+    font-family: georgia, Arial, Helvetica, sans-serif;
+}
 .wrapper{
     position: center;
     margin: auto;
