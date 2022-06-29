@@ -43,3 +43,6 @@ body{
     background-color: rgb(64, 0, 255);;
     border: 1px solid black;
 }
+.possibleMove{
+    background-color: orange;
+}

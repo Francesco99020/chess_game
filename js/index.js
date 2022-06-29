@@ -1,14 +1,13 @@
 /*
-make a function that takes the moveset array as a parameter
-The function should highlight the tiles the piece can move to.
-
-if highlighted tile is pressed then the piece will move to that tile (most likley another function)
-else piece doesn't move and highlighted tiles should go away
+fix sync problem with getting valid tiles, picking a move and reseeting the tiles.
 
 add anaimation for piece moving
 */
 
 //Array of all tiles
+let currentMoveSet;
+let currenttile;
+
 const allTiles = 
 ['a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7', 'a8',
  'b1', 'b2', 'b3', 'b4', 'b5', 'b6', 'b7', 'b8',
@@ -18,6 +17,50 @@ const allTiles =
  'f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8',
  'g1', 'g2', 'g3', 'g4', 'g5', 'g6', 'g7', 'g8',
  'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'h7', 'h8']
+
+ //turns valid tiles orange that can be moved to
+async function displayValidMoves(moveSet){
+    for(i = 0; i < moveSet.length; i++){
+        document.getElementById(moveSet[i]).classList.add('possibleMove');    
+    }
+    for(i =0; i < allTiles.length; i++){
+        document.getElementById(allTiles[i]).removeAttribute("onclick");
+        document.getElementById(allTiles[i]).setAttribute("onclick", "getPlayerMove(id)");
+    }
+}
+
+function getPlayerMove(id){
+    let playerMove = document.getElementById(id).id;
+    let validMove = false;
+    for(i = 0; i < currentMoveSet.length; i++){
+        if(playerMove == currentMoveSet[i]){
+            makeMove(playerMove);
+            validMove = true;
+        }
+    }
+    if(!validMove){
+        resetVaildMoves();
+    }
+}
+
+function makeMove(playerMove){
+    //make piece move to selected location
+    piece = document.getElementById(currenttile).innerHTML;
+    document.getElementById(playerMove).innerHTML = piece;
+    document.getElementById(currenttile).innerHTML = '';
+    resetVaildMoves();
+}
+
+function resetVaildMoves(){
+    for(i = 0; i < allTiles.length; i++){
+        document.getElementById(allTiles[i]).classList.remove('possibleMove');
+    }
+    for(i =0; i < allTiles.length; i++){
+        document.getElementById(allTiles[i]).removeAttribute("onclick");
+        document.getElementById(allTiles[i]).setAttribute("onclick", "checkTileAndGetMoveSet(id)");
+    }
+
+}
 
 //checks if a tile is empty or not
  function isEmpty(tile){
@@ -58,12 +101,15 @@ function checkTileAndGetMoveSet(id){
     try{
     var tile = document.getElementById(id).getAttribute('id');
     var pieceId = document.getElementById(id).children;
-    console.log('clicked tile contains piece ' + pieceId[0].id)
-    getRuleSet(pieceId[0].id, tile);
+    currenttile = tile;
+    console.log('clicked tile contains piece ' + pieceId[0].id);
+    displayValidMoves(getRuleSet(pieceId[0].id, tile));
     }catch(err){
         console.log('tile is empty')
     }
 }
+
+//Gets moveset of an individual piece
 function getRuleSet(pieceId, tile){
     if(pieceId == 'white king'){
         
@@ -95,6 +141,7 @@ function getRuleSet(pieceId, tile){
                 moveSet.push('f2');
             }
             console.log(moveSet);
+            currentMoveSet = moveSet;
             return moveSet;
         }else{
         //MoveSet for all other moves
@@ -117,6 +164,7 @@ function getRuleSet(pieceId, tile){
                 moveSet.push('f1');
             }
             console.log(moveSet);
+            currentMoveSet = moveSet;
             return moveSet;
         }else{
         //MoveSet for all other moves
@@ -139,6 +187,7 @@ function getRuleSet(pieceId, tile){
                 moveSet.push('f2');
             }
             console.log(moveSet);
+            currentMoveSet = moveSet;
             return moveSet;
         }else{
         //MoveSet for all other moves
@@ -161,6 +210,7 @@ function getRuleSet(pieceId, tile){
                 moveSet.push('f3');
             }
             console.log(moveSet);
+            currentMoveSet = moveSet;
             return moveSet;
         }else{
         //MoveSet for all other moves
@@ -183,6 +233,7 @@ function getRuleSet(pieceId, tile){
                 moveSet.push('f4');
             }
             console.log(moveSet);
+            currentMoveSet = moveSet;
             return moveSet;
         }else{
         //MoveSet for all other moves
@@ -205,6 +256,7 @@ function getRuleSet(pieceId, tile){
                 moveSet.push('f5');
             }
             console.log(moveSet);
+            currentMoveSet = moveSet;
             return moveSet;
         }else{
         //MoveSet for all other moves
@@ -227,6 +279,7 @@ function getRuleSet(pieceId, tile){
                 moveSet.push('f6');
             }
             console.log(moveSet);
+            currentMoveSet = moveSet;
             return moveSet;
         }else{
         //MoveSet for all other moves
@@ -246,6 +299,7 @@ function getRuleSet(pieceId, tile){
                 moveSet.push('f2');
             }
             console.log(moveSet);
+            currentMoveSet = moveSet;
             return moveSet;
         }else{
         //MoveSet for all other moves
@@ -281,6 +335,7 @@ function getRuleSet(pieceId, tile){
                 moveSet.push('c2');
             }
             console.log(moveSet);
+            currentMoveSet = moveSet;
             return moveSet;
         }else{
         //MoveSet for all other moves
@@ -303,6 +358,7 @@ function getRuleSet(pieceId, tile){
                 moveSet.push('c1');
             }
             console.log(moveSet);
+            currentMoveSet = moveSet;
             return moveSet;
         }else{
         //MoveSet for all other moves
@@ -325,6 +381,7 @@ function getRuleSet(pieceId, tile){
                 moveSet.push('c2');
             }
             console.log(moveSet);
+            currentMoveSet = moveSet;
             return moveSet;
         }else{
         //MoveSet for all other moves
@@ -347,6 +404,7 @@ function getRuleSet(pieceId, tile){
                 moveSet.push('c3');
             }
             console.log(moveSet);
+            currentMoveSet = moveSet;
             return moveSet;
         }else{
         //MoveSet for all other moves
@@ -369,6 +427,7 @@ function getRuleSet(pieceId, tile){
                 moveSet.push('c4');
             }
             console.log(moveSet);
+            currentMoveSet = moveSet;
             return moveSet;
         }else{
         //MoveSet for all other moves
@@ -391,6 +450,7 @@ function getRuleSet(pieceId, tile){
                 moveSet.push('c5');
             }
             console.log(moveSet);
+            currentMoveSet = moveSet;
             return moveSet;
         }else{
         //MoveSet for all other moves
@@ -413,6 +473,7 @@ function getRuleSet(pieceId, tile){
                 moveSet.push('c6');
             }
             console.log(moveSet);
+            currentMoveSet = moveSet;
             return moveSet;
         }else{
         //MoveSet for all other moves
@@ -432,6 +493,7 @@ function getRuleSet(pieceId, tile){
                 moveSet.push('c7');
             }
             console.log(moveSet);
+            currentMoveSet = moveSet;
             return moveSet;
         }else{
         //MoveSet for all other moves
