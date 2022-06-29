@@ -5,8 +5,8 @@ add anaimation for piece moving
 */
 
 //Array of all tiles
-let currentMoveSet;
-let currenttile;
+var currentMoveSet;
+var currenttile;
 
 const allTiles = 
 ['a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7', 'a8',
@@ -19,15 +19,19 @@ const allTiles =
  'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'h7', 'h8']
 
  //turns valid tiles orange that can be moved to
-async function displayValidMoves(moveSet){
+function displayValidMoves(moveSet){
+    currentMoveSet = moveSet;
+    //turns all possible move locations orange
     for(i = 0; i < moveSet.length; i++){
         document.getElementById(moveSet[i]).classList.add('possibleMove');    
     }
-    for(i =0; i < allTiles.length; i++){
+    //removes "checkTileAndGetMoveSet(id)" and adds "getPlayerMove(id)" on all tiles
+    for(i = 0; i < allTiles.length; i++){
         document.getElementById(allTiles[i]).removeAttribute("onclick");
         document.getElementById(allTiles[i]).setAttribute("onclick", "getPlayerMove(id)");
     }
 }
+
 
 function getPlayerMove(id){
     let playerMove = document.getElementById(id).id;
@@ -51,6 +55,7 @@ function makeMove(playerMove){
     resetVaildMoves();
 }
 
+ //removes "getPlayerMove(id)"" and adds "checkTileAndGetMoveSet(id)" on all tiles
 function resetVaildMoves(){
     for(i = 0; i < allTiles.length; i++){
         document.getElementById(allTiles[i]).classList.remove('possibleMove');
@@ -59,10 +64,11 @@ function resetVaildMoves(){
         document.getElementById(allTiles[i]).removeAttribute("onclick");
         document.getElementById(allTiles[i]).setAttribute("onclick", "checkTileAndGetMoveSet(id)");
     }
-
+    currentMoveSet = '';
+    currenttile = '';
 }
 
-//checks if a tile is empty or not
+//checks if a tile is empty or not [True if empty]
  function isEmpty(tile){
     try{
         var check = document.getElementById(tile).children;
@@ -111,6 +117,8 @@ function checkTileAndGetMoveSet(id){
 
 //Gets moveset of an individual piece
 function getRuleSet(pieceId, tile){
+    const allVerticals = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+    const allVerticals1 = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
     if(pieceId == 'white king'){
         
     }else if(pieceId == 'white-queen'){
@@ -141,11 +149,38 @@ function getRuleSet(pieceId, tile){
                 moveSet.push('f2');
             }
             console.log(moveSet);
-            currentMoveSet = moveSet;
             return moveSet;
         }else{
         //MoveSet for all other moves
-        
+        //get next forward move
+        let tileArray = tile.split('');
+        for(i = 0; i < allVerticals.length; i++){
+            if(tileArray[0] == allVerticals[i]){
+                //gets letter for next move
+                let move = allVerticals[i-1];
+                //gets number for next move
+                move += tileArray[1];
+                if(isEmpty(move)){
+                    moveSet.push(move);
+                }
+                //gets right diagonal move
+                let diagonalMoveR = allVerticals[i-1] += parseInt(tileArray[1])+1;
+                if(!isEmpty(diagonalMoveR)){
+                    if(canAttack(pieceId, diagonalMoveR)){
+                        moveSet.push(diagonalMoveR);
+                    }
+                }
+                let diagonalMoveL = allVerticals1[i-1] += parseInt(tileArray[1])-1;
+                console.log(diagonalMoveL + ' is L');
+                if(!isEmpty(diagonalMoveL)){
+                    if(canAttack(pieceId, diagonalMoveL)){
+                        moveSet.push(diagonalMoveL);
+                    }
+                }
+            }
+        }
+        console.log(moveSet);
+        return moveSet;
         }
     }else if(pieceId == 'white-pawn-2'){
         let moveSet = [];
@@ -168,7 +203,35 @@ function getRuleSet(pieceId, tile){
             return moveSet;
         }else{
         //MoveSet for all other moves
-        
+        //get next forward move
+        let tileArray = tile.split('');
+        for(i = 0; i < allVerticals.length; i++){
+            if(tileArray[0] == allVerticals[i]){
+                //gets letter for next move
+                let move = allVerticals[i-1];
+                //gets number for next move
+                move += tileArray[1];
+                if(isEmpty(move)){
+                    moveSet.push(move);
+                }
+                //gets right diagonal move
+                let diagonalMoveR = allVerticals[i-1] += parseInt(tileArray[1])+1;
+                if(!isEmpty(diagonalMoveR)){
+                    if(canAttack(pieceId, diagonalMoveR)){
+                        moveSet.push(diagonalMoveR);
+                    }
+                }
+                let diagonalMoveL = allVerticals1[i-1] += parseInt(tileArray[1])-1;
+                console.log(diagonalMoveL + ' is L');
+                if(!isEmpty(diagonalMoveL)){
+                    if(canAttack(pieceId, diagonalMoveL)){
+                        moveSet.push(diagonalMoveL);
+                    }
+                }
+            }
+        }
+        console.log(moveSet);
+        return moveSet;
         }
     }else if(pieceId == 'white-pawn-3'){
         let moveSet = [];
@@ -191,7 +254,35 @@ function getRuleSet(pieceId, tile){
             return moveSet;
         }else{
         //MoveSet for all other moves
-        
+        //get next forward move
+        let tileArray = tile.split('');
+        for(i = 0; i < allVerticals.length; i++){
+            if(tileArray[0] == allVerticals[i]){
+                //gets letter for next move
+                let move = allVerticals[i-1];
+                //gets number for next move
+                move += tileArray[1];
+                if(isEmpty(move)){
+                    moveSet.push(move);
+                }
+                //gets right diagonal move
+                let diagonalMoveR = allVerticals[i-1] += parseInt(tileArray[1])+1;
+                if(!isEmpty(diagonalMoveR)){
+                    if(canAttack(pieceId, diagonalMoveR)){
+                        moveSet.push(diagonalMoveR);
+                    }
+                }
+                let diagonalMoveL = allVerticals1[i-1] += parseInt(tileArray[1])-1;
+                console.log(diagonalMoveL + ' is L');
+                if(!isEmpty(diagonalMoveL)){
+                    if(canAttack(pieceId, diagonalMoveL)){
+                        moveSet.push(diagonalMoveL);
+                    }
+                }
+            }
+        }
+        console.log(moveSet);
+        return moveSet;
         }
     }else if(pieceId == 'white-pawn-4'){
         let moveSet = [];
@@ -214,7 +305,35 @@ function getRuleSet(pieceId, tile){
             return moveSet;
         }else{
         //MoveSet for all other moves
-        
+        //get next forward move
+        let tileArray = tile.split('');
+        for(i = 0; i < allVerticals.length; i++){
+            if(tileArray[0] == allVerticals[i]){
+                //gets letter for next move
+                let move = allVerticals[i-1];
+                //gets number for next move
+                move += tileArray[1];
+                if(isEmpty(move)){
+                    moveSet.push(move);
+                }
+                //gets right diagonal move
+                let diagonalMoveR = allVerticals[i-1] += parseInt(tileArray[1])+1;
+                if(!isEmpty(diagonalMoveR)){
+                    if(canAttack(pieceId, diagonalMoveR)){
+                        moveSet.push(diagonalMoveR);
+                    }
+                }
+                let diagonalMoveL = allVerticals1[i-1] += parseInt(tileArray[1])-1;
+                console.log(diagonalMoveL + ' is L');
+                if(!isEmpty(diagonalMoveL)){
+                    if(canAttack(pieceId, diagonalMoveL)){
+                        moveSet.push(diagonalMoveL);
+                    }
+                }
+            }
+        }
+        console.log(moveSet);
+        return moveSet;        
         }
     }else if(pieceId == 'white-pawn-5'){
         let moveSet = [];
@@ -237,7 +356,35 @@ function getRuleSet(pieceId, tile){
             return moveSet;
         }else{
         //MoveSet for all other moves
-        
+        //get next forward move
+        let tileArray = tile.split('');
+        for(i = 0; i < allVerticals.length; i++){
+            if(tileArray[0] == allVerticals[i]){
+                //gets letter for next move
+                let move = allVerticals[i-1];
+                //gets number for next move
+                move += tileArray[1];
+                if(isEmpty(move)){
+                    moveSet.push(move);
+                }
+                //gets right diagonal move
+                let diagonalMoveR = allVerticals[i-1] += parseInt(tileArray[1])+1;
+                if(!isEmpty(diagonalMoveR)){
+                    if(canAttack(pieceId, diagonalMoveR)){
+                        moveSet.push(diagonalMoveR);
+                    }
+                }
+                let diagonalMoveL = allVerticals1[i-1] += parseInt(tileArray[1])-1;
+                console.log(diagonalMoveL + ' is L');
+                if(!isEmpty(diagonalMoveL)){
+                    if(canAttack(pieceId, diagonalMoveL)){
+                        moveSet.push(diagonalMoveL);
+                    }
+                }
+            }
+        }
+        console.log(moveSet);
+        return moveSet;        
         }
     }else if(pieceId == 'white-pawn-6'){
         let moveSet = [];
@@ -260,6 +407,35 @@ function getRuleSet(pieceId, tile){
             return moveSet;
         }else{
         //MoveSet for all other moves
+        //get next forward move
+        let tileArray = tile.split('');
+        for(i = 0; i < allVerticals.length; i++){
+            if(tileArray[0] == allVerticals[i]){
+                //gets letter for next move
+                let move = allVerticals[i-1];
+                //gets number for next move
+                move += tileArray[1];
+                if(isEmpty(move)){
+                    moveSet.push(move);
+                }
+                //gets right diagonal move
+                let diagonalMoveR = allVerticals[i-1] += parseInt(tileArray[1])+1;
+                if(!isEmpty(diagonalMoveR)){
+                    if(canAttack(pieceId, diagonalMoveR)){
+                        moveSet.push(diagonalMoveR);
+                    }
+                }
+                let diagonalMoveL = allVerticals1[i-1] += parseInt(tileArray[1])-1;
+                console.log(diagonalMoveL + ' is L');
+                if(!isEmpty(diagonalMoveL)){
+                    if(canAttack(pieceId, diagonalMoveL)){
+                        moveSet.push(diagonalMoveL);
+                    }
+                }
+            }
+        }
+        console.log(moveSet);
+        return moveSet;
         
         }
     }else if(pieceId == 'white-pawn-7'){
@@ -283,7 +459,35 @@ function getRuleSet(pieceId, tile){
             return moveSet;
         }else{
         //MoveSet for all other moves
-        
+        //get next forward move
+        let tileArray = tile.split('');
+        for(i = 0; i < allVerticals.length; i++){
+            if(tileArray[0] == allVerticals[i]){
+                //gets letter for next move
+                let move = allVerticals[i-1];
+                //gets number for next move
+                move += tileArray[1];
+                if(isEmpty(move)){
+                    moveSet.push(move);
+                }
+                //gets right diagonal move
+                let diagonalMoveR = allVerticals[i-1] += parseInt(tileArray[1])+1;
+                if(!isEmpty(diagonalMoveR)){
+                    if(canAttack(pieceId, diagonalMoveR)){
+                        moveSet.push(diagonalMoveR);
+                    }
+                }
+                let diagonalMoveL = allVerticals1[i-1] += parseInt(tileArray[1])-1;
+                console.log(diagonalMoveL + ' is L');
+                if(!isEmpty(diagonalMoveL)){
+                    if(canAttack(pieceId, diagonalMoveL)){
+                        moveSet.push(diagonalMoveL);
+                    }
+                }
+            }
+        }
+        console.log(moveSet);
+        return moveSet;
         }
     }else if(pieceId == 'white-pawn-8'){
         let moveSet = [];
@@ -303,7 +507,35 @@ function getRuleSet(pieceId, tile){
             return moveSet;
         }else{
         //MoveSet for all other moves
-        
+        //get next forward move
+        let tileArray = tile.split('');
+        for(i = 0; i < allVerticals.length; i++){
+            if(tileArray[0] == allVerticals[i]){
+                //gets letter for next move
+                let move = allVerticals[i-1];
+                //gets number for next move
+                move += tileArray[1];
+                if(isEmpty(move)){
+                    moveSet.push(move);
+                }
+                //gets right diagonal move
+                let diagonalMoveR = allVerticals[i-1] += parseInt(tileArray[1])+1;
+                if(!isEmpty(diagonalMoveR)){
+                    if(canAttack(pieceId, diagonalMoveR)){
+                        moveSet.push(diagonalMoveR);
+                    }
+                }
+                let diagonalMoveL = allVerticals1[i-1] += parseInt(tileArray[1])-1;
+                console.log(diagonalMoveL + ' is L');
+                if(!isEmpty(diagonalMoveL)){
+                    if(canAttack(pieceId, diagonalMoveL)){
+                        moveSet.push(diagonalMoveL);
+                    }
+                }
+            }
+        }
+        console.log(moveSet);
+        return moveSet;        
         }
     }else if(pieceId == 'black king'){
         
@@ -339,7 +571,35 @@ function getRuleSet(pieceId, tile){
             return moveSet;
         }else{
         //MoveSet for all other moves
-        
+        //get next forward move
+        let tileArray = tile.split('');
+        for(i = 0; i < allVerticals.length; i++){
+            if(tileArray[0] == allVerticals[i]){
+                //gets letter for next move
+                let move = allVerticals[i+1];
+                //gets number for next move
+                move += tileArray[1];
+                if(isEmpty(move)){
+                    moveSet.push(move);
+                }
+                //gets right diagonal move
+                let diagonalMoveR = allVerticals[i+1] += parseInt(tileArray[1])+1;
+                if(!isEmpty(diagonalMoveR)){
+                    if(canAttack(pieceId, diagonalMoveR)){
+                        moveSet.push(diagonalMoveR);
+                    }
+                }
+                let diagonalMoveL = allVerticals1[i+1] += parseInt(tileArray[1])-1;
+                console.log(diagonalMoveL + ' is L');
+                if(!isEmpty(diagonalMoveL)){
+                    if(canAttack(pieceId, diagonalMoveL)){
+                        moveSet.push(diagonalMoveL);
+                    }
+                }
+            }
+        }
+        console.log(moveSet);
+        return moveSet;        
         }
     }else if(pieceId == 'black-pawn-2'){
         let moveSet = [];
@@ -362,7 +622,35 @@ function getRuleSet(pieceId, tile){
             return moveSet;
         }else{
         //MoveSet for all other moves
-        
+        //get next forward move
+        let tileArray = tile.split('');
+        for(i = 0; i < allVerticals.length; i++){
+            if(tileArray[0] == allVerticals[i]){
+                //gets letter for next move
+                let move = allVerticals[i+1];
+                //gets number for next move
+                move += tileArray[1];
+                if(isEmpty(move)){
+                    moveSet.push(move);
+                }
+                //gets right diagonal move
+                let diagonalMoveR = allVerticals[i+1] += parseInt(tileArray[1])+1;
+                if(!isEmpty(diagonalMoveR)){
+                    if(canAttack(pieceId, diagonalMoveR)){
+                        moveSet.push(diagonalMoveR);
+                    }
+                }
+                let diagonalMoveL = allVerticals1[i+1] += parseInt(tileArray[1])-1;
+                console.log(diagonalMoveL + ' is L');
+                if(!isEmpty(diagonalMoveL)){
+                    if(canAttack(pieceId, diagonalMoveL)){
+                        moveSet.push(diagonalMoveL);
+                    }
+                }
+            }
+        }
+        console.log(moveSet);
+        return moveSet;
         }
     }else if(pieceId == 'black-pawn-3'){
         let moveSet = [];
@@ -385,7 +673,35 @@ function getRuleSet(pieceId, tile){
             return moveSet;
         }else{
         //MoveSet for all other moves
-        
+        //get next forward move
+        let tileArray = tile.split('');
+        for(i = 0; i < allVerticals.length; i++){
+            if(tileArray[0] == allVerticals[i]){
+                //gets letter for next move
+                let move = allVerticals[i+1];
+                //gets number for next move
+                move += tileArray[1];
+                if(isEmpty(move)){
+                    moveSet.push(move);
+                }
+                //gets right diagonal move
+                let diagonalMoveR = allVerticals[i+1] += parseInt(tileArray[1])+1;
+                if(!isEmpty(diagonalMoveR)){
+                    if(canAttack(pieceId, diagonalMoveR)){
+                        moveSet.push(diagonalMoveR);
+                    }
+                }
+                let diagonalMoveL = allVerticals1[i+1] += parseInt(tileArray[1])-1;
+                console.log(diagonalMoveL + ' is L');
+                if(!isEmpty(diagonalMoveL)){
+                    if(canAttack(pieceId, diagonalMoveL)){
+                        moveSet.push(diagonalMoveL);
+                    }
+                }
+            }
+        }
+        console.log(moveSet);
+        return moveSet;        
         }
     }else if(pieceId == 'black-pawn-4'){
         let moveSet = [];
@@ -408,7 +724,35 @@ function getRuleSet(pieceId, tile){
             return moveSet;
         }else{
         //MoveSet for all other moves
-        
+        //get next forward move
+        let tileArray = tile.split('');
+        for(i = 0; i < allVerticals.length; i++){
+            if(tileArray[0] == allVerticals[i]){
+                //gets letter for next move
+                let move = allVerticals[i+1];
+                //gets number for next move
+                move += tileArray[1];
+                if(isEmpty(move)){
+                    moveSet.push(move);
+                }
+                //gets right diagonal move
+                let diagonalMoveR = allVerticals[i+1] += parseInt(tileArray[1])+1;
+                if(!isEmpty(diagonalMoveR)){
+                    if(canAttack(pieceId, diagonalMoveR)){
+                        moveSet.push(diagonalMoveR);
+                    }
+                }
+                let diagonalMoveL = allVerticals1[i+1] += parseInt(tileArray[1])-1;
+                console.log(diagonalMoveL + ' is L');
+                if(!isEmpty(diagonalMoveL)){
+                    if(canAttack(pieceId, diagonalMoveL)){
+                        moveSet.push(diagonalMoveL);
+                    }
+                }
+            }
+        }
+        console.log(moveSet);
+        return moveSet;
         }
     }else if(pieceId == 'black-pawn-5'){
         let moveSet = [];
@@ -431,7 +775,35 @@ function getRuleSet(pieceId, tile){
             return moveSet;
         }else{
         //MoveSet for all other moves
-        
+        //get next forward move
+        let tileArray = tile.split('');
+        for(i = 0; i < allVerticals.length; i++){
+            if(tileArray[0] == allVerticals[i]){
+                //gets letter for next move
+                let move = allVerticals[i+1];
+                //gets number for next move
+                move += tileArray[1];
+                if(isEmpty(move)){
+                    moveSet.push(move);
+                }
+                //gets right diagonal move
+                let diagonalMoveR = allVerticals[i+1] += parseInt(tileArray[1])+1;
+                if(!isEmpty(diagonalMoveR)){
+                    if(canAttack(pieceId, diagonalMoveR)){
+                        moveSet.push(diagonalMoveR);
+                    }
+                }
+                let diagonalMoveL = allVerticals1[i+1] += parseInt(tileArray[1])-1;
+                console.log(diagonalMoveL + ' is L');
+                if(!isEmpty(diagonalMoveL)){
+                    if(canAttack(pieceId, diagonalMoveL)){
+                        moveSet.push(diagonalMoveL);
+                    }
+                }
+            }
+        }
+        console.log(moveSet);
+        return moveSet;
         }
     }else if(pieceId == 'black-pawn-6'){
         let moveSet = [];
@@ -454,7 +826,35 @@ function getRuleSet(pieceId, tile){
             return moveSet;
         }else{
         //MoveSet for all other moves
-        
+        //get next forward move
+        let tileArray = tile.split('');
+        for(i = 0; i < allVerticals.length; i++){
+            if(tileArray[0] == allVerticals[i]){
+                //gets letter for next move
+                let move = allVerticals[i+1];
+                //gets number for next move
+                move += tileArray[1];
+                if(isEmpty(move)){
+                    moveSet.push(move);
+                }
+                //gets right diagonal move
+                let diagonalMoveR = allVerticals[i+1] += parseInt(tileArray[1])+1;
+                if(!isEmpty(diagonalMoveR)){
+                    if(canAttack(pieceId, diagonalMoveR)){
+                        moveSet.push(diagonalMoveR);
+                    }
+                }
+                let diagonalMoveL = allVerticals1[i+1] += parseInt(tileArray[1])-1;
+                console.log(diagonalMoveL + ' is L');
+                if(!isEmpty(diagonalMoveL)){
+                    if(canAttack(pieceId, diagonalMoveL)){
+                        moveSet.push(diagonalMoveL);
+                    }
+                }
+            }
+        }
+        console.log(moveSet);
+        return moveSet;        
         }
     }else if(pieceId == 'black-pawn-7'){
         let moveSet = [];
@@ -477,7 +877,35 @@ function getRuleSet(pieceId, tile){
             return moveSet;
         }else{
         //MoveSet for all other moves
-        
+        //get next forward move
+        let tileArray = tile.split('');
+        for(i = 0; i < allVerticals.length; i++){
+            if(tileArray[0] == allVerticals[i]){
+                //gets letter for next move
+                let move = allVerticals[i+1];
+                //gets number for next move
+                move += tileArray[1];
+                if(isEmpty(move)){
+                    moveSet.push(move);
+                }
+                //gets right diagonal move
+                let diagonalMoveR = allVerticals[i+1] += parseInt(tileArray[1])+1;
+                if(!isEmpty(diagonalMoveR)){
+                    if(canAttack(pieceId, diagonalMoveR)){
+                        moveSet.push(diagonalMoveR);
+                    }
+                }
+                let diagonalMoveL = allVerticals1[i+1] += parseInt(tileArray[1])-1;
+                console.log(diagonalMoveL + ' is L');
+                if(!isEmpty(diagonalMoveL)){
+                    if(canAttack(pieceId, diagonalMoveL)){
+                        moveSet.push(diagonalMoveL);
+                    }
+                }
+            }
+        }
+        console.log(moveSet);
+        return moveSet;        
         }
     }else if(pieceId == 'black-pawn-8'){
         let moveSet = [];
@@ -497,7 +925,35 @@ function getRuleSet(pieceId, tile){
             return moveSet;
         }else{
         //MoveSet for all other moves
-        
+        //get next forward move
+        let tileArray = tile.split('');
+        for(i = 0; i < allVerticals.length; i++){
+            if(tileArray[0] == allVerticals[i]){
+                //gets letter for next move
+                let move = allVerticals[i+1];
+                //gets number for next move
+                move += tileArray[1];
+                if(isEmpty(move)){
+                    moveSet.push(move);
+                }
+                //gets right diagonal move
+                let diagonalMoveR = allVerticals[i+1] += parseInt(tileArray[1])+1;
+                if(!isEmpty(diagonalMoveR)){
+                    if(canAttack(pieceId, diagonalMoveR)){
+                        moveSet.push(diagonalMoveR);
+                    }
+                }
+                let diagonalMoveL = allVerticals1[i+1] += parseInt(tileArray[1])-1;
+                console.log(diagonalMoveL + ' is L');
+                if(!isEmpty(diagonalMoveL)){
+                    if(canAttack(pieceId, diagonalMoveL)){
+                        moveSet.push(diagonalMoveL);
+                    }
+                }
+            }
+        }
+        console.log(moveSet);
+        return moveSet;        
         }
     }else{
         //tile is empty
