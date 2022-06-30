@@ -1,7 +1,5 @@
 /*
-fix sync problem with getting valid tiles, picking a move and reseeting the tiles.
-
-add anaimation for piece moving
+Work on adding logic for all other pieces
 */
 
 //Array of all tiles
@@ -132,9 +130,143 @@ function getRuleSet(pieceId, tile){
     }else if(pieceId == 'white-horse-2'){
         
     }else if(pieceId == 'white-rook-1'){
-        
+        let moveSet = [];
+        let tileArray = tile.split('');
+        //less than horizontal check
+        for(i = tileArray[1]; i > 0; i--){
+            tileArray[1] = i;
+            let nextTile = tileArray.join('');
+            if(nextTile != tile){
+                if(isEmpty(nextTile)){
+                    moveSet.push(nextTile);               
+                }else if(canAttack(pieceId, nextTile)){
+                    moveSet.push(nextTile);
+                    break;
+                }else{
+                    break;
+                }
+            }
+        }
+        //greater than horizontal check
+        tileArray = tile.split('');        
+        for(i = tileArray[1]; i <= 8; i++){
+            tileArray[1] = i;
+            let nextTile = tileArray.join('');
+            if(nextTile != tile){
+                if(isEmpty(nextTile)){
+                    moveSet.push(nextTile);               
+                }else if(canAttack(pieceId, nextTile)){
+                    moveSet.push(nextTile);
+                    break;
+                }else{
+                    break;
+                }
+            }
+        }
+        //less than vertical check
+        tileArray = tile.split('');
+        for(i = allVerticals.indexOf(tileArray[0]); i >= 0; i--){
+            tileArray[0] = allVerticals[i];
+            console.log(tileArray);
+            let nextTile = tileArray.join('');
+            if(nextTile != tile){
+                if(isEmpty(nextTile)){
+                    moveSet.push(nextTile);               
+                }else if(canAttack(pieceId, nextTile)){
+                    moveSet.push(nextTile);
+                    break;
+                }else{
+                    break;
+                }
+            }
+        }
+        //greater than vertical check
+        tileArray = tile.split('');
+        for(i = allVerticals.indexOf(tileArray[0]); i < 8; i++){
+            tileArray[0] = allVerticals[i];
+            console.log(tileArray);
+            let nextTile = tileArray.join('');
+            if(nextTile != tile){
+                if(isEmpty(nextTile)){
+                    moveSet.push(nextTile);               
+                }else if(canAttack(pieceId, nextTile)){
+                    moveSet.push(nextTile);
+                    break;
+                }else{
+                    break;
+                }
+            }
+        }
+        return moveSet;
     }else if(pieceId == 'white-rook-2'){
-        
+        let moveSet = [];
+        let tileArray = tile.split('');
+        //less than horizontal check
+        for(i = tileArray[1]; i > 0; i--){
+            tileArray[1] = i;
+            let nextTile = tileArray.join('');
+            if(nextTile != tile){
+                if(isEmpty(nextTile)){
+                    moveSet.push(nextTile);               
+                }else if(canAttack(pieceId, nextTile)){
+                    moveSet.push(nextTile);
+                    break;
+                }else{
+                    break;
+                }
+            }
+        }
+        //greater than horizontal check
+        tileArray = tile.split('');        
+        for(i = tileArray[1]; i <= 8; i++){
+            tileArray[1] = i;
+            let nextTile = tileArray.join('');
+            if(nextTile != tile){
+                if(isEmpty(nextTile)){
+                    moveSet.push(nextTile);               
+                }else if(canAttack(pieceId, nextTile)){
+                    moveSet.push(nextTile);
+                    break;
+                }else{
+                    break;
+                }
+            }
+        }
+        //less than vertical check
+        tileArray = tile.split('');
+        for(i = allVerticals.indexOf(tileArray[0]); i >= 0; i--){
+            tileArray[0] = allVerticals[i];
+            console.log(tileArray);
+            let nextTile = tileArray.join('');
+            if(nextTile != tile){
+                if(isEmpty(nextTile)){
+                    moveSet.push(nextTile);               
+                }else if(canAttack(pieceId, nextTile)){
+                    moveSet.push(nextTile);
+                    break;
+                }else{
+                    break;
+                }
+            }
+        }
+        //greater than vertical check
+        tileArray = tile.split('');
+        for(i = allVerticals.indexOf(tileArray[0]); i < 8; i++){
+            tileArray[0] = allVerticals[i];
+            console.log(tileArray);
+            let nextTile = tileArray.join('');
+            if(nextTile != tile){
+                if(isEmpty(nextTile)){
+                    moveSet.push(nextTile);               
+                }else if(canAttack(pieceId, nextTile)){
+                    moveSet.push(nextTile);
+                    break;
+                }else{
+                    break;
+                }
+            }
+        }
+        return moveSet;        
     }else if(pieceId == 'white-pawn-1'){
         let moveSet = [];
         //MoveSet for first move
@@ -550,9 +682,143 @@ function getRuleSet(pieceId, tile){
     }else if(pieceId == 'black-horse-2'){
         
     }else if(pieceId == 'black-rook-1'){
-        
+        let moveSet = [];
+        let tileArray = tile.split('');
+        //less than horizontal check
+        for(i = tileArray[1]; i > 0; i--){
+            tileArray[1] = i;
+            let nextTile = tileArray.join('');
+            if(nextTile != tile){
+                if(isEmpty(nextTile)){
+                    moveSet.push(nextTile);               
+                }else if(canAttack(pieceId, nextTile)){
+                    moveSet.push(nextTile);
+                    break;
+                }else{
+                    break;
+                }
+            }
+        }
+        //greater than horizontal check
+        tileArray = tile.split('');        
+        for(i = tileArray[1]; i <= 8; i++){
+            tileArray[1] = i;
+            let nextTile = tileArray.join('');
+            if(nextTile != tile){
+                if(isEmpty(nextTile)){
+                    moveSet.push(nextTile);               
+                }else if(canAttack(pieceId, nextTile)){
+                    moveSet.push(nextTile);
+                    break;
+                }else{
+                    break;
+                }
+            }
+        }
+        //less than vertical check
+        tileArray = tile.split('');
+        for(i = allVerticals.indexOf(tileArray[0]); i >= 0; i--){
+            tileArray[0] = allVerticals[i];
+            console.log(tileArray);
+            let nextTile = tileArray.join('');
+            if(nextTile != tile){
+                if(isEmpty(nextTile)){
+                    moveSet.push(nextTile);               
+                }else if(canAttack(pieceId, nextTile)){
+                    moveSet.push(nextTile);
+                    break;
+                }else{
+                    break;
+                }
+            }
+        }
+        //greater than vertical check
+        tileArray = tile.split('');
+        for(i = allVerticals.indexOf(tileArray[0]); i < 8; i++){
+            tileArray[0] = allVerticals[i];
+            console.log(tileArray);
+            let nextTile = tileArray.join('');
+            if(nextTile != tile){
+                if(isEmpty(nextTile)){
+                    moveSet.push(nextTile);               
+                }else if(canAttack(pieceId, nextTile)){
+                    moveSet.push(nextTile);
+                    break;
+                }else{
+                    break;
+                }
+            }
+        }
+        return moveSet;        
     }else if(pieceId == 'black-rook-2'){
-        
+        let moveSet = [];
+        let tileArray = tile.split('');
+        //less than horizontal check
+        for(i = tileArray[1]; i > 0; i--){
+            tileArray[1] = i;
+            let nextTile = tileArray.join('');
+            if(nextTile != tile){
+                if(isEmpty(nextTile)){
+                    moveSet.push(nextTile);               
+                }else if(canAttack(pieceId, nextTile)){
+                    moveSet.push(nextTile);
+                    break;
+                }else{
+                    break;
+                }
+            }
+        }
+        //greater than horizontal check
+        tileArray = tile.split('');        
+        for(i = tileArray[1]; i <= 8; i++){
+            tileArray[1] = i;
+            let nextTile = tileArray.join('');
+            if(nextTile != tile){
+                if(isEmpty(nextTile)){
+                    moveSet.push(nextTile);               
+                }else if(canAttack(pieceId, nextTile)){
+                    moveSet.push(nextTile);
+                    break;
+                }else{
+                    break;
+                }
+            }
+        }
+        //less than vertical check
+        tileArray = tile.split('');
+        for(i = allVerticals.indexOf(tileArray[0]); i >= 0; i--){
+            tileArray[0] = allVerticals[i];
+            console.log(tileArray);
+            let nextTile = tileArray.join('');
+            if(nextTile != tile){
+                if(isEmpty(nextTile)){
+                    moveSet.push(nextTile);               
+                }else if(canAttack(pieceId, nextTile)){
+                    moveSet.push(nextTile);
+                    break;
+                }else{
+                    break;
+                }
+            }
+        }
+        //greater than vertical check
+        tileArray = tile.split('');
+        for(i = allVerticals.indexOf(tileArray[0]); i < 8; i++){
+            tileArray[0] = allVerticals[i];
+            console.log(tileArray);
+            let nextTile = tileArray.join('');
+            if(nextTile != tile){
+                if(isEmpty(nextTile)){
+                    moveSet.push(nextTile);               
+                }else if(canAttack(pieceId, nextTile)){
+                    moveSet.push(nextTile);
+                    break;
+                }else{
+                    break;
+                }
+            }
+        }
+        return moveSet;        
     }else if(pieceId == 'black-pawn-1'){
         let moveSet = [];
         //MoveSet for first move
