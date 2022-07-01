@@ -110,8 +110,141 @@ function checkTileAndGetMoveSet(id){
 function getRuleSet(pieceId, tile){
     const allVerticals = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
     const allVerticals1 = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
-    if(pieceId == 'white king'){
-        
+    if(pieceId == 'white-king'){
+        let moveSet = [];
+        let tileArray = tile.split('');
+        //check tile above
+        let mover = allVerticals.indexOf(tileArray[0]);
+        mover--;
+        tileArray[0] = allVerticals[mover];
+        let nextTile = tileArray.join('');
+        for(i = 0; i < allTiles.length; i++){
+            if(nextTile == allTiles[i]){
+                if(isEmpty(nextTile)){
+                    moveSet.push(nextTile);               
+                }else if(canAttack(pieceId, nextTile)){
+                    moveSet.push(nextTile);
+                }
+            }
+        }
+        //check tile below
+        tileArray = tile.split('');
+        mover = allVerticals.indexOf(tileArray[0]);
+        mover++;
+        tileArray[0] = allVerticals[mover];
+        nextTile = tileArray.join('');
+        for(i = 0; i < allTiles.length; i++){
+            if(nextTile == allTiles[i]){
+                if(isEmpty(nextTile)){
+                    moveSet.push(nextTile);               
+                }else if(canAttack(pieceId, nextTile)){
+                    moveSet.push(nextTile);
+                }
+            }
+        }
+        //check tile to left
+        tileArray = tile.split('');
+        mover = tileArray[1];
+        mover--;
+        tileArray[1] = mover;        
+        nextTile = tileArray.join('');
+        for(i = 0; i < allTiles.length; i++){
+            if(nextTile == allTiles[i]){
+                if(isEmpty(nextTile)){
+                    moveSet.push(nextTile);               
+                }else if(canAttack(pieceId, nextTile)){
+                    moveSet.push(nextTile);
+                }
+            }
+        }
+        //check tile to right
+        tileArray = tile.split('');
+        mover = tileArray[1];
+        mover++;
+        tileArray[1] = mover;        
+        nextTile = tileArray.join('');
+        for(i = 0; i < allTiles.length; i++){
+            if(nextTile == allTiles[i]){
+                if(isEmpty(nextTile)){
+                    moveSet.push(nextTile);               
+                }else if(canAttack(pieceId, nextTile)){
+                    moveSet.push(nextTile);
+                }
+            }
+        }
+        //check tile top-left
+        tileArray = tile.split('');
+        mover = tileArray[1];
+        mover--;
+        tileArray[1] = mover;
+        mover = allVerticals.indexOf(tileArray[0]);
+        mover--;
+        tileArray[0] = allVerticals[mover];
+        nextTile = tileArray.join('');
+        for(i = 0; i < allTiles.length; i++){
+            if(nextTile == allTiles[i]){
+                if(isEmpty(nextTile)){
+                    moveSet.push(nextTile);               
+                }else if(canAttack(pieceId, nextTile)){
+                    moveSet.push(nextTile);
+                }
+            }
+        }
+        //check tile top-right
+        tileArray = tile.split('');
+        mover = tileArray[1];
+        mover++;
+        tileArray[1] = mover;
+        mover = allVerticals.indexOf(tileArray[0]);
+        mover--;
+        tileArray[0] = allVerticals[mover];
+        nextTile = tileArray.join('');
+        for(i = 0; i < allTiles.length; i++){
+            if(nextTile == allTiles[i]){
+                if(isEmpty(nextTile)){
+                    moveSet.push(nextTile);               
+                }else if(canAttack(pieceId, nextTile)){
+                    moveSet.push(nextTile);
+                }
+            }
+        }
+        //check tile bottom-left
+        tileArray = tile.split('');
+        mover = tileArray[1];
+        mover--;
+        tileArray[1] = mover;
+        mover = allVerticals.indexOf(tileArray[0]);
+        mover++;
+        tileArray[0] = allVerticals[mover];
+        nextTile = tileArray.join('');
+        for(i = 0; i < allTiles.length; i++){
+            if(nextTile == allTiles[i]){
+                if(isEmpty(nextTile)){
+                    moveSet.push(nextTile);               
+                }else if(canAttack(pieceId, nextTile)){
+                    moveSet.push(nextTile);
+                }
+            }
+        }
+        //check tile bottom-right
+        tileArray = tile.split('');
+        mover = tileArray[1];
+        mover++;
+        tileArray[1] = mover;
+        mover = allVerticals.indexOf(tileArray[0]);
+        mover++;
+        tileArray[0] = allVerticals[mover];
+        nextTile = tileArray.join('');
+        for(i = 0; i < allTiles.length; i++){
+            if(nextTile == allTiles[i]){
+                if(isEmpty(nextTile)){
+                    moveSet.push(nextTile);               
+                }else if(canAttack(pieceId, nextTile)){
+                    moveSet.push(nextTile);
+                }
+            }
+        }
+        return moveSet;
     }else if(pieceId == 'white-queen'){
         let moveSet = [];
         let tileArray = tile.split('');
@@ -1058,8 +1191,141 @@ function getRuleSet(pieceId, tile){
         }
         return moveSet;        
         }
-    }else if(pieceId == 'black king'){
-        
+    }else if(pieceId == 'black-king'){
+        let moveSet = [];
+        let tileArray = tile.split('');
+        //check tile above
+        let mover = allVerticals.indexOf(tileArray[0]);
+        mover--;
+        tileArray[0] = allVerticals[mover];
+        let nextTile = tileArray.join('');
+        for(i = 0; i < allTiles.length; i++){
+            if(nextTile == allTiles[i]){
+                if(isEmpty(nextTile)){
+                    moveSet.push(nextTile);               
+                }else if(canAttack(pieceId, nextTile)){
+                    moveSet.push(nextTile);
+                }
+            }
+        }
+        //check tile below
+        tileArray = tile.split('');
+        mover = allVerticals.indexOf(tileArray[0]);
+        mover++;
+        tileArray[0] = allVerticals[mover];
+        nextTile = tileArray.join('');
+        for(i = 0; i < allTiles.length; i++){
+            if(nextTile == allTiles[i]){
+                if(isEmpty(nextTile)){
+                    moveSet.push(nextTile);               
+                }else if(canAttack(pieceId, nextTile)){
+                    moveSet.push(nextTile);
+                }
+            }
+        }
+        //check tile to left
+        tileArray = tile.split('');
+        mover = tileArray[1];
+        mover--;
+        tileArray[1] = mover;        
+        nextTile = tileArray.join('');
+        for(i = 0; i < allTiles.length; i++){
+            if(nextTile == allTiles[i]){
+                if(isEmpty(nextTile)){
+                    moveSet.push(nextTile);               
+                }else if(canAttack(pieceId, nextTile)){
+                    moveSet.push(nextTile);
+                }
+            }
+        }
+        //check tile to right
+        tileArray = tile.split('');
+        mover = tileArray[1];
+        mover++;
+        tileArray[1] = mover;        
+        nextTile = tileArray.join('');
+        for(i = 0; i < allTiles.length; i++){
+            if(nextTile == allTiles[i]){
+                if(isEmpty(nextTile)){
+                    moveSet.push(nextTile);               
+                }else if(canAttack(pieceId, nextTile)){
+                    moveSet.push(nextTile);
+                }
+            }
+        }
+        //check tile top-left
+        tileArray = tile.split('');
+        mover = tileArray[1];
+        mover--;
+        tileArray[1] = mover;
+        mover = allVerticals.indexOf(tileArray[0]);
+        mover--;
+        tileArray[0] = allVerticals[mover];
+        nextTile = tileArray.join('');
+        for(i = 0; i < allTiles.length; i++){
+            if(nextTile == allTiles[i]){
+                if(isEmpty(nextTile)){
+                    moveSet.push(nextTile);               
+                }else if(canAttack(pieceId, nextTile)){
+                    moveSet.push(nextTile);
+                }
+            }
+        }
+        //check tile top-right
+        tileArray = tile.split('');
+        mover = tileArray[1];
+        mover++;
+        tileArray[1] = mover;
+        mover = allVerticals.indexOf(tileArray[0]);
+        mover--;
+        tileArray[0] = allVerticals[mover];
+        nextTile = tileArray.join('');
+        for(i = 0; i < allTiles.length; i++){
+            if(nextTile == allTiles[i]){
+                if(isEmpty(nextTile)){
+                    moveSet.push(nextTile);               
+                }else if(canAttack(pieceId, nextTile)){
+                    moveSet.push(nextTile);
+                }
+            }
+        }
+        //check tile bottom-left
+        tileArray = tile.split('');
+        mover = tileArray[1];
+        mover--;
+        tileArray[1] = mover;
+        mover = allVerticals.indexOf(tileArray[0]);
+        mover++;
+        tileArray[0] = allVerticals[mover];
+        nextTile = tileArray.join('');
+        for(i = 0; i < allTiles.length; i++){
+            if(nextTile == allTiles[i]){
+                if(isEmpty(nextTile)){
+                    moveSet.push(nextTile);               
+                }else if(canAttack(pieceId, nextTile)){
+                    moveSet.push(nextTile);
+                }
+            }
+        }
+        //check tile bottom-right
+        tileArray = tile.split('');
+        mover = tileArray[1];
+        mover++;
+        tileArray[1] = mover;
+        mover = allVerticals.indexOf(tileArray[0]);
+        mover++;
+        tileArray[0] = allVerticals[mover];
+        nextTile = tileArray.join('');
+        for(i = 0; i < allTiles.length; i++){
+            if(nextTile == allTiles[i]){
+                if(isEmpty(nextTile)){
+                    moveSet.push(nextTile);               
+                }else if(canAttack(pieceId, nextTile)){
+                    moveSet.push(nextTile);
+                }
+            }
+        }
+        return moveSet;                
     }else if(pieceId == 'black-queen'){
         let moveSet = [];
         let tileArray = tile.split('');
