@@ -113,7 +113,191 @@ function getRuleSet(pieceId, tile){
     if(pieceId == 'white king'){
         
     }else if(pieceId == 'white-queen'){
-
+        let moveSet = [];
+        let tileArray = tile.split('');
+        //less than horizontal check
+        for(i = tileArray[1]; i > 0; i--){
+            tileArray[1] = i;
+            let nextTile = tileArray.join('');
+            if(nextTile != tile){
+                if(isEmpty(nextTile)){
+                    moveSet.push(nextTile);               
+                }else if(canAttack(pieceId, nextTile)){
+                    moveSet.push(nextTile);
+                    break;
+                }else{
+                    break;
+                }
+            }
+        }
+        //greater than horizontal check
+        tileArray = tile.split('');        
+        for(i = tileArray[1]; i <= 8; i++){
+            tileArray[1] = i;
+            let nextTile = tileArray.join('');
+            if(nextTile != tile){
+                if(isEmpty(nextTile)){
+                    moveSet.push(nextTile);               
+                }else if(canAttack(pieceId, nextTile)){
+                    moveSet.push(nextTile);
+                    break;
+                }else{
+                    break;
+                }
+            }
+        }
+        //less than vertical check
+        tileArray = tile.split('');
+        for(i = allVerticals.indexOf(tileArray[0]); i >= 0; i--){
+            tileArray[0] = allVerticals[i];
+            let nextTile = tileArray.join('');
+            if(nextTile != tile){
+                if(isEmpty(nextTile)){
+                    moveSet.push(nextTile);               
+                }else if(canAttack(pieceId, nextTile)){
+                    moveSet.push(nextTile);
+                    break;
+                }else{
+                    break;
+                }
+            }
+        }
+        //greater than vertical check
+        tileArray = tile.split('');
+        for(i = allVerticals.indexOf(tileArray[0]); i < 8; i++){
+            tileArray[0] = allVerticals[i];
+            let nextTile = tileArray.join('');
+            if(nextTile != tile){
+                if(isEmpty(nextTile)){
+                    moveSet.push(nextTile);               
+                }else if(canAttack(pieceId, nextTile)){
+                    moveSet.push(nextTile);
+                    break;
+                }else{
+                    break;
+                }
+            }
+        }
+        tileArray = tile.split('');
+        let vertical = allVerticals.indexOf(tileArray[0]);
+        let isDone = false;
+        //greater than right diagonal check (/) ->
+        for(i = tileArray[1]; i <= 8; i++){
+            tileArray[1] = i;
+            tileArray[0] = allVerticals[vertical];
+            vertical--;
+            let nextTile = tileArray.join('');
+            for(k = 0; k < allTiles.length; k++){
+                if(nextTile == allTiles[k]){
+                    if(nextTile != tile){
+                        if(isEmpty(nextTile)){
+                            moveSet.push(nextTile);               
+                        }else if(canAttack(pieceId, nextTile)){
+                            moveSet.push(nextTile);
+                            isDone = true;
+                            break;
+                        }else{
+                            isDone = true;
+                            break;
+                        }
+                    }  
+                }
+            }
+            if(isDone){
+                break;
+            } 
+        }
+        //less than right diagonal check (/) <-
+        tileArray = tile.split('');
+        vertical = allVerticals.indexOf(tileArray[0]);
+        tileArray[0] = allVerticals[vertical];
+        isDone = false;
+        for(i = tileArray[1]; i > 0; i--){
+            tileArray[1] = i;
+            tileArray[0] = allVerticals[vertical];
+            vertical++;
+            let nextTile = tileArray.join('');
+            for(k = 0; k < allTiles.length; k++){
+                if(nextTile == allTiles[k]){
+                    if(nextTile != tile){
+                        if(isEmpty(nextTile)){
+                            moveSet.push(nextTile);               
+                        }else if(canAttack(pieceId, nextTile)){
+                            moveSet.push(nextTile);
+                            isDone = true;
+                            break;
+                        }else{
+                            isDone = true;
+                            break;
+                        }
+                    }  
+                }
+            }
+            if(isDone){
+                break;
+            }  
+        }
+        //less than left diagonal check (\) <-
+        tileArray = tile.split('');
+        vertical = allVerticals.indexOf(tileArray[0]);
+        tileArray[0] = allVerticals[vertical];
+        isDone = false;
+        for(i = tileArray[1]; i > 0; i--){
+            tileArray[1] = i;
+            tileArray[0] = allVerticals[vertical];
+            vertical--;
+            let nextTile = tileArray.join('');
+            for(k = 0; k < allTiles.length; k++){
+                if(nextTile == allTiles[k]){
+                    if(nextTile != tile){
+                        if(isEmpty(nextTile)){
+                            moveSet.push(nextTile);               
+                        }else if(canAttack(pieceId, nextTile)){
+                            moveSet.push(nextTile);
+                            isDone = true;
+                            break;
+                        }else{
+                            isDone = true;
+                            break;
+                        }
+                    }  
+                }
+            }
+            if(isDone){
+                break;
+            }  
+        }
+        //greater than left diagonal check (\) ->
+        tileArray = tile.split('');
+        vertical = allVerticals.indexOf(tileArray[0]);
+        tileArray[0] = allVerticals[vertical];
+        isDone = false;
+        for(i = tileArray[1]; i <= 8; i++){
+            tileArray[1] = i;
+            tileArray[0] = allVerticals[vertical];
+            vertical++;
+            let nextTile = tileArray.join('');
+            for(k = 0; k < allTiles.length; k++){
+                if(nextTile == allTiles[k]){
+                    if(nextTile != tile){
+                        if(isEmpty(nextTile)){
+                            moveSet.push(nextTile);               
+                        }else if(canAttack(pieceId, nextTile)){
+                            moveSet.push(nextTile);
+                            isDone = true;
+                            break;
+                        }else{
+                            isDone = true;
+                            break;
+                        }
+                    }  
+                }
+            } 
+            if(isDone){
+                break;
+            } 
+        }
+        return moveSet;      
     }else if(pieceId == 'white-bishop-1'){
         let moveSet = [];
         let tileArray = tile.split('');
@@ -877,7 +1061,191 @@ function getRuleSet(pieceId, tile){
     }else if(pieceId == 'black king'){
         
     }else if(pieceId == 'black-queen'){
-
+        let moveSet = [];
+        let tileArray = tile.split('');
+        //less than horizontal check
+        for(i = tileArray[1]; i > 0; i--){
+            tileArray[1] = i;
+            let nextTile = tileArray.join('');
+            if(nextTile != tile){
+                if(isEmpty(nextTile)){
+                    moveSet.push(nextTile);               
+                }else if(canAttack(pieceId, nextTile)){
+                    moveSet.push(nextTile);
+                    break;
+                }else{
+                    break;
+                }
+            }
+        }
+        //greater than horizontal check
+        tileArray = tile.split('');        
+        for(i = tileArray[1]; i <= 8; i++){
+            tileArray[1] = i;
+            let nextTile = tileArray.join('');
+            if(nextTile != tile){
+                if(isEmpty(nextTile)){
+                    moveSet.push(nextTile);               
+                }else if(canAttack(pieceId, nextTile)){
+                    moveSet.push(nextTile);
+                    break;
+                }else{
+                    break;
+                }
+            }
+        }
+        //less than vertical check
+        tileArray = tile.split('');
+        for(i = allVerticals.indexOf(tileArray[0]); i >= 0; i--){
+            tileArray[0] = allVerticals[i];
+            let nextTile = tileArray.join('');
+            if(nextTile != tile){
+                if(isEmpty(nextTile)){
+                    moveSet.push(nextTile);               
+                }else if(canAttack(pieceId, nextTile)){
+                    moveSet.push(nextTile);
+                    break;
+                }else{
+                    break;
+                }
+            }
+        }
+        //greater than vertical check
+        tileArray = tile.split('');
+        for(i = allVerticals.indexOf(tileArray[0]); i < 8; i++){
+            tileArray[0] = allVerticals[i];
+            let nextTile = tileArray.join('');
+            if(nextTile != tile){
+                if(isEmpty(nextTile)){
+                    moveSet.push(nextTile);               
+                }else if(canAttack(pieceId, nextTile)){
+                    moveSet.push(nextTile);
+                    break;
+                }else{
+                    break;
+                }
+            }
+        }
+        tileArray = tile.split('');
+        let vertical = allVerticals.indexOf(tileArray[0]);
+        let isDone = false;
+        //greater than right diagonal check (/) ->
+        for(i = tileArray[1]; i <= 8; i++){
+            tileArray[1] = i;
+            tileArray[0] = allVerticals[vertical];
+            vertical--;
+            let nextTile = tileArray.join('');
+            for(k = 0; k < allTiles.length; k++){
+                if(nextTile == allTiles[k]){
+                    if(nextTile != tile){
+                        if(isEmpty(nextTile)){
+                            moveSet.push(nextTile);               
+                        }else if(canAttack(pieceId, nextTile)){
+                            moveSet.push(nextTile);
+                            isDone = true;
+                            break;
+                        }else{
+                            isDone = true;
+                            break;
+                        }
+                    }  
+                }
+            }
+            if(isDone){
+                break;
+            } 
+        }
+        //less than right diagonal check (/) <-
+        tileArray = tile.split('');
+        vertical = allVerticals.indexOf(tileArray[0]);
+        tileArray[0] = allVerticals[vertical];
+        isDone = false;
+        for(i = tileArray[1]; i > 0; i--){
+            tileArray[1] = i;
+            tileArray[0] = allVerticals[vertical];
+            vertical++;
+            let nextTile = tileArray.join('');
+            for(k = 0; k < allTiles.length; k++){
+                if(nextTile == allTiles[k]){
+                    if(nextTile != tile){
+                        if(isEmpty(nextTile)){
+                            moveSet.push(nextTile);               
+                        }else if(canAttack(pieceId, nextTile)){
+                            moveSet.push(nextTile);
+                            isDone = true;
+                            break;
+                        }else{
+                            isDone = true;
+                            break;
+                        }
+                    }  
+                }
+            }
+            if(isDone){
+                break;
+            }  
+        }
+        //less than left diagonal check (\) <-
+        tileArray = tile.split('');
+        vertical = allVerticals.indexOf(tileArray[0]);
+        tileArray[0] = allVerticals[vertical];
+        isDone = false;
+        for(i = tileArray[1]; i > 0; i--){
+            tileArray[1] = i;
+            tileArray[0] = allVerticals[vertical];
+            vertical--;
+            let nextTile = tileArray.join('');
+            for(k = 0; k < allTiles.length; k++){
+                if(nextTile == allTiles[k]){
+                    if(nextTile != tile){
+                        if(isEmpty(nextTile)){
+                            moveSet.push(nextTile);               
+                        }else if(canAttack(pieceId, nextTile)){
+                            moveSet.push(nextTile);
+                            isDone = true;
+                            break;
+                        }else{
+                            isDone = true;
+                            break;
+                        }
+                    }  
+                }
+            }
+            if(isDone){
+                break;
+            }  
+        }
+        //greater than left diagonal check (\) ->
+        tileArray = tile.split('');
+        vertical = allVerticals.indexOf(tileArray[0]);
+        tileArray[0] = allVerticals[vertical];
+        isDone = false;
+        for(i = tileArray[1]; i <= 8; i++){
+            tileArray[1] = i;
+            tileArray[0] = allVerticals[vertical];
+            vertical++;
+            let nextTile = tileArray.join('');
+            for(k = 0; k < allTiles.length; k++){
+                if(nextTile == allTiles[k]){
+                    if(nextTile != tile){
+                        if(isEmpty(nextTile)){
+                            moveSet.push(nextTile);               
+                        }else if(canAttack(pieceId, nextTile)){
+                            moveSet.push(nextTile);
+                            isDone = true;
+                            break;
+                        }else{
+                            isDone = true;
+                            break;
+                        }
+                    }  
+                }
+            } 
+            if(isDone){
+                break;
+            } 
+        }
+        return moveSet;
     }else if(pieceId == 'black-bishop-1'){
         let moveSet = [];
         let tileArray = tile.split('');
