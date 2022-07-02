@@ -676,9 +676,265 @@ function getRuleSet(pieceId, tile){
         }
         return moveSet;        
     }else if(pieceId == 'white-horse-1'){
-        
+        let moveSet = [];
+        let tileArray = tile.split('');
+        console.log(tileArray);
+        //check top moves
+        let mover = allVerticals.indexOf(tileArray[0]);
+        mover = mover - 2;
+        tileArray[0] = allVerticals[mover];
+        tileArray[1] = parseInt(tileArray[1]) + 1;
+        let nextTile = tileArray.join('');
+        for(i = 0; i < allTiles.length; i++){
+            if(nextTile == allTiles[i]){
+                if(nextTile != tile){
+                    if(isEmpty(nextTile)){
+                        moveSet.push(nextTile);               
+                    }else if(canAttack(pieceId, nextTile)){
+                        moveSet.push(nextTile);
+                    }
+                }
+            }
+        }
+        tileArray[1] = parseInt(tileArray[1]) - 2;
+        nextTile = tileArray.join('');
+        for(i = 0; i < allTiles.length; i++){
+            if(nextTile == allTiles[i]){
+                if(nextTile != tile){
+                    if(isEmpty(nextTile)){
+                        moveSet.push(nextTile);               
+                    }else if(canAttack(pieceId, nextTile)){
+                        moveSet.push(nextTile);
+                    }
+                }
+            }
+        }
+        tileArray = tile.split('');
+        //check bottom moves
+        mover = allVerticals.indexOf(tileArray[0]);
+        mover = mover + 2;
+        tileArray[0] = allVerticals[mover];
+        tileArray[1] = parseInt(tileArray[1]) + 1;
+        nextTile = tileArray.join('');
+        for(i = 0; i < allTiles.length; i++){
+            if(nextTile == allTiles[i]){
+                if(nextTile != tile){
+                    if(isEmpty(nextTile)){
+                        moveSet.push(nextTile);               
+                    }else if(canAttack(pieceId, nextTile)){
+                        moveSet.push(nextTile);
+                    }
+                }
+            }
+        }
+        tileArray[1] = parseInt(tileArray[1]) - 2;
+        nextTile = tileArray.join('');
+        for(i = 0; i < allTiles.length; i++){
+            if(nextTile == allTiles[i]){
+                if(nextTile != tile){
+                    if(isEmpty(nextTile)){
+                        moveSet.push(nextTile);               
+                    }else if(canAttack(pieceId, nextTile)){
+                        moveSet.push(nextTile);
+                    }
+                }
+            }
+        }
+        tileArray = tile.split('');
+        //check left moves
+        tileArray[1] = tileArray[1] - 2;
+        mover = allVerticals.indexOf(tileArray[0]);
+        mover = mover - 1;
+        tileArray[0] = allVerticals[mover];
+        nextTile = tileArray.join('');
+        for(i = 0; i < allTiles.length; i++){
+            if(nextTile == allTiles[i]){
+                if(nextTile != tile){
+                    if(isEmpty(nextTile)){
+                        moveSet.push(nextTile);               
+                    }else if(canAttack(pieceId, nextTile)){
+                        moveSet.push(nextTile);
+                    }
+                }
+            }
+        }
+        tileArray[0] = allVerticals[mover + 2];
+        nextTile = tileArray.join('');
+        for(i = 0; i < allTiles.length; i++){
+            if(nextTile == allTiles[i]){
+                if(nextTile != tile){
+                    if(isEmpty(nextTile)){
+                        moveSet.push(nextTile);               
+                    }else if(canAttack(pieceId, nextTile)){
+                        moveSet.push(nextTile);
+                    }
+                }
+            }
+        }
+        tileArray = tile.split('');
+        //check right moves
+        tileArray[1] = parseInt(tileArray[1]) + 2;
+        mover = allVerticals.indexOf(tileArray[0]);
+        mover = mover - 1;
+        tileArray[0] = allVerticals[mover];
+        nextTile = tileArray.join('');
+        console.log('this is nexttile: ' + nextTile);
+        for(i = 0; i < allTiles.length; i++){
+            if(nextTile == allTiles[i]){
+                if(nextTile != tile){
+                    if(isEmpty(nextTile)){
+                        moveSet.push(nextTile);               
+                    }else if(canAttack(pieceId, nextTile)){
+                        moveSet.push(nextTile);
+                    }
+                }
+            }
+        }
+        tileArray[0] = allVerticals[mover + 2];
+        nextTile = tileArray.join('');
+        for(i = 0; i < allTiles.length; i++){
+            if(nextTile == allTiles[i]){
+                if(nextTile != tile){
+                    if(isEmpty(nextTile)){
+                        moveSet.push(nextTile);               
+                    }else if(canAttack(pieceId, nextTile)){
+                        moveSet.push(nextTile);
+                    }
+                }
+            }
+        }
+        console.log(moveSet);
+        return moveSet;
     }else if(pieceId == 'white-horse-2'){
-        
+        let moveSet = [];
+        let tileArray = tile.split('');
+        console.log(tileArray);
+        //check top moves
+        let mover = allVerticals.indexOf(tileArray[0]);
+        mover = mover - 2;
+        tileArray[0] = allVerticals[mover];
+        tileArray[1] = parseInt(tileArray[1]) + 1;
+        let nextTile = tileArray.join('');
+        for(i = 0; i < allTiles.length; i++){
+            if(nextTile == allTiles[i]){
+                if(nextTile != tile){
+                    if(isEmpty(nextTile)){
+                        moveSet.push(nextTile);               
+                    }else if(canAttack(pieceId, nextTile)){
+                        moveSet.push(nextTile);
+                    }
+                }
+            }
+        }
+        tileArray[1] = parseInt(tileArray[1]) - 2;
+        nextTile = tileArray.join('');
+        for(i = 0; i < allTiles.length; i++){
+            if(nextTile == allTiles[i]){
+                if(nextTile != tile){
+                    if(isEmpty(nextTile)){
+                        moveSet.push(nextTile);               
+                    }else if(canAttack(pieceId, nextTile)){
+                        moveSet.push(nextTile);
+                    }
+                }
+            }
+        }
+        tileArray = tile.split('');
+        //check bottom moves
+        mover = allVerticals.indexOf(tileArray[0]);
+        mover = mover + 2;
+        tileArray[0] = allVerticals[mover];
+        tileArray[1] = parseInt(tileArray[1]) + 1;
+        nextTile = tileArray.join('');
+        for(i = 0; i < allTiles.length; i++){
+            if(nextTile == allTiles[i]){
+                if(nextTile != tile){
+                    if(isEmpty(nextTile)){
+                        moveSet.push(nextTile);               
+                    }else if(canAttack(pieceId, nextTile)){
+                        moveSet.push(nextTile);
+                    }
+                }
+            }
+        }
+        tileArray[1] = parseInt(tileArray[1]) - 2;
+        nextTile = tileArray.join('');
+        for(i = 0; i < allTiles.length; i++){
+            if(nextTile == allTiles[i]){
+                if(nextTile != tile){
+                    if(isEmpty(nextTile)){
+                        moveSet.push(nextTile);               
+                    }else if(canAttack(pieceId, nextTile)){
+                        moveSet.push(nextTile);
+                    }
+                }
+            }
+        }
+        tileArray = tile.split('');
+        //check left moves
+        tileArray[1] = tileArray[1] - 2;
+        mover = allVerticals.indexOf(tileArray[0]);
+        mover = mover - 1;
+        tileArray[0] = allVerticals[mover];
+        nextTile = tileArray.join('');
+        for(i = 0; i < allTiles.length; i++){
+            if(nextTile == allTiles[i]){
+                if(nextTile != tile){
+                    if(isEmpty(nextTile)){
+                        moveSet.push(nextTile);               
+                    }else if(canAttack(pieceId, nextTile)){
+                        moveSet.push(nextTile);
+                    }
+                }
+            }
+        }
+        tileArray[0] = allVerticals[mover + 2];
+        nextTile = tileArray.join('');
+        for(i = 0; i < allTiles.length; i++){
+            if(nextTile == allTiles[i]){
+                if(nextTile != tile){
+                    if(isEmpty(nextTile)){
+                        moveSet.push(nextTile);               
+                    }else if(canAttack(pieceId, nextTile)){
+                        moveSet.push(nextTile);
+                    }
+                }
+            }
+        }
+        tileArray = tile.split('');
+        //check right moves
+        tileArray[1] = parseInt(tileArray[1]) + 2;
+        mover = allVerticals.indexOf(tileArray[0]);
+        mover = mover - 1;
+        tileArray[0] = allVerticals[mover];
+        nextTile = tileArray.join('');
+        console.log('this is nexttile: ' + nextTile);
+        for(i = 0; i < allTiles.length; i++){
+            if(nextTile == allTiles[i]){
+                if(nextTile != tile){
+                    if(isEmpty(nextTile)){
+                        moveSet.push(nextTile);               
+                    }else if(canAttack(pieceId, nextTile)){
+                        moveSet.push(nextTile);
+                    }
+                }
+            }
+        }
+        tileArray[0] = allVerticals[mover + 2];
+        nextTile = tileArray.join('');
+        for(i = 0; i < allTiles.length; i++){
+            if(nextTile == allTiles[i]){
+                if(nextTile != tile){
+                    if(isEmpty(nextTile)){
+                        moveSet.push(nextTile);               
+                    }else if(canAttack(pieceId, nextTile)){
+                        moveSet.push(nextTile);
+                    }
+                }
+            }
+        }
+        console.log(moveSet);
+        return moveSet;
     }else if(pieceId == 'white-rook-1'){
         let moveSet = [];
         let tileArray = tile.split('');
@@ -1757,9 +2013,265 @@ function getRuleSet(pieceId, tile){
         }
         return moveSet;        
     }else if(pieceId == 'black-horse-1'){
-        
+        let moveSet = [];
+        let tileArray = tile.split('');
+        console.log(tileArray);
+        //check top moves
+        let mover = allVerticals.indexOf(tileArray[0]);
+        mover = mover - 2;
+        tileArray[0] = allVerticals[mover];
+        tileArray[1] = parseInt(tileArray[1]) + 1;
+        let nextTile = tileArray.join('');
+        for(i = 0; i < allTiles.length; i++){
+            if(nextTile == allTiles[i]){
+                if(nextTile != tile){
+                    if(isEmpty(nextTile)){
+                        moveSet.push(nextTile);               
+                    }else if(canAttack(pieceId, nextTile)){
+                        moveSet.push(nextTile);
+                    }
+                }
+            }
+        }
+        tileArray[1] = parseInt(tileArray[1]) - 2;
+        nextTile = tileArray.join('');
+        for(i = 0; i < allTiles.length; i++){
+            if(nextTile == allTiles[i]){
+                if(nextTile != tile){
+                    if(isEmpty(nextTile)){
+                        moveSet.push(nextTile);               
+                    }else if(canAttack(pieceId, nextTile)){
+                        moveSet.push(nextTile);
+                    }
+                }
+            }
+        }
+        tileArray = tile.split('');
+        //check bottom moves
+        mover = allVerticals.indexOf(tileArray[0]);
+        mover = mover + 2;
+        tileArray[0] = allVerticals[mover];
+        tileArray[1] = parseInt(tileArray[1]) + 1;
+        nextTile = tileArray.join('');
+        for(i = 0; i < allTiles.length; i++){
+            if(nextTile == allTiles[i]){
+                if(nextTile != tile){
+                    if(isEmpty(nextTile)){
+                        moveSet.push(nextTile);               
+                    }else if(canAttack(pieceId, nextTile)){
+                        moveSet.push(nextTile);
+                    }
+                }
+            }
+        }
+        tileArray[1] = parseInt(tileArray[1]) - 2;
+        nextTile = tileArray.join('');
+        for(i = 0; i < allTiles.length; i++){
+            if(nextTile == allTiles[i]){
+                if(nextTile != tile){
+                    if(isEmpty(nextTile)){
+                        moveSet.push(nextTile);               
+                    }else if(canAttack(pieceId, nextTile)){
+                        moveSet.push(nextTile);
+                    }
+                }
+            }
+        }
+        tileArray = tile.split('');
+        //check left moves
+        tileArray[1] = tileArray[1] - 2;
+        mover = allVerticals.indexOf(tileArray[0]);
+        mover = mover - 1;
+        tileArray[0] = allVerticals[mover];
+        nextTile = tileArray.join('');
+        for(i = 0; i < allTiles.length; i++){
+            if(nextTile == allTiles[i]){
+                if(nextTile != tile){
+                    if(isEmpty(nextTile)){
+                        moveSet.push(nextTile);               
+                    }else if(canAttack(pieceId, nextTile)){
+                        moveSet.push(nextTile);
+                    }
+                }
+            }
+        }
+        tileArray[0] = allVerticals[mover + 2];
+        nextTile = tileArray.join('');
+        for(i = 0; i < allTiles.length; i++){
+            if(nextTile == allTiles[i]){
+                if(nextTile != tile){
+                    if(isEmpty(nextTile)){
+                        moveSet.push(nextTile);               
+                    }else if(canAttack(pieceId, nextTile)){
+                        moveSet.push(nextTile);
+                    }
+                }
+            }
+        }
+        tileArray = tile.split('');
+        //check right moves
+        tileArray[1] = parseInt(tileArray[1]) + 2;
+        mover = allVerticals.indexOf(tileArray[0]);
+        mover = mover - 1;
+        tileArray[0] = allVerticals[mover];
+        nextTile = tileArray.join('');
+        console.log('this is nexttile: ' + nextTile);
+        for(i = 0; i < allTiles.length; i++){
+            if(nextTile == allTiles[i]){
+                if(nextTile != tile){
+                    if(isEmpty(nextTile)){
+                        moveSet.push(nextTile);               
+                    }else if(canAttack(pieceId, nextTile)){
+                        moveSet.push(nextTile);
+                    }
+                }
+            }
+        }
+        tileArray[0] = allVerticals[mover + 2];
+        nextTile = tileArray.join('');
+        for(i = 0; i < allTiles.length; i++){
+            if(nextTile == allTiles[i]){
+                if(nextTile != tile){
+                    if(isEmpty(nextTile)){
+                        moveSet.push(nextTile);               
+                    }else if(canAttack(pieceId, nextTile)){
+                        moveSet.push(nextTile);
+                    }
+                }
+            }
+        }
+        console.log(moveSet);
+        return moveSet;
     }else if(pieceId == 'black-horse-2'){
-        
+        let moveSet = [];
+        let tileArray = tile.split('');
+        console.log(tileArray);
+        //check top moves
+        let mover = allVerticals.indexOf(tileArray[0]);
+        mover = mover - 2;
+        tileArray[0] = allVerticals[mover];
+        tileArray[1] = parseInt(tileArray[1]) + 1;
+        let nextTile = tileArray.join('');
+        for(i = 0; i < allTiles.length; i++){
+            if(nextTile == allTiles[i]){
+                if(nextTile != tile){
+                    if(isEmpty(nextTile)){
+                        moveSet.push(nextTile);               
+                    }else if(canAttack(pieceId, nextTile)){
+                        moveSet.push(nextTile);
+                    }
+                }
+            }
+        }
+        tileArray[1] = parseInt(tileArray[1]) - 2;
+        nextTile = tileArray.join('');
+        for(i = 0; i < allTiles.length; i++){
+            if(nextTile == allTiles[i]){
+                if(nextTile != tile){
+                    if(isEmpty(nextTile)){
+                        moveSet.push(nextTile);               
+                    }else if(canAttack(pieceId, nextTile)){
+                        moveSet.push(nextTile);
+                    }
+                }
+            }
+        }
+        tileArray = tile.split('');
+        //check bottom moves
+        mover = allVerticals.indexOf(tileArray[0]);
+        mover = mover + 2;
+        tileArray[0] = allVerticals[mover];
+        tileArray[1] = parseInt(tileArray[1]) + 1;
+        nextTile = tileArray.join('');
+        for(i = 0; i < allTiles.length; i++){
+            if(nextTile == allTiles[i]){
+                if(nextTile != tile){
+                    if(isEmpty(nextTile)){
+                        moveSet.push(nextTile);               
+                    }else if(canAttack(pieceId, nextTile)){
+                        moveSet.push(nextTile);
+                    }
+                }
+            }
+        }
+        tileArray[1] = parseInt(tileArray[1]) - 2;
+        nextTile = tileArray.join('');
+        for(i = 0; i < allTiles.length; i++){
+            if(nextTile == allTiles[i]){
+                if(nextTile != tile){
+                    if(isEmpty(nextTile)){
+                        moveSet.push(nextTile);               
+                    }else if(canAttack(pieceId, nextTile)){
+                        moveSet.push(nextTile);
+                    }
+                }
+            }
+        }
+        tileArray = tile.split('');
+        //check left moves
+        tileArray[1] = tileArray[1] - 2;
+        mover = allVerticals.indexOf(tileArray[0]);
+        mover = mover - 1;
+        tileArray[0] = allVerticals[mover];
+        nextTile = tileArray.join('');
+        for(i = 0; i < allTiles.length; i++){
+            if(nextTile == allTiles[i]){
+                if(nextTile != tile){
+                    if(isEmpty(nextTile)){
+                        moveSet.push(nextTile);               
+                    }else if(canAttack(pieceId, nextTile)){
+                        moveSet.push(nextTile);
+                    }
+                }
+            }
+        }
+        tileArray[0] = allVerticals[mover + 2];
+        nextTile = tileArray.join('');
+        for(i = 0; i < allTiles.length; i++){
+            if(nextTile == allTiles[i]){
+                if(nextTile != tile){
+                    if(isEmpty(nextTile)){
+                        moveSet.push(nextTile);               
+                    }else if(canAttack(pieceId, nextTile)){
+                        moveSet.push(nextTile);
+                    }
+                }
+            }
+        }
+        tileArray = tile.split('');
+        //check right moves
+        tileArray[1] = parseInt(tileArray[1]) + 2;
+        mover = allVerticals.indexOf(tileArray[0]);
+        mover = mover - 1;
+        tileArray[0] = allVerticals[mover];
+        nextTile = tileArray.join('');
+        console.log('this is nexttile: ' + nextTile);
+        for(i = 0; i < allTiles.length; i++){
+            if(nextTile == allTiles[i]){
+                if(nextTile != tile){
+                    if(isEmpty(nextTile)){
+                        moveSet.push(nextTile);               
+                    }else if(canAttack(pieceId, nextTile)){
+                        moveSet.push(nextTile);
+                    }
+                }
+            }
+        }
+        tileArray[0] = allVerticals[mover + 2];
+        nextTile = tileArray.join('');
+        for(i = 0; i < allTiles.length; i++){
+            if(nextTile == allTiles[i]){
+                if(nextTile != tile){
+                    if(isEmpty(nextTile)){
+                        moveSet.push(nextTile);               
+                    }else if(canAttack(pieceId, nextTile)){
+                        moveSet.push(nextTile);
+                    }
+                }
+            }
+        }
+        console.log(moveSet);
+        return moveSet;
     }else if(pieceId == 'black-rook-1'){
         let moveSet = [];
         let tileArray = tile.split('');
