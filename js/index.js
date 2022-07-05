@@ -1,11 +1,52 @@
 /*
-Work on adding logic for all other pieces
+1. Make a function that decideds who's turn it is
+    a. should disable other player from making moves when not their turn
+    b. The state of the board should be displayed by the announcer (ex: "white turn", "black turn", "white victory")
 
-bug: clicking on bishop doesnt always proc displayValidMoves()
+2. Add a piece collection tray for "killed" pieces respectivly for their color
+    a. white tray will display on the right side of board and left will display black
+
+3. Add "promotion" a pawns ability to change to any other piece once it reaches the opposite side of the board
+    a. can turn into any piece accept for a pawn or king
+
+4. Add "En passant" Basically if a pawn moves two squares on its starting move and is adjacent to another pawn
+the opposing pawn can make a diagonal move behind the pawn and capture it.
+
+5. Add "check" and "checkmate"
 */
-//Array of all tiles
+//Global variables
 var currentMoveSet;
 var currenttile;
+var currentPieceSelected;
+
+//For Castling
+var numOfWhiteKingMoves = 0;
+var numOfBlackKingMoves = 0;
+var numOfWhiteRook1Moves = 0;
+var numOfWhiteRook2Moves = 0;
+var numOfBlackRook1Moves = 0;
+var numOfBlackRook2Moves = 0;
+
+//For En passant
+var whitePawn1Moves = 0;
+var whitePawn2Moves = 0;
+var whitePawn3Moves = 0;
+var whitePawn4Moves = 0;
+var whitePawn5Moves = 0;
+var whitePawn6Moves = 0;
+var whitePawn7Moves = 0;
+var whitePawn8Moves = 0;
+
+var blackPawn1Moves = 0;
+var blackPawn2Moves = 0;
+var blackPawn3Moves = 0;
+var blackPawn4Moves = 0;
+var blackPawn5Moves = 0;
+var blackPawn6Moves = 0;
+var blackPawn7Moves = 0;
+var blackPawn8Moves = 0;
+
+//Array of all tiles
 const allTiles = 
 ['a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7', 'a8',
  'b1', 'b2', 'b3', 'b4', 'b5', 'b6', 'b7', 'b8',
@@ -15,7 +56,13 @@ const allTiles =
  'f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8',
  'g1', 'g2', 'g3', 'g4', 'g5', 'g6', 'g7', 'g8',
  'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'h7', 'h8']
- //turns valid tiles orange that can be moved to
+
+ //Array of all pieces
+ const allPieces = 
+ ['white-pawn-1', 'white-pawn-2', 'white-pawn-3', 'white-pawn-4', 'white-pawn-5', 'white-pawn-6', 'white-pawn-7', 'white-pawn-8', 'white-rook-1', 'white-rook-2', 'white-horse-1', 'white-horse-2', 'white-bishop-1', 'white-bishop-2', 'white-queen', 'white-king', 
+ 'black-pawn-1', 'black-pawn-2', 'black-pawn-3', 'black-pawn-4', 'black-pawn-5', 'black-pawn-6', 'black-pawn-7', 'black-pawn-8', 'black-rook-1', 'black-rook-2', 'black-horse-1', 'black-horse-2', 'black-bishop-1', 'black-bishop-2', 'black-queen', 'black-king']
+ 
+ //Turns valid tiles orange that can be moved to
 function displayValidMoves(moveSet){
     currentMoveSet = moveSet;
     //turns all possible move locations orange
@@ -28,7 +75,7 @@ function displayValidMoves(moveSet){
         document.getElementById(allTiles[i]).setAttribute("onclick", "getPlayerMove(id)");
     }
 }
-//returns players move, either sends tile to makeMove() or resetValidMoves()
+//Returns players move, either sends tile to makeMove() or resetValidMoves()
 function getPlayerMove(id){
     let playerMove = document.getElementById(id).id;
     let validMove = false;
@@ -42,15 +89,101 @@ function getPlayerMove(id){
         resetVaildMoves();
     }
 }
-//takes players move from getPlayerMove() and moves piece on board, then calls resetValidMoves()
+//Takes players move from getPlayerMove() and moves piece on board, then calls resetValidMoves()
 function makeMove(playerMove){
     //make piece move to selected location
     piece = document.getElementById(currenttile).innerHTML;
     document.getElementById(playerMove).innerHTML = piece;
     document.getElementById(currenttile).innerHTML = '';
+    //if castling
+    if(numOfWhiteKingMoves == 0 && numOfWhiteRook1Moves == 0 && currentPieceSelected == 'white-king' && playerMove == 'h3'){
+        let whiterook1 = document.getElementById('h1').innerHTML;
+        document.getElementById('h4').innerHTML = whiterook1;
+        document.getElementById('h1').innerHTML = '';
+    }else if(numOfWhiteKingMoves == 0 && numOfWhiteRook2Moves == 0 && currentPieceSelected == 'white-king' && playerMove == 'h7'){
+        let whiterook2 = document.getElementById('h8').innerHTML;
+        document.getElementById('h6').innerHTML = whiterook2;
+        document.getElementById('h8').innerHTML = '';
+    }else if(numOfBlackKingMoves == 0 && numOfBlackRook1Moves == 0 && currentPieceSelected == 'black-king' && playerMove == 'a3'){
+        let blackrook1 = document.getElementById('a1').innerHTML;
+        document.getElementById('a4').innerHTML = blackrook1;
+        document.getElementById('a1').innerHTML = '';
+    }else if(numOfBlackKingMoves == 0 && numOfBlackRook2Moves == 0 && currentPieceSelected == 'black-king' && playerMove == 'a7'){
+        let blackrook2 = document.getElementById('a8').innerHTML;
+        document.getElementById('a6').innerHTML = blackrook2;
+        document.getElementById('a8').innerHTML = '';
+    }
+    //increment move count
+    piece = document.getElementById(playerMove).children;
+    if(piece[0].id == 'white-rook-1'){
+        numOfWhiteRook1Moves++;
+    }
+    if(piece[0].id == 'white-rook-2'){
+        numOfWhiteRook2Moves++;
+    }
+    if(piece[0].id == 'white-king'){
+        numOfWhiteKingMoves++;
+    }
+    if(piece[0].id == 'black-rook-1'){
+        numOfBlackRook1Moves++;
+    }
+    if(piece[0].id == 'black-rook-2'){
+        numOfBlackRook2Moves++;
+    }
+    if(piece[0].id == 'black-king'){
+        numOfBlackKingMoves++;
+    }
+    if(piece[0].id == 'white-pawn-1'){
+        whitePawn1Moves++;
+    }
+    if(piece[0].id == 'white-pawn-2'){
+        whitePawn2Moves++;
+    }
+    if(piece[0].id == 'white-pawn-3'){
+        whitePawn3Moves++;
+    }
+    if(piece[0].id == 'white-pawn-4'){
+        whitePawn4Moves++;
+    }
+    if(piece[0].id == 'white-pawn-5'){
+        whitePawn5Moves++;
+    }
+    if(piece[0].id == 'white-pawn-6'){
+        whitePawn6Moves++;
+    }
+    if(piece[0].id == 'white-pawn-7'){
+        whitePawn7Moves++;
+    }
+    if(piece[0].id == 'white-pawn-8'){
+        whitePawn8Moves++;
+    }
+    if(piece[0].id == 'black-pawn-1'){
+        blackPawn1Moves++;
+    }
+    if(piece[0].id == 'black-pawn-2'){
+        blackPawn2Moves++;
+    }
+    if(piece[0].id == 'black-pawn-3'){
+        blackPawn3Moves++;
+    }
+    if(piece[0].id == 'black-pawn-4'){
+        blackPawn4Moves++;
+    }
+    if(piece[0].id == 'black-pawn-5'){
+        blackPawn5Moves++;
+    }
+    if(piece[0].id == 'black-pawn-6'){
+        blackPawn6Moves++;
+    }
+    if(piece[0].id == 'black-pawn-7'){
+        blackPawn7Moves++;
+    }
+    if(piece[0].id == 'black-pawn-8'){
+        blackPawn8Moves++;
+    }
     resetVaildMoves();
 }
- //removes "getPlayerMove(id)"" and adds "checkTileAndGetMoveSet(id)" on all tiles
+ //Removes "getPlayerMove(id)"" and adds "checkTileAndGetMoveSet(id)" on all tiles
 function resetVaildMoves(){
     for(i = 0; i < allTiles.length; i++){
         document.getElementById(allTiles[i]).classList.remove('possibleMove');
@@ -62,7 +195,7 @@ function resetVaildMoves(){
     currentMoveSet = '';
     currenttile = '';
 }
-//checks if a tile is empty or not [True if empty]
+//Checks if a tile is empty or not [True if empty]
  function isEmpty(tile){
     try{
         var check = document.getElementById(tile).children;
@@ -77,7 +210,45 @@ function resetVaildMoves(){
         return true;
     }
 }
-//checks if a piece can attack another peice
+//Checks if tile is currently under attack
+function isUnderAttack(pieceId, tile){
+    //get pieceid color
+    let breakdown = pieceId.split('-');
+    console.log(breakdown);
+    //get array of all opposing pieces
+    let checkArray = [];
+    if(breakdown[0] == 'black'){
+            for(i = 0; i < 16; i++){
+                checkArray.push(allPieces[i]);
+            }
+        }else{
+            for(i = 16; i < 32; i++){
+                checkArray.push(allPieces[i]);
+            }
+        }
+        console.log(checkArray);
+    //check if any opposing pieces can attack the passed tile.
+    let iHolder;
+    for(i = 0; i < checkArray.length; i++){
+        iHolder = i;
+        let checkArrayTile = document.getElementById(checkArray[i]).parentNode;
+        let moveset = getRuleSet(checkArray[i], checkArrayTile.id, false);
+        if(moveset.length == 0){
+            i = iHolder;
+            continue;
+        }
+        for(k = 0; k < moveset.length; k++){
+            if(tile == moveset[k]){
+                console.log('tile is under attack');
+                return true;
+            }
+        }
+        i = iHolder;
+    }
+    console.log('tile is not under attack');
+    return false;
+}
+//Checks if a piece can attack another peice [True if empty]
 function canAttack(pieceId, tileId){
     try{
         let attacker = document.getElementById(pieceId).getAttribute("class");
@@ -94,20 +265,21 @@ function canAttack(pieceId, tileId){
     }
 
 } 
-//checks what piece is on a tile and returns an array of the moves the piece can make
+//Checks what piece is on a tile and returns an array of the moves the piece can make
 function checkTileAndGetMoveSet(id){
     try{
     var tile = document.getElementById(id).getAttribute('id');
     var pieceId = document.getElementById(id).children;
     currenttile = tile;
     console.log('clicked tile contains piece ' + pieceId[0].id);
-    displayValidMoves(getRuleSet(pieceId[0].id, tile));
+    currentPieceSelected = pieceId[0].id;
+    displayValidMoves(getRuleSet(pieceId[0].id, tile, true));
     }catch(err){
         console.log('tile is empty')
     }
 }
 //Gets moveset of an individual piece
-function getRuleSet(pieceId, tile){
+function getRuleSet(pieceId, tile, check){
     const allVerticals = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
     const allVerticals1 = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
     if(pieceId == 'white-king'){
@@ -242,6 +414,15 @@ function getRuleSet(pieceId, tile){
                 }else if(canAttack(pieceId, nextTile)){
                     moveSet.push(nextTile);
                 }
+            }
+        }
+        //check if castling can be preformed
+        if(check){
+            if(numOfWhiteKingMoves == 0 && numOfWhiteRook1Moves == 0 && isEmpty('h2') && isEmpty('h3') && isEmpty('h4') && !isUnderAttack(pieceId, 'h3')){
+                moveSet.push('h3');
+            }
+            if(numOfWhiteKingMoves == 0 && numOfWhiteRook2Moves == 0 && isEmpty('h6') && isEmpty('h7') && !isUnderAttack(pieceId, 'h7')){
+                moveSet.push('h7');
             }
         }
         return moveSet;
@@ -1352,7 +1533,6 @@ function getRuleSet(pieceId, tile){
             }
         }
         return moveSet;
-        
         }
     }else if(pieceId == 'white-pawn-7'){
         let moveSet = [];
@@ -1579,6 +1759,14 @@ function getRuleSet(pieceId, tile){
                 }else if(canAttack(pieceId, nextTile)){
                     moveSet.push(nextTile);
                 }
+            }
+        }
+        if(check){
+            if(numOfBlackKingMoves == 0 && numOfBlackRook1Moves == 0 && isEmpty('a2') && isEmpty('a3') && isEmpty('a4') && !isUnderAttack(pieceId, 'a3')){
+                moveSet.push('a3');
+            }
+            if(numOfBlackKingMoves == 0 && numOfBlackRook2Moves == 0 && isEmpty('a6') && isEmpty('a7') && !isUnderAttack(pieceId, 'a7')){
+                moveSet.push('a7');
             }
         }
         return moveSet;                
