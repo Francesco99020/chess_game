@@ -3,12 +3,8 @@
                                                             Ticket priority from top to bottom
 
 1. fixes for kings moveset logic
-    a. fix bug where if an enemy piece is taken, king moveset stops functioning
-        I. Add a boolean for each piece [if true piece is on the board, false otherwise] and connect it to isUnderAttack()
-        to get movesets of all piece that are currently on the board
-        II. A parrellel array to allPieces with corrisponding booleans would probably be the best way of going about it
-    b. Allow king to move in front of enemy pawns but not diagonally
-    c. Add a method to check if a king taking an enemy piece will put the king under attack.
+    a. Allow king to move in front of enemy pawns but not diagonally
+    b. Add a method to check if a king taking an enemy piece will put the king under attack.
 
 2. Add "promotion" a pawns ability to change to any other piece once it reaches the opposite side of the board
     a. can turn into any piece except for a pawn or king
@@ -73,6 +69,22 @@ const allTiles =
  ['white-pawn-1', 'white-pawn-2', 'white-pawn-3', 'white-pawn-4', 'white-pawn-5', 'white-pawn-6', 'white-pawn-7', 'white-pawn-8', 'white-rook-1', 'white-rook-2', 'white-horse-1', 'white-horse-2', 'white-bishop-1', 'white-bishop-2', 'white-queen', 'white-king', 
  'black-pawn-1', 'black-pawn-2', 'black-pawn-3', 'black-pawn-4', 'black-pawn-5', 'black-pawn-6', 'black-pawn-7', 'black-pawn-8', 'black-rook-1', 'black-rook-2', 'black-horse-1', 'black-horse-2', 'black-bishop-1', 'black-bishop-2', 'black-queen', 'black-king']
  
+ //Array of Booleans for pieces [if true then piece is active on the board]
+ const isActive =
+[true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
+true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true]
+
+//Sets piece isActive[] status
+function updateIsActive(pieceId){
+    for(i = 0; i < allPieces.length; i++){
+        if(pieceId == allPieces[i]){
+            isActive[i] = false;
+            console.log(pieceId + " has been captured!");
+            break;
+        }
+    }
+}
+
  //Returns valid tiles orange that can be moved to
 function displayValidMoves(moveSet){
     currentMoveSet = moveSet;
@@ -87,12 +99,16 @@ function displayValidMoves(moveSet){
     }
 }
 
-//Returns players move, either sends tile to "makeMove()"" or "resetValidMoves()"" depending on players next choice
+//Returns players move, either sends tile to "makeMove()" or "resetValidMoves()" depending on players next choice
 function getPlayerMove(id){
     let playerMove = document.getElementById(id).id;
     let validMove = false;
     for(i = 0; i < currentMoveSet.length; i++){
         if(playerMove == currentMoveSet[i]){
+            if(document.getElementById(playerMove).childNodes.length > 0){
+                let pieceId = document.getElementById(playerMove).childNodes;
+                updateIsActive(pieceId[0].id);
+            }
             makeMove(playerMove);
             validMove = true;
         }
@@ -233,11 +249,15 @@ function isUnderAttack(pieceId, tile){
     let checkArray = [];
     if(breakdown[0] == 'black'){
             for(i = 0; i < 16; i++){
-                checkArray.push(allPieces[i]);
+                if(isActive[i] == true){
+                    checkArray.push(allPieces[i]);
+                }
             }
         }else{
             for(i = 16; i < 32; i++){
-                checkArray.push(allPieces[i]);
+                if(isActive[i] == true){
+                    checkArray.push(allPieces[i]);
+                }
             }
         }
     //check if any opposing pieces can attack the passed tile.
