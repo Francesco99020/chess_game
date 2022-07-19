@@ -1,18 +1,29 @@
 /*
-1. Make a function that decideds who's turn it is
+                                                                ***Open Ticket list***
+                                                            Ticket priority from top to bottom
+
+1. fixes for kings moveset logic
+    a. fix bug where if an enemy piece is taken, king moveset stops functioning
+        I. Add a boolean for each piece [if true piece is on the board, false otherwise] and connect it to isUnderAttack()
+        to get movesets of all piece that are currently on the board
+        II. A parrellel array to allPieces with corrisponding booleans would probably be the best way of going about it
+    b. Allow king to move in front of enemy pawns but not diagonally
+    c. Add a method to check if a king taking an enemy piece will put the king under attack.
+
+2. Add "promotion" a pawns ability to change to any other piece once it reaches the opposite side of the board
+    a. can turn into any piece except for a pawn or king
+
+3. Add "En passant" Basically if a pawn moves two squares on its starting move and is adjacent to another pawn
+the opposing pawn can make a diagonal move behind the pawn and capture it.
+
+4. Add "check" and "checkmate"
+
+5. Make a function that decideds who's turn it is
     a. should disable other player from making moves when not their turn
     b. The state of the board should be displayed by the announcer (ex: "white turn", "black turn", "white victory")
 
-2. Add a piece collection tray for "killed" pieces respectivly for their color
+6. Add a piece collection tray for "killed" pieces respectivly for their color
     a. white tray will display on the right side of board and left will display black
-
-3. Add "promotion" a pawns ability to change to any other piece once it reaches the opposite side of the board
-    a. can turn into any piece accept for a pawn or king
-
-4. Add "En passant" Basically if a pawn moves two squares on its starting move and is adjacent to another pawn
-the opposing pawn can make a diagonal move behind the pawn and capture it.
-
-5. Add "check" and "checkmate"
 */
 //Global variables
 var currentMoveSet;
@@ -62,7 +73,7 @@ const allTiles =
  ['white-pawn-1', 'white-pawn-2', 'white-pawn-3', 'white-pawn-4', 'white-pawn-5', 'white-pawn-6', 'white-pawn-7', 'white-pawn-8', 'white-rook-1', 'white-rook-2', 'white-horse-1', 'white-horse-2', 'white-bishop-1', 'white-bishop-2', 'white-queen', 'white-king', 
  'black-pawn-1', 'black-pawn-2', 'black-pawn-3', 'black-pawn-4', 'black-pawn-5', 'black-pawn-6', 'black-pawn-7', 'black-pawn-8', 'black-rook-1', 'black-rook-2', 'black-horse-1', 'black-horse-2', 'black-bishop-1', 'black-bishop-2', 'black-queen', 'black-king']
  
- //Turns valid tiles orange that can be moved to
+ //Returns valid tiles orange that can be moved to
 function displayValidMoves(moveSet){
     currentMoveSet = moveSet;
     //turns all possible move locations orange
@@ -75,7 +86,8 @@ function displayValidMoves(moveSet){
         document.getElementById(allTiles[i]).setAttribute("onclick", "getPlayerMove(id)");
     }
 }
-//Returns players move, either sends tile to makeMove() or resetValidMoves()
+
+//Returns players move, either sends tile to "makeMove()"" or "resetValidMoves()"" depending on players next choice
 function getPlayerMove(id){
     let playerMove = document.getElementById(id).id;
     let validMove = false;
@@ -89,7 +101,8 @@ function getPlayerMove(id){
         resetVaildMoves();
     }
 }
-//Takes players move from getPlayerMove() and moves piece on board, then calls resetValidMoves()
+
+//Takes players move from "getPlayerMove()" and moves piece on board, then calls "resetValidMoves()"
 function makeMove(playerMove){
     //make piece move to selected location
     piece = document.getElementById(currenttile).innerHTML;
@@ -183,7 +196,8 @@ function makeMove(playerMove){
     }
     resetVaildMoves();
 }
- //Removes "getPlayerMove(id)"" and adds "checkTileAndGetMoveSet(id)" on all tiles
+
+ //Removes "getPlayerMove(id)" and adds "checkTileAndGetMoveSet(id)" on all tiles
 function resetVaildMoves(){
     for(i = 0; i < allTiles.length; i++){
         document.getElementById(allTiles[i]).classList.remove('possibleMove');
@@ -195,26 +209,26 @@ function resetVaildMoves(){
     currentMoveSet = '';
     currenttile = '';
 }
+
 //Checks if a tile is empty or not [True if empty]
  function isEmpty(tile){
     try{
         var check = document.getElementById(tile).children;
         if(check[0].id == ''){
-            console.log('tile ' + check[0].id + ' is empty');
             return true;
         }else{
-            console.log('tile ' + check[0].id + ' is not empty');
             return false;
         }
     }catch(err){
         return true;
     }
 }
-//Checks if tile is currently under attack
+
+//Checks if tile is currently under attack [True if tile is under attack]
+//This function currently only partially works as intended
 function isUnderAttack(pieceId, tile){
     //get pieceid color
     let breakdown = pieceId.split('-');
-    console.log(breakdown);
     //get array of all opposing pieces
     let checkArray = [];
     if(breakdown[0] == 'black'){
@@ -226,38 +240,36 @@ function isUnderAttack(pieceId, tile){
                 checkArray.push(allPieces[i]);
             }
         }
-        console.log(checkArray);
     //check if any opposing pieces can attack the passed tile.
     let iHolder;
     for(i = 0; i < checkArray.length; i++){
         iHolder = i;
         let checkArrayTile = document.getElementById(checkArray[i]).parentNode;
+        i = iHolder;
         let moveset = getRuleSet(checkArray[i], checkArrayTile.id, false);
+        i = iHolder;
         if(moveset.length == 0){
             i = iHolder;
             continue;
         }
         for(k = 0; k < moveset.length; k++){
             if(tile == moveset[k]){
-                console.log('tile is under attack');
                 return true;
             }
         }
         i = iHolder;
     }
-    console.log('tile is not under attack');
     return false;
 }
-//Checks if a piece can attack another peice [True if empty]
+
+//Checks if a piece can attack another piece [True if empty]
 function canAttack(pieceId, tileId){
     try{
         let attacker = document.getElementById(pieceId).getAttribute("class");
         let opposition = document.getElementById(tileId).children[0].getAttribute('class');
     if(attacker == opposition){
-        console.log("cannot attack " + tileId);
         return false;
     }else{
-        console.log('can attack');
         return true;
     }
     }catch(err){
@@ -265,7 +277,8 @@ function canAttack(pieceId, tileId){
     }
 
 } 
-//Checks what piece is on a tile and returns an array of the moves the piece can make
+
+//Checks what piece is on a tile, then calls "getRuleSet()" and passes the output as a parameter to "displayValidMoves()" 
 function checkTileAndGetMoveSet(id){
     try{
     var tile = document.getElementById(id).getAttribute('id');
@@ -280,11 +293,15 @@ function checkTileAndGetMoveSet(id){
 }
 //Gets moveset of an individual piece
 function getRuleSet(pieceId, tile, check){
+    //used to navigate and check vertically
     const allVerticals = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
     const allVerticals1 = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+    //defines all pieces movesets
     if(pieceId == 'white-king'){
         let moveSet = [];
         let tileArray = tile.split('');
+        let wasChecked = false;
+        let shouldRemoveTile = false;
         //check tile above
         let mover = allVerticals.indexOf(tileArray[0]);
         mover--;
@@ -293,12 +310,29 @@ function getRuleSet(pieceId, tile, check){
         for(i = 0; i < allTiles.length; i++){
             if(nextTile == allTiles[i]){
                 if(isEmpty(nextTile)){
-                    moveSet.push(nextTile);               
+                    if(check && !wasChecked){
+                        if(!isUnderAttack(pieceId, nextTile)){
+                            moveSet.push(nextTile);
+                        }else{
+                            console.log(nextTile + ' is removed from moveset');
+                            shouldRemoveTile = true;
+                        }
+                    }else{
+                        moveSet.push(nextTile);
+                    }
+                    wasChecked = true;            
                 }else if(canAttack(pieceId, nextTile)){
                     moveSet.push(nextTile);
                 }
             }
         }
+        if(shouldRemoveTile){
+
+            moveSet.splice(moveSet.indexOf(nextTile), 1);
+        }
+        console.log('checks reset');
+        shouldRemoveTile = false;
+        wasChecked = false;
         //check tile below
         tileArray = tile.split('');
         mover = allVerticals.indexOf(tileArray[0]);
@@ -308,12 +342,28 @@ function getRuleSet(pieceId, tile, check){
         for(i = 0; i < allTiles.length; i++){
             if(nextTile == allTiles[i]){
                 if(isEmpty(nextTile)){
-                    moveSet.push(nextTile);               
+                    if(check && !wasChecked){
+                        if(!isUnderAttack(pieceId, nextTile)){
+                            moveSet.push(nextTile);
+                        }else{
+                            console.log(nextTile + ' is removed from moveset');
+                            shouldRemoveTile = true;
+                        }
+                    }else{
+                        moveSet.push(nextTile);
+                    }
+                    wasChecked = true;            
                 }else if(canAttack(pieceId, nextTile)){
                     moveSet.push(nextTile);
                 }
             }
         }
+        if(shouldRemoveTile){
+            moveSet.splice(moveSet.indexOf(nextTile), 1);
+        }
+        console.log('checks reset');
+        shouldRemoveTile = false;
+        wasChecked = false;
         //check tile to left
         tileArray = tile.split('');
         mover = tileArray[1];
@@ -323,12 +373,28 @@ function getRuleSet(pieceId, tile, check){
         for(i = 0; i < allTiles.length; i++){
             if(nextTile == allTiles[i]){
                 if(isEmpty(nextTile)){
-                    moveSet.push(nextTile);               
+                    if(check && !wasChecked){
+                        if(!isUnderAttack(pieceId, nextTile)){
+                            moveSet.push(nextTile);
+                        }else{
+                            console.log(nextTile + ' is removed from moveset');
+                            shouldRemoveTile = true;
+                        }
+                    }else{
+                        moveSet.push(nextTile);
+                    }
+                    wasChecked = true;            
                 }else if(canAttack(pieceId, nextTile)){
                     moveSet.push(nextTile);
                 }
             }
         }
+        if(shouldRemoveTile){
+            moveSet.splice(moveSet.indexOf(nextTile), 1);
+        }
+        console.log('checks reset');
+        shouldRemoveTile = false;
+        wasChecked = false;
         //check tile to right
         tileArray = tile.split('');
         mover = tileArray[1];
@@ -338,12 +404,28 @@ function getRuleSet(pieceId, tile, check){
         for(i = 0; i < allTiles.length; i++){
             if(nextTile == allTiles[i]){
                 if(isEmpty(nextTile)){
-                    moveSet.push(nextTile);               
+                    if(check && !wasChecked){
+                        if(!isUnderAttack(pieceId, nextTile)){
+                            moveSet.push(nextTile);
+                        }else{
+                            console.log(nextTile + ' is removed from moveset');
+                            shouldRemoveTile = true;
+                        }
+                    }else{
+                        moveSet.push(nextTile);
+                    }
+                    wasChecked = true;            
                 }else if(canAttack(pieceId, nextTile)){
                     moveSet.push(nextTile);
                 }
             }
         }
+        if(shouldRemoveTile){
+            moveSet.splice(moveSet.indexOf(nextTile), 1);
+        }
+        console.log('checks reset');
+        shouldRemoveTile = false;
+        wasChecked = false;
         //check tile top-left
         tileArray = tile.split('');
         mover = tileArray[1];
@@ -356,12 +438,28 @@ function getRuleSet(pieceId, tile, check){
         for(i = 0; i < allTiles.length; i++){
             if(nextTile == allTiles[i]){
                 if(isEmpty(nextTile)){
-                    moveSet.push(nextTile);               
+                    if(check && !wasChecked){
+                        if(!isUnderAttack(pieceId, nextTile)){
+                            moveSet.push(nextTile);
+                        }else{
+                            console.log(nextTile + ' is removed from moveset');
+                            shouldRemoveTile = true;
+                        }
+                    }else{
+                        moveSet.push(nextTile);
+                    }
+                    wasChecked = true;            
                 }else if(canAttack(pieceId, nextTile)){
                     moveSet.push(nextTile);
                 }
             }
         }
+        if(shouldRemoveTile){
+            moveSet.splice(moveSet.indexOf(nextTile), 1);
+        }
+        console.log('checks reset');
+        shouldRemoveTile = false;
+        wasChecked = false;
         //check tile top-right
         tileArray = tile.split('');
         mover = tileArray[1];
@@ -374,12 +472,28 @@ function getRuleSet(pieceId, tile, check){
         for(i = 0; i < allTiles.length; i++){
             if(nextTile == allTiles[i]){
                 if(isEmpty(nextTile)){
-                    moveSet.push(nextTile);               
+                    if(check && !wasChecked){
+                        if(!isUnderAttack(pieceId, nextTile)){
+                            moveSet.push(nextTile);
+                        }else{
+                            console.log(nextTile + ' is removed from moveset');
+                            shouldRemoveTile = true;
+                        }
+                    }else{
+                        moveSet.push(nextTile);
+                    }
+                    wasChecked = true;            
                 }else if(canAttack(pieceId, nextTile)){
                     moveSet.push(nextTile);
                 }
             }
         }
+        if(shouldRemoveTile){
+            moveSet.splice(moveSet.indexOf(nextTile), 1);
+        }
+        console.log('checks reset');
+        shouldRemoveTile = false;
+        wasChecked = false;
         //check tile bottom-left
         tileArray = tile.split('');
         mover = tileArray[1];
@@ -392,12 +506,28 @@ function getRuleSet(pieceId, tile, check){
         for(i = 0; i < allTiles.length; i++){
             if(nextTile == allTiles[i]){
                 if(isEmpty(nextTile)){
-                    moveSet.push(nextTile);               
+                    if(check && !wasChecked){
+                        if(!isUnderAttack(pieceId, nextTile)){
+                            moveSet.push(nextTile);
+                        }else{
+                            console.log(nextTile + ' is removed from moveset');
+                            shouldRemoveTile = true;
+                        }
+                    }else{
+                        moveSet.push(nextTile);
+                    }
+                    wasChecked = true;            
                 }else if(canAttack(pieceId, nextTile)){
                     moveSet.push(nextTile);
                 }
             }
         }
+        if(shouldRemoveTile){
+            moveSet.splice(moveSet.indexOf(nextTile), 1);
+        }
+        console.log('checks reset');
+        shouldRemoveTile = false;
+        wasChecked = false;
         //check tile bottom-right
         tileArray = tile.split('');
         mover = tileArray[1];
@@ -410,20 +540,34 @@ function getRuleSet(pieceId, tile, check){
         for(i = 0; i < allTiles.length; i++){
             if(nextTile == allTiles[i]){
                 if(isEmpty(nextTile)){
-                    moveSet.push(nextTile);               
+                    if(check && !wasChecked){
+                        if(!isUnderAttack(pieceId, nextTile)){
+                            moveSet.push(nextTile);
+                        }else{
+                            console.log(nextTile + ' is removed from moveset');
+                            shouldRemoveTile = true;
+                        }
+                    }else{
+                        moveSet.push(nextTile);
+                    }
+                    wasChecked = true;            
                 }else if(canAttack(pieceId, nextTile)){
                     moveSet.push(nextTile);
                 }
             }
         }
+        if(shouldRemoveTile){
+            moveSet.splice(moveSet.indexOf(nextTile), 1);
+        }
+        console.log('checks reset');
+        shouldRemoveTile = false;
+        wasChecked = false;
         //check if castling can be preformed
-        if(check){
-            if(numOfWhiteKingMoves == 0 && numOfWhiteRook1Moves == 0 && isEmpty('h2') && isEmpty('h3') && isEmpty('h4') && !isUnderAttack(pieceId, 'h3')){
-                moveSet.push('h3');
-            }
-            if(numOfWhiteKingMoves == 0 && numOfWhiteRook2Moves == 0 && isEmpty('h6') && isEmpty('h7') && !isUnderAttack(pieceId, 'h7')){
-                moveSet.push('h7');
-            }
+        if(numOfWhiteKingMoves == 0 && numOfWhiteRook1Moves == 0 && isEmpty('h2') && isEmpty('h3') && isEmpty('h4') && !isUnderAttack(pieceId, 'h3')){
+            moveSet.push('h3');
+        }
+        if(numOfWhiteKingMoves == 0 && numOfWhiteRook2Moves == 0 && isEmpty('h6') && isEmpty('h7') && !isUnderAttack(pieceId, 'h7')){
+            moveSet.push('h7');
         }
         return moveSet;
     }else if(pieceId == 'white-queen'){
@@ -859,7 +1003,6 @@ function getRuleSet(pieceId, tile, check){
     }else if(pieceId == 'white-horse-1'){
         let moveSet = [];
         let tileArray = tile.split('');
-        console.log(tileArray);
         //check top moves
         let mover = allVerticals.indexOf(tileArray[0]);
         mover = mover - 2;
@@ -959,7 +1102,6 @@ function getRuleSet(pieceId, tile, check){
         mover = mover - 1;
         tileArray[0] = allVerticals[mover];
         nextTile = tileArray.join('');
-        console.log('this is nexttile: ' + nextTile);
         for(i = 0; i < allTiles.length; i++){
             if(nextTile == allTiles[i]){
                 if(nextTile != tile){
@@ -984,12 +1126,10 @@ function getRuleSet(pieceId, tile, check){
                 }
             }
         }
-        console.log(moveSet);
         return moveSet;
     }else if(pieceId == 'white-horse-2'){
         let moveSet = [];
         let tileArray = tile.split('');
-        console.log(tileArray);
         //check top moves
         let mover = allVerticals.indexOf(tileArray[0]);
         mover = mover - 2;
@@ -1089,7 +1229,6 @@ function getRuleSet(pieceId, tile, check){
         mover = mover - 1;
         tileArray[0] = allVerticals[mover];
         nextTile = tileArray.join('');
-        console.log('this is nexttile: ' + nextTile);
         for(i = 0; i < allTiles.length; i++){
             if(nextTile == allTiles[i]){
                 if(nextTile != tile){
@@ -1104,17 +1243,14 @@ function getRuleSet(pieceId, tile, check){
         tileArray[0] = allVerticals[mover + 2];
         nextTile = tileArray.join('');
         for(i = 0; i < allTiles.length; i++){
-            if(nextTile == allTiles[i]){
-                if(nextTile != tile){
-                    if(isEmpty(nextTile)){
-                        moveSet.push(nextTile);               
-                    }else if(canAttack(pieceId, nextTile)){
-                        moveSet.push(nextTile);
-                    }
+            if(nextTile != tile){
+                if(isEmpty(nextTile)){
+                    moveSet.push(nextTile);               
+                }else if(canAttack(pieceId, nextTile)){
+                    moveSet.push(nextTile);
                 }
             }
         }
-        console.log(moveSet);
         return moveSet;
     }else if(pieceId == 'white-rook-1'){
         let moveSet = [];
@@ -1630,6 +1766,8 @@ function getRuleSet(pieceId, tile, check){
     }else if(pieceId == 'black-king'){
         let moveSet = [];
         let tileArray = tile.split('');
+        let wasChecked = false;
+        let shouldRemoveTile = false;
         //check tile above
         let mover = allVerticals.indexOf(tileArray[0]);
         mover--;
@@ -1638,12 +1776,29 @@ function getRuleSet(pieceId, tile, check){
         for(i = 0; i < allTiles.length; i++){
             if(nextTile == allTiles[i]){
                 if(isEmpty(nextTile)){
-                    moveSet.push(nextTile);               
+                    if(check && !wasChecked){
+                        if(!isUnderAttack(pieceId, nextTile)){
+                            moveSet.push(nextTile);
+                        }else{
+                            console.log(nextTile + ' is removed from moveset');
+                            shouldRemoveTile = true;
+                        }
+                    }else{
+                        moveSet.push(nextTile);
+                    }
+                    wasChecked = true;            
                 }else if(canAttack(pieceId, nextTile)){
                     moveSet.push(nextTile);
                 }
             }
         }
+        if(shouldRemoveTile){
+
+            moveSet.splice(moveSet.indexOf(nextTile), 1);
+        }
+        console.log('checks reset');
+        shouldRemoveTile = false;
+        wasChecked = false;
         //check tile below
         tileArray = tile.split('');
         mover = allVerticals.indexOf(tileArray[0]);
@@ -1653,12 +1808,29 @@ function getRuleSet(pieceId, tile, check){
         for(i = 0; i < allTiles.length; i++){
             if(nextTile == allTiles[i]){
                 if(isEmpty(nextTile)){
-                    moveSet.push(nextTile);               
+                    if(check && !wasChecked){
+                        if(!isUnderAttack(pieceId, nextTile)){
+                            moveSet.push(nextTile);
+                        }else{
+                            console.log(nextTile + ' is removed from moveset');
+                            shouldRemoveTile = true;
+                        }
+                    }else{
+                        moveSet.push(nextTile);
+                    }
+                    wasChecked = true;            
                 }else if(canAttack(pieceId, nextTile)){
                     moveSet.push(nextTile);
                 }
             }
         }
+        if(shouldRemoveTile){
+
+            moveSet.splice(moveSet.indexOf(nextTile), 1);
+        }
+        console.log('checks reset');
+        shouldRemoveTile = false;
+        wasChecked = false;
         //check tile to left
         tileArray = tile.split('');
         mover = tileArray[1];
@@ -1668,12 +1840,29 @@ function getRuleSet(pieceId, tile, check){
         for(i = 0; i < allTiles.length; i++){
             if(nextTile == allTiles[i]){
                 if(isEmpty(nextTile)){
-                    moveSet.push(nextTile);               
+                    if(check && !wasChecked){
+                        if(!isUnderAttack(pieceId, nextTile)){
+                            moveSet.push(nextTile);
+                        }else{
+                            console.log(nextTile + ' is removed from moveset');
+                            shouldRemoveTile = true;
+                        }
+                    }else{
+                        moveSet.push(nextTile);
+                    }
+                    wasChecked = true;            
                 }else if(canAttack(pieceId, nextTile)){
                     moveSet.push(nextTile);
                 }
             }
         }
+        if(shouldRemoveTile){
+
+            moveSet.splice(moveSet.indexOf(nextTile), 1);
+        }
+        console.log('checks reset');
+        shouldRemoveTile = false;
+        wasChecked = false;
         //check tile to right
         tileArray = tile.split('');
         mover = tileArray[1];
@@ -1683,12 +1872,29 @@ function getRuleSet(pieceId, tile, check){
         for(i = 0; i < allTiles.length; i++){
             if(nextTile == allTiles[i]){
                 if(isEmpty(nextTile)){
-                    moveSet.push(nextTile);               
+                    if(check && !wasChecked){
+                        if(!isUnderAttack(pieceId, nextTile)){
+                            moveSet.push(nextTile);
+                        }else{
+                            console.log(nextTile + ' is removed from moveset');
+                            shouldRemoveTile = true;
+                        }
+                    }else{
+                        moveSet.push(nextTile);
+                    }
+                    wasChecked = true;            
                 }else if(canAttack(pieceId, nextTile)){
                     moveSet.push(nextTile);
                 }
             }
         }
+        if(shouldRemoveTile){
+
+            moveSet.splice(moveSet.indexOf(nextTile), 1);
+        }
+        console.log('checks reset');
+        shouldRemoveTile = false;
+        wasChecked = false;
         //check tile top-left
         tileArray = tile.split('');
         mover = tileArray[1];
@@ -1701,12 +1907,29 @@ function getRuleSet(pieceId, tile, check){
         for(i = 0; i < allTiles.length; i++){
             if(nextTile == allTiles[i]){
                 if(isEmpty(nextTile)){
-                    moveSet.push(nextTile);               
+                    if(check && !wasChecked){
+                        if(!isUnderAttack(pieceId, nextTile)){
+                            moveSet.push(nextTile);
+                        }else{
+                            console.log(nextTile + ' is removed from moveset');
+                            shouldRemoveTile = true;
+                        }
+                    }else{
+                        moveSet.push(nextTile);
+                    }
+                    wasChecked = true;            
                 }else if(canAttack(pieceId, nextTile)){
                     moveSet.push(nextTile);
                 }
             }
         }
+        if(shouldRemoveTile){
+
+            moveSet.splice(moveSet.indexOf(nextTile), 1);
+        }
+        console.log('checks reset');
+        shouldRemoveTile = false;
+        wasChecked = false;
         //check tile top-right
         tileArray = tile.split('');
         mover = tileArray[1];
@@ -1719,12 +1942,29 @@ function getRuleSet(pieceId, tile, check){
         for(i = 0; i < allTiles.length; i++){
             if(nextTile == allTiles[i]){
                 if(isEmpty(nextTile)){
-                    moveSet.push(nextTile);               
+                    if(check && !wasChecked){
+                        if(!isUnderAttack(pieceId, nextTile)){
+                            moveSet.push(nextTile);
+                        }else{
+                            console.log(nextTile + ' is removed from moveset');
+                            shouldRemoveTile = true;
+                        }
+                    }else{
+                        moveSet.push(nextTile);
+                    }
+                    wasChecked = true;            
                 }else if(canAttack(pieceId, nextTile)){
                     moveSet.push(nextTile);
                 }
             }
         }
+        if(shouldRemoveTile){
+
+            moveSet.splice(moveSet.indexOf(nextTile), 1);
+        }
+        console.log('checks reset');
+        shouldRemoveTile = false;
+        wasChecked = false;
         //check tile bottom-left
         tileArray = tile.split('');
         mover = tileArray[1];
@@ -1737,12 +1977,29 @@ function getRuleSet(pieceId, tile, check){
         for(i = 0; i < allTiles.length; i++){
             if(nextTile == allTiles[i]){
                 if(isEmpty(nextTile)){
-                    moveSet.push(nextTile);               
+                    if(check && !wasChecked){
+                        if(!isUnderAttack(pieceId, nextTile)){
+                            moveSet.push(nextTile);
+                        }else{
+                            console.log(nextTile + ' is removed from moveset');
+                            shouldRemoveTile = true;
+                        }
+                    }else{
+                        moveSet.push(nextTile);
+                    }
+                    wasChecked = true;            
                 }else if(canAttack(pieceId, nextTile)){
                     moveSet.push(nextTile);
                 }
             }
         }
+        if(shouldRemoveTile){
+
+            moveSet.splice(moveSet.indexOf(nextTile), 1);
+        }
+        console.log('checks reset');
+        shouldRemoveTile = false;
+        wasChecked = false;
         //check tile bottom-right
         tileArray = tile.split('');
         mover = tileArray[1];
@@ -1755,19 +2012,35 @@ function getRuleSet(pieceId, tile, check){
         for(i = 0; i < allTiles.length; i++){
             if(nextTile == allTiles[i]){
                 if(isEmpty(nextTile)){
-                    moveSet.push(nextTile);               
+                    if(check && !wasChecked){
+                        if(!isUnderAttack(pieceId, nextTile)){
+                            moveSet.push(nextTile);
+                        }else{
+                            console.log(nextTile + ' is removed from moveset');
+                            shouldRemoveTile = true;
+                        }
+                    }else{
+                        moveSet.push(nextTile);
+                    }
+                    wasChecked = true;            
                 }else if(canAttack(pieceId, nextTile)){
                     moveSet.push(nextTile);
                 }
             }
         }
-        if(check){
-            if(numOfBlackKingMoves == 0 && numOfBlackRook1Moves == 0 && isEmpty('a2') && isEmpty('a3') && isEmpty('a4') && !isUnderAttack(pieceId, 'a3')){
-                moveSet.push('a3');
-            }
-            if(numOfBlackKingMoves == 0 && numOfBlackRook2Moves == 0 && isEmpty('a6') && isEmpty('a7') && !isUnderAttack(pieceId, 'a7')){
-                moveSet.push('a7');
-            }
+        if(shouldRemoveTile){
+
+            moveSet.splice(moveSet.indexOf(nextTile), 1);
+        }
+        console.log('checks reset');
+        shouldRemoveTile = false;
+        wasChecked = false;
+        //Checks for Castling
+        if(numOfBlackKingMoves == 0 && numOfBlackRook1Moves == 0 && isEmpty('a2') && isEmpty('a3') && isEmpty('a4') && !isUnderAttack(pieceId, 'a3')){
+            moveSet.push('a3');
+        }
+        if(numOfBlackKingMoves == 0 && numOfBlackRook2Moves == 0 && isEmpty('a6') && isEmpty('a7') && !isUnderAttack(pieceId, 'a7')){
+            moveSet.push('a7');
         }
         return moveSet;                
     }else if(pieceId == 'black-queen'){
@@ -2203,7 +2476,6 @@ function getRuleSet(pieceId, tile, check){
     }else if(pieceId == 'black-horse-1'){
         let moveSet = [];
         let tileArray = tile.split('');
-        console.log(tileArray);
         //check top moves
         let mover = allVerticals.indexOf(tileArray[0]);
         mover = mover - 2;
@@ -2303,7 +2575,6 @@ function getRuleSet(pieceId, tile, check){
         mover = mover - 1;
         tileArray[0] = allVerticals[mover];
         nextTile = tileArray.join('');
-        console.log('this is nexttile: ' + nextTile);
         for(i = 0; i < allTiles.length; i++){
             if(nextTile == allTiles[i]){
                 if(nextTile != tile){
@@ -2328,12 +2599,10 @@ function getRuleSet(pieceId, tile, check){
                 }
             }
         }
-        console.log(moveSet);
         return moveSet;
     }else if(pieceId == 'black-horse-2'){
         let moveSet = [];
         let tileArray = tile.split('');
-        console.log(tileArray);
         //check top moves
         let mover = allVerticals.indexOf(tileArray[0]);
         mover = mover - 2;
@@ -2433,7 +2702,6 @@ function getRuleSet(pieceId, tile, check){
         mover = mover - 1;
         tileArray[0] = allVerticals[mover];
         nextTile = tileArray.join('');
-        console.log('this is nexttile: ' + nextTile);
         for(i = 0; i < allTiles.length; i++){
             if(nextTile == allTiles[i]){
                 if(nextTile != tile){
@@ -2458,7 +2726,6 @@ function getRuleSet(pieceId, tile, check){
                 }
             }
         }
-        console.log(moveSet);
         return moveSet;
     }else if(pieceId == 'black-rook-1'){
         let moveSet = [];
@@ -2976,3 +3243,5 @@ function getRuleSet(pieceId, tile, check){
         //tile is empty
     }
 }
+
+//add another method that is the same as getRuleset() but this will only be called for checking isunderattack()

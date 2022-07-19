@@ -16,6 +16,14 @@ body{
 #announcer{
     font-family: georgia, Arial, Helvetica, sans-serif;
 }
+/* #white-collection-tray{
+    position: absolute;
+    height: 80vh;
+    width: 10vw;
+    margin-left: 5vw;
+    margin-top: 5vh;
+    background-color: pink;
+} */
 .wrapper{
     position: center;
     margin: auto;
