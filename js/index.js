@@ -1,13 +1,12 @@
 /*
                                                                 ***Open Ticket list***
                                                             Ticket priority from top to bottom
+1. King does not seem to restrict moveset for promoted pieces
 
-1. fixes for kings moveset logic
-    a. Allow king to move in front of enemy pawns but not diagonally
-    b. Add a method to check if a king taking an enemy piece will put the king under attack.
-
-2. Add "promotion" a pawns ability to change to any other piece once it reaches the opposite side of the board
-    a. can turn into any piece except for a pawn or king
+2. fixes for kings moveset logic
+    a. Add a method to check if a king taking an enemy piece will put the king under attack.
+    b. Add a method that checks if moving another (friendly) piece will result in the king being under attack
+        I. prevent these moves from happening 
 
 3. Add "En passant" Basically if a pawn moves two squares on its starting move and is adjacent to another pawn
 the opposing pawn can make a diagonal move behind the pawn and capture it.
@@ -53,6 +52,14 @@ var blackPawn6Moves = 0;
 var blackPawn7Moves = 0;
 var blackPawn8Moves = 0;
 
+//For Promotion
+var pawnToBePromoted;
+var tilePawnWasOn;
+var rookReservePiecePosition;
+var horseReservePiecePosition;
+var bishopReservePiecePosition;
+var queenReservePiecePosition;
+
 //Array of all tiles
 const allTiles = 
 ['a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7', 'a8',
@@ -66,21 +73,32 @@ const allTiles =
 
  //Array of all pieces
  const allPieces = 
- ['white-pawn-1', 'white-pawn-2', 'white-pawn-3', 'white-pawn-4', 'white-pawn-5', 'white-pawn-6', 'white-pawn-7', 'white-pawn-8', 'white-rook-1', 'white-rook-2', 'white-horse-1', 'white-horse-2', 'white-bishop-1', 'white-bishop-2', 'white-queen', 'white-king', 
- 'black-pawn-1', 'black-pawn-2', 'black-pawn-3', 'black-pawn-4', 'black-pawn-5', 'black-pawn-6', 'black-pawn-7', 'black-pawn-8', 'black-rook-1', 'black-rook-2', 'black-horse-1', 'black-horse-2', 'black-bishop-1', 'black-bishop-2', 'black-queen', 'black-king']
+ ['white-pawn-1', 'white-pawn-2', 'white-pawn-3', 'white-pawn-4', 'white-pawn-5', 'white-pawn-6', 'white-pawn-7', 'white-pawn-8', 'white-rook-1', 'white-rook-2', 'white-horse-1', 'white-horse-2', 'white-bishop-1', 'white-bishop-2', 'white-queen', 'white-king', /* Promotion pieces -> */ 'white-rook-3', 'white-rook-4', 'white-rook-5', 'white-rook-6', 'white-rook-7', 'white-rook-8', 'white-rook-9', 'white-rook-10', 'white-horse-3', 'white-horse-4', 'white-horse-5', 'white-horse-6', 'white-horse-7', 'white-horse-8', 'white-horse-9', 'white-horse-10', 'white-bishop-3', 'white-bishop-4', 'white-bishop-5', 'white-bishop-6', 'white-bishop-7', 'white-bishop-8', 'white-bishop-9', 'white-bishop-10', 'white-queen-1', 'white-queen-2', 'white-queen-3', 'white-queen-4', 'white-queen-5', 'white-queen-6', 'white-queen-7', 'white-queen-8', 
+ 'black-pawn-1', 'black-pawn-2', 'black-pawn-3', 'black-pawn-4', 'black-pawn-5', 'black-pawn-6', 'black-pawn-7', 'black-pawn-8', 'black-rook-1', 'black-rook-2', 'black-horse-1', 'black-horse-2', 'black-bishop-1', 'black-bishop-2', 'black-queen', 'black-king', /* Promotion pieces -> */ 'black-rook-3', 'black-rook-4', 'black-rook-5', 'black-rook-6', 'black-rook-7', 'black-rook-8', 'black-rook-9', 'black-rook-10', 'black-horse-3', 'black-horse-4', 'black-horse-5', 'black-horse-6', 'black-horse-7', 'black-horse-8', 'black-horse-9', 'black-horse-10', 'black-bishop-3', 'black-bishop-4', 'black-bishop-5', 'black-bishop-6', 'black-bishop-7', 'black-bishop-8', 'black-bishop-9', 'black-bishop-10', 'black-queen-1', 'black-queen-2', 'black-queen-3', 'black-queen-4', 'black-queen-5', 'black-queen-6', 'black-queen-7', 'black-queen-8']
  
  //Array of Booleans for pieces [if true then piece is active on the board]
  const isActive =
-[true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
-true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true]
+[true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, /* Promotion pieces -> */ false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, 
+true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, /* Promotion pieces -> */ false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false]
+
+const reservePieces =
+['white-rook-3', 'white-rook-4', 'white-rook-5', 'white-rook-6', 'white-rook-7', 'white-rook-8', 'white-rook-9', 'white-rook-10', 'white-horse-3', 'white-horse-4', 'white-horse-5', 'white-horse-6', 'white-horse-7', 'white-horse-8', 'white-horse-9', 'white-horse-10', 'white-bishop-3', 'white-bishop-4', 'white-bishop-5', 'white-bishop-6', 'white-bishop-7', 'white-bishop-8', 'white-bishop-9', 'white-bishop-10', 'white-queen-1', 'white-queen-2', 'white-queen-3', 'white-queen-4', 'white-queen-5', 'white-queen-6', 'white-queen-7', 'white-queen-8',
+'black-rook-3', 'black-rook-4', 'black-rook-5', 'black-rook-6', 'black-rook-7', 'black-rook-8', 'black-rook-9', 'black-rook-10', 'black-horse-3', 'black-horse-4', 'black-horse-5', 'black-horse-6', 'black-horse-7', 'black-horse-8', 'black-horse-9', 'black-horse-10', 'black-bishop-3', 'black-bishop-4', 'black-bishop-5', 'black-bishop-6', 'black-bishop-7', 'black-bishop-8', 'black-bishop-9', 'black-bishop-10', 'black-queen-1', 'black-queen-2', 'black-queen-3', 'black-queen-4', 'black-queen-5', 'black-queen-6', 'black-queen-7', 'black-queen-8']
 
 //Sets piece isActive[] status
-function updateIsActive(pieceId){
+function updateIsActive(pieceId, active){
     for(i = 0; i < allPieces.length; i++){
         if(pieceId == allPieces[i]){
-            isActive[i] = false;
-            console.log(pieceId + " has been captured!");
-            break;
+            //if true piece will be set as active, false if otherwise
+            if(active){
+                isActive[i] = true;
+                break;
+            }else{
+                isActive[i] = false;
+                console.log(pieceId + " has been captured!");
+                break;
+            }
+            
         }
     }
 }
@@ -107,7 +125,7 @@ function getPlayerMove(id){
         if(playerMove == currentMoveSet[i]){
             if(document.getElementById(playerMove).childNodes.length > 0){
                 let pieceId = document.getElementById(playerMove).childNodes;
-                updateIsActive(pieceId[0].id);
+                updateIsActive(pieceId[0].id, false);
             }
             makeMove(playerMove);
             validMove = true;
@@ -211,6 +229,145 @@ function makeMove(playerMove){
         blackPawn8Moves++;
     }
     resetVaildMoves();
+    checkPromotion();
+    //make a call to check for promotion
+}
+
+//checks if pawn can be promoted
+function checkPromotion(){
+    promotionArray = [];
+    for(i = 0; i < allPieces.length; i++){
+            if(allPieces[i].includes('pawn') && isActive[i] == true){
+                promotionArray.push(allPieces[i]);                
+            }
+    }
+    for(i = 0; i < promotionArray.length; i++){
+        let tile = document.getElementById(promotionArray[i]).parentNode.id;
+        tileBreakdown = tile.split('');
+        if(tileBreakdown[0] == 'a' || tileBreakdown[0] == 'h'){
+            pawnToBePromoted = promotionArray[i];
+            tilePawnWasOn = tile;
+            //open pop-up window for player to choose a promotion
+            if(tileBreakdown[0] == 'a'){
+                //for white
+                for(i = 16; i < 24; i++){
+                    if(!isActive[i]){
+                        var pieceHolder = document.getElementById(allPieces[i]).outerHTML;
+                        rookReservePiecePosition = document.getElementById(reservePieces.indexOf(allPieces[i])) + 1;
+                        rookReservePiecePosition = 'storagePiece' + rookReservePiecePosition;
+                        document.getElementById('rook').innerHTML = pieceHolder;
+                        break;
+                    }                    
+                }
+                for(i = 24; i < 32; i++){
+                    if(!isActive[i]){
+                        var pieceHolder = document.getElementById(allPieces[i]).outerHTML;
+                        horseReservePiecePosition = document.getElementById(reservePieces.indexOf(allPieces[i])) + 1;
+                        horseReservePiecePosition = 'storagePiece' + horseReservePiecePosition;
+                        document.getElementById('horse').innerHTML = pieceHolder;
+                        break;
+                    }
+                }
+                for(i = 32; i < 40; i++){
+                    if(!isActive[i]){
+                        var pieceHolder = document.getElementById(allPieces[i]).outerHTML;
+                        bishopReservePiecePosition = document.getElementById(reservePieces.indexOf(allPieces[i])) + 1;
+                        bishopReservePiecePosition = 'storagePiece' + bishopReservePiecePosition;
+                        document.getElementById('bishop').innerHTML = pieceHolder;
+                        break;
+                    }
+                }
+                for(i = 40; i < 48; i++){
+                    if(!isActive[i]){
+                        var pieceHolder = document.getElementById(allPieces[i]).outerHTML;
+                        queenReservePiecePosition = document.getElementById(reservePieces.indexOf(allPieces[i])) + 1;
+                        queenReservePiecePosition = 'storagePiece' + queenReservePiecePosition;
+                        document.getElementById('queen').innerHTML = pieceHolder;
+                        break;
+                    }
+                }
+            }else{
+                //for black
+                 for(i = 64; i < 72; i++){
+                    if(!isActive[i]){
+                        var pieceHolder = document.getElementById(allPieces[i]).outerHTML;
+                        rookReservePiecePosition = document.getElementById(reservePieces.indexOf(allPieces[i])) + 1;
+                        rookReservePiecePosition = 'storagePiece' + rookReservePiecePosition;
+                        document.getElementById('rook').innerHTML = pieceHolder;
+                        break;
+                    }                    
+                }
+                for(i = 72; i < 80; i++){
+                    if(!isActive[i]){
+                        var pieceHolder = document.getElementById(allPieces[i]).outerHTML;
+                        horseReservePiecePosition = document.getElementById(reservePieces.indexOf(allPieces[i])) + 1;
+                        horseReservePiecePosition = 'storagePiece' + horseReservePiecePosition;
+                        document.getElementById('horse').innerHTML = pieceHolder;
+                        break;
+                    }
+                }
+                for(i = 80; i < 88; i++){
+                    if(!isActive[i]){
+                        var pieceHolder = document.getElementById(allPieces[i]).outerHTML;
+                        bishopReservePiecePosition = document.getElementById(reservePieces.indexOf(allPieces[i])) + 1;
+                        bishopReservePiecePosition = 'storagePiece' + bishopReservePiecePosition;
+                        document.getElementById('bishop').innerHTML = pieceHolder;
+                        break;
+                    }
+                }
+                for(i = 88; i < 96; i++){
+                    if(!isActive[i]){
+                        var pieceHolder = document.getElementById(allPieces[i]).outerHTML;
+                        queenReservePiecePosition = document.getElementById(reservePieces.indexOf(allPieces[i])) + 1;
+                        queenReservePiecePosition = 'storagePiece' + queenReservePiecePosition;
+                        document.getElementById('queen').innerHTML = pieceHolder;
+                        break;
+                    }
+                }
+
+            }
+            document.getElementById('promotionMenu').style.visibility = 'visible';
+        }
+    }
+}
+
+function promote(id){
+    //changes pawn out for promoted piece
+    if(id == 'rook'){
+        document.getElementById(rookReservePiecePosition).innerHTML = '';
+        document.getElementById(pawnToBePromoted).parentNode.innerHTML = document.getElementById('rook').innerHTML;
+        var newPiece = document.getElementById(tilePawnWasOn).childNodes[0].id;
+        //updates isActive array
+        updateIsActive(pawnToBePromoted, false);
+        updateIsActive(newPiece ,true);
+    }else if(id == 'horse'){
+        document.getElementById(horseReservePiecePosition).innerHTML = '';
+        document.getElementById(pawnToBePromoted).parentNode.innerHTML = document.getElementById('horse').innerHTML;
+        var newPiece = document.getElementById(tilePawnWasOn).childNodes[0].id;
+        //updates isActive array
+        updateIsActive(pawnToBePromoted, false);
+        updateIsActive(newPiece ,true);
+    }else if(id == 'bishop'){
+        document.getElementById(bishopReservePiecePosition).innerHTML = '';
+        document.getElementById(pawnToBePromoted).parentNode.innerHTML = document.getElementById('bishop').innerHTML;
+        var newPiece = document.getElementById(tilePawnWasOn).childNodes[0].id;
+        //updates isActive array
+        updateIsActive(pawnToBePromoted, false);
+        updateIsActive(newPiece ,true);
+    }else{
+        document.getElementById(queenReservePiecePosition).innerHTML = '';
+        document.getElementById(pawnToBePromoted).parentNode.innerHTML = document.getElementById('queen').innerHTML;
+        var newPiece = document.getElementById(tilePawnWasOn).childNodes[0].id;
+        //updates isActive array
+        updateIsActive(pawnToBePromoted, false);
+        updateIsActive(newPiece ,true);
+    }
+    //resets promotion window and closes window
+    document.getElementById('promotionMenu').style.visibility = 'hidden';
+    document.getElementById('rook').innerHTML = '';
+    document.getElementById('horse').innerHTML = '';
+    document.getElementById('bishop').innerHTML = '';
+    document.getElementById('queen').innerHTML = '';
 }
 
  //Removes "getPlayerMove(id)" and adds "checkTileAndGetMoveSet(id)" on all tiles
@@ -241,20 +398,19 @@ function resetVaildMoves(){
 }
 
 //Checks if tile is currently under attack [True if tile is under attack]
-//This function currently only partially works as intended
 function isUnderAttack(pieceId, tile){
     //get pieceid color
     let breakdown = pieceId.split('-');
     //get array of all opposing pieces
     let checkArray = [];
     if(breakdown[0] == 'black'){
-            for(i = 0; i < 16; i++){
+            for(i = 0; i < 47; i++){
                 if(isActive[i] == true){
                     checkArray.push(allPieces[i]);
                 }
             }
         }else{
-            for(i = 16; i < 32; i++){
+            for(i = 48; i < 95; i++){
                 if(isActive[i] == true){
                     checkArray.push(allPieces[i]);
                 }
@@ -268,9 +424,50 @@ function isUnderAttack(pieceId, tile){
         i = iHolder;
         let moveset = getRuleSet(checkArray[i], checkArrayTile.id, false);
         i = iHolder;
-        if(moveset.length == 0){
+        if(moveset.length == 0 && checkArray[i].includes('pawn') == false){
             i = iHolder;
             continue;
+        }
+        if(checkArray[i].includes('pawn')){
+            //empties moveset
+            moveset.length = 0;
+            const allVerticals = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+            tileHolder = document.getElementById(checkArray[i]).parentNode.id;
+            if(checkArray[i].includes('white')){
+                tileHolderArray = tileHolder.split('');
+                //gets tile infront of pawn
+                tileHolderArray[0] = allVerticals.indexOf(tileHolderArray[0])-1;
+                tileHolderArray[0] = allVerticals[tileHolderArray[0]];
+                //gets diagonal right tile
+                tileHolderArray[1] = parseInt(tileHolderArray[1])+1;
+                if(0 < tileHolderArray[1] && tileHolderArray[1] < 9){
+                    tileHolder = tileHolderArray.join('');
+                    moveset.push(tileHolder);
+                }
+                //gets diagonal left tile
+                tileHolderArray[1] = parseInt(tileHolderArray[1])-2;
+                if(0 < tileHolderArray[1] && tileHolderArray[1] < 9){
+                    tileHolder = tileHolderArray.join('');
+                    moveset.push(tileHolder);
+                }
+            }else{
+                tileHolderArray = tileHolder.split('');
+                //gets tile infront of pawn
+                tileHolderArray[0] = allVerticals.indexOf(tileHolderArray[0])+1;
+                tileHolderArray[0] = allVerticals[tileHolderArray[0]];
+                //gets diagonal right tile
+                tileHolderArray[1] = parseInt(tileHolderArray[1])+1;
+                if(0 < tileHolderArray[1] && tileHolderArray[1] < 9){
+                    tileHolder = tileHolderArray.join('');
+                    moveset.push(tileHolder);
+                }
+                //gets diagonal left tile
+                tileHolderArray[1] = parseInt(tileHolderArray[1])-2;
+                if(0 < tileHolderArray[1] && tileHolderArray[1] < 9){
+                    tileHolder = tileHolderArray.join('');
+                    moveset.push(tileHolder);
+                }
+            }
         }
         for(k = 0; k < moveset.length; k++){
             if(tile == moveset[k]){
@@ -590,7 +787,7 @@ function getRuleSet(pieceId, tile, check){
             moveSet.push('h7');
         }
         return moveSet;
-    }else if(pieceId == 'white-queen'){
+    }else if(pieceId.includes('queen')){
         let moveSet = [];
         let tileArray = tile.split('');
         //less than horizontal check
@@ -776,129 +973,7 @@ function getRuleSet(pieceId, tile, check){
             } 
         }
         return moveSet;      
-    }else if(pieceId == 'white-bishop-1'){
-        let moveSet = [];
-        let tileArray = tile.split('');
-        let vertical = allVerticals.indexOf(tileArray[0]);
-        let isDone = false;
-        //greater than right diagonal check (/) ->
-        for(i = tileArray[1]; i <= 8; i++){
-            tileArray[1] = i;
-            tileArray[0] = allVerticals[vertical];
-            vertical--;
-            let nextTile = tileArray.join('');
-            for(k = 0; k < allTiles.length; k++){
-                if(nextTile == allTiles[k]){
-                    if(nextTile != tile){
-                        if(isEmpty(nextTile)){
-                            moveSet.push(nextTile);               
-                        }else if(canAttack(pieceId, nextTile)){
-                            moveSet.push(nextTile);
-                            isDone = true;
-                            break;
-                        }else{
-                            isDone = true;
-                            break;
-                        }
-                    }  
-                }
-            }
-            if(isDone){
-                break;
-            } 
-        }
-        //less than right diagonal check (/) <-
-        tileArray = tile.split('');
-        vertical = allVerticals.indexOf(tileArray[0]);
-        tileArray[0] = allVerticals[vertical];
-        isDone = false;
-        for(i = tileArray[1]; i > 0; i--){
-            tileArray[1] = i;
-            tileArray[0] = allVerticals[vertical];
-            vertical++;
-            let nextTile = tileArray.join('');
-            for(k = 0; k < allTiles.length; k++){
-                if(nextTile == allTiles[k]){
-                    if(nextTile != tile){
-                        if(isEmpty(nextTile)){
-                            moveSet.push(nextTile);               
-                        }else if(canAttack(pieceId, nextTile)){
-                            moveSet.push(nextTile);
-                            isDone = true;
-                            break;
-                        }else{
-                            isDone = true;
-                            break;
-                        }
-                    }  
-                }
-            }
-            if(isDone){
-                break;
-            }  
-        }
-        //less than left diagonal check (\) <-
-        tileArray = tile.split('');
-        vertical = allVerticals.indexOf(tileArray[0]);
-        tileArray[0] = allVerticals[vertical];
-        isDone = false;
-        for(i = tileArray[1]; i > 0; i--){
-            tileArray[1] = i;
-            tileArray[0] = allVerticals[vertical];
-            vertical--;
-            let nextTile = tileArray.join('');
-            for(k = 0; k < allTiles.length; k++){
-                if(nextTile == allTiles[k]){
-                    if(nextTile != tile){
-                        if(isEmpty(nextTile)){
-                            moveSet.push(nextTile);               
-                        }else if(canAttack(pieceId, nextTile)){
-                            moveSet.push(nextTile);
-                            isDone = true;
-                            break;
-                        }else{
-                            isDone = true;
-                            break;
-                        }
-                    }  
-                }
-            }
-            if(isDone){
-                break;
-            }  
-        }
-        //greater than left diagonal check (\) ->
-        tileArray = tile.split('');
-        vertical = allVerticals.indexOf(tileArray[0]);
-        tileArray[0] = allVerticals[vertical];
-        isDone = false;
-        for(i = tileArray[1]; i <= 8; i++){
-            tileArray[1] = i;
-            tileArray[0] = allVerticals[vertical];
-            vertical++;
-            let nextTile = tileArray.join('');
-            for(k = 0; k < allTiles.length; k++){
-                if(nextTile == allTiles[k]){
-                    if(nextTile != tile){
-                        if(isEmpty(nextTile)){
-                            moveSet.push(nextTile);               
-                        }else if(canAttack(pieceId, nextTile)){
-                            moveSet.push(nextTile);
-                            isDone = true;
-                            break;
-                        }else{
-                            isDone = true;
-                            break;
-                        }
-                    }  
-                }
-            } 
-            if(isDone){
-                break;
-            } 
-        }
-        return moveSet;
-    }else if(pieceId == 'white-bishop-2'){
+    }else if(pieceId.includes('bishop')){
         let moveSet = [];
         let tileArray = tile.split('');
         let vertical = allVerticals.indexOf(tileArray[0]);
@@ -1020,7 +1095,7 @@ function getRuleSet(pieceId, tile, check){
             } 
         }
         return moveSet;        
-    }else if(pieceId == 'white-horse-1'){
+    }else if(pieceId.includes('horse')){
         let moveSet = [];
         let tileArray = tile.split('');
         //check top moves
@@ -1147,132 +1222,8 @@ function getRuleSet(pieceId, tile, check){
             }
         }
         return moveSet;
-    }else if(pieceId == 'white-horse-2'){
-        let moveSet = [];
-        let tileArray = tile.split('');
-        //check top moves
-        let mover = allVerticals.indexOf(tileArray[0]);
-        mover = mover - 2;
-        tileArray[0] = allVerticals[mover];
-        tileArray[1] = parseInt(tileArray[1]) + 1;
-        let nextTile = tileArray.join('');
-        for(i = 0; i < allTiles.length; i++){
-            if(nextTile == allTiles[i]){
-                if(nextTile != tile){
-                    if(isEmpty(nextTile)){
-                        moveSet.push(nextTile);               
-                    }else if(canAttack(pieceId, nextTile)){
-                        moveSet.push(nextTile);
-                    }
-                }
-            }
-        }
-        tileArray[1] = parseInt(tileArray[1]) - 2;
-        nextTile = tileArray.join('');
-        for(i = 0; i < allTiles.length; i++){
-            if(nextTile == allTiles[i]){
-                if(nextTile != tile){
-                    if(isEmpty(nextTile)){
-                        moveSet.push(nextTile);               
-                    }else if(canAttack(pieceId, nextTile)){
-                        moveSet.push(nextTile);
-                    }
-                }
-            }
-        }
-        tileArray = tile.split('');
-        //check bottom moves
-        mover = allVerticals.indexOf(tileArray[0]);
-        mover = mover + 2;
-        tileArray[0] = allVerticals[mover];
-        tileArray[1] = parseInt(tileArray[1]) + 1;
-        nextTile = tileArray.join('');
-        for(i = 0; i < allTiles.length; i++){
-            if(nextTile == allTiles[i]){
-                if(nextTile != tile){
-                    if(isEmpty(nextTile)){
-                        moveSet.push(nextTile);               
-                    }else if(canAttack(pieceId, nextTile)){
-                        moveSet.push(nextTile);
-                    }
-                }
-            }
-        }
-        tileArray[1] = parseInt(tileArray[1]) - 2;
-        nextTile = tileArray.join('');
-        for(i = 0; i < allTiles.length; i++){
-            if(nextTile == allTiles[i]){
-                if(nextTile != tile){
-                    if(isEmpty(nextTile)){
-                        moveSet.push(nextTile);               
-                    }else if(canAttack(pieceId, nextTile)){
-                        moveSet.push(nextTile);
-                    }
-                }
-            }
-        }
-        tileArray = tile.split('');
-        //check left moves
-        tileArray[1] = tileArray[1] - 2;
-        mover = allVerticals.indexOf(tileArray[0]);
-        mover = mover - 1;
-        tileArray[0] = allVerticals[mover];
-        nextTile = tileArray.join('');
-        for(i = 0; i < allTiles.length; i++){
-            if(nextTile == allTiles[i]){
-                if(nextTile != tile){
-                    if(isEmpty(nextTile)){
-                        moveSet.push(nextTile);               
-                    }else if(canAttack(pieceId, nextTile)){
-                        moveSet.push(nextTile);
-                    }
-                }
-            }
-        }
-        tileArray[0] = allVerticals[mover + 2];
-        nextTile = tileArray.join('');
-        for(i = 0; i < allTiles.length; i++){
-            if(nextTile == allTiles[i]){
-                if(nextTile != tile){
-                    if(isEmpty(nextTile)){
-                        moveSet.push(nextTile);               
-                    }else if(canAttack(pieceId, nextTile)){
-                        moveSet.push(nextTile);
-                    }
-                }
-            }
-        }
-        tileArray = tile.split('');
-        //check right moves
-        tileArray[1] = parseInt(tileArray[1]) + 2;
-        mover = allVerticals.indexOf(tileArray[0]);
-        mover = mover - 1;
-        tileArray[0] = allVerticals[mover];
-        nextTile = tileArray.join('');
-        for(i = 0; i < allTiles.length; i++){
-            if(nextTile == allTiles[i]){
-                if(nextTile != tile){
-                    if(isEmpty(nextTile)){
-                        moveSet.push(nextTile);               
-                    }else if(canAttack(pieceId, nextTile)){
-                        moveSet.push(nextTile);
-                    }
-                }
-            }
-        }
-        tileArray[0] = allVerticals[mover + 2];
-        nextTile = tileArray.join('');
-        for(i = 0; i < allTiles.length; i++){
-            if(nextTile != tile){
-                if(isEmpty(nextTile)){
-                    moveSet.push(nextTile);               
-                }else if(canAttack(pieceId, nextTile)){
-                    moveSet.push(nextTile);
-                }
-            }
-        }
-        return moveSet;
-    }else if(pieceId == 'white-rook-1'){
+    
+    }else if(pieceId.includes('rook')){
         let moveSet = [];
         let tileArray = tile.split('');
         //less than horizontal check
@@ -1339,73 +1290,7 @@ function getRuleSet(pieceId, tile, check){
             }
         }
         return moveSet;
-    }else if(pieceId == 'white-rook-2'){
-        let moveSet = [];
-        let tileArray = tile.split('');
-        //less than horizontal check
-        for(i = tileArray[1]; i > 0; i--){
-            tileArray[1] = i;
-            let nextTile = tileArray.join('');
-            if(nextTile != tile){
-                if(isEmpty(nextTile)){
-                    moveSet.push(nextTile);               
-                }else if(canAttack(pieceId, nextTile)){
-                    moveSet.push(nextTile);
-                    break;
-                }else{
-                    break;
-                }
-            }
-        }
-        //greater than horizontal check
-        tileArray = tile.split('');        
-        for(i = tileArray[1]; i <= 8; i++){
-            tileArray[1] = i;
-            let nextTile = tileArray.join('');
-            if(nextTile != tile){
-                if(isEmpty(nextTile)){
-                    moveSet.push(nextTile);               
-                }else if(canAttack(pieceId, nextTile)){
-                    moveSet.push(nextTile);
-                    break;
-                }else{
-                    break;
-                }
-            }
-        }
-        //less than vertical check
-        tileArray = tile.split('');
-        for(i = allVerticals.indexOf(tileArray[0]); i >= 0; i--){
-            tileArray[0] = allVerticals[i];
-            let nextTile = tileArray.join('');
-            if(nextTile != tile){
-                if(isEmpty(nextTile)){
-                    moveSet.push(nextTile);               
-                }else if(canAttack(pieceId, nextTile)){
-                    moveSet.push(nextTile);
-                    break;
-                }else{
-                    break;
-                }
-            }
-        }
-        //greater than vertical check
-        tileArray = tile.split('');
-        for(i = allVerticals.indexOf(tileArray[0]); i < 8; i++){
-            tileArray[0] = allVerticals[i];
-            let nextTile = tileArray.join('');
-            if(nextTile != tile){
-                if(isEmpty(nextTile)){
-                    moveSet.push(nextTile);               
-                }else if(canAttack(pieceId, nextTile)){
-                    moveSet.push(nextTile);
-                    break;
-                }else{
-                    break;
-                }
-            }
-        }
-        return moveSet;        
+        
     }else if(pieceId == 'white-pawn-1'){
         let moveSet = [];
         //MoveSet for first move
@@ -1457,7 +1342,7 @@ function getRuleSet(pieceId, tile, check){
             if(isEmpty('f2') && canAttack(pieceId, 'f2')){
                 moveSet.push('f2');
                 if(isEmpty('e2') && canAttack(pieceId, 'e2')){
-                    moveSet.push('e2');                                                
+                    moveSet.push('e2');                                             
                 }
             }
             if(!isEmpty('f3') && canAttack(pieceId, 'f3')){
@@ -2063,824 +1948,7 @@ function getRuleSet(pieceId, tile, check){
             moveSet.push('a7');
         }
         return moveSet;                
-    }else if(pieceId == 'black-queen'){
-        let moveSet = [];
-        let tileArray = tile.split('');
-        //less than horizontal check
-        for(i = tileArray[1]; i > 0; i--){
-            tileArray[1] = i;
-            let nextTile = tileArray.join('');
-            if(nextTile != tile){
-                if(isEmpty(nextTile)){
-                    moveSet.push(nextTile);               
-                }else if(canAttack(pieceId, nextTile)){
-                    moveSet.push(nextTile);
-                    break;
-                }else{
-                    break;
-                }
-            }
-        }
-        //greater than horizontal check
-        tileArray = tile.split('');        
-        for(i = tileArray[1]; i <= 8; i++){
-            tileArray[1] = i;
-            let nextTile = tileArray.join('');
-            if(nextTile != tile){
-                if(isEmpty(nextTile)){
-                    moveSet.push(nextTile);               
-                }else if(canAttack(pieceId, nextTile)){
-                    moveSet.push(nextTile);
-                    break;
-                }else{
-                    break;
-                }
-            }
-        }
-        //less than vertical check
-        tileArray = tile.split('');
-        for(i = allVerticals.indexOf(tileArray[0]); i >= 0; i--){
-            tileArray[0] = allVerticals[i];
-            let nextTile = tileArray.join('');
-            if(nextTile != tile){
-                if(isEmpty(nextTile)){
-                    moveSet.push(nextTile);               
-                }else if(canAttack(pieceId, nextTile)){
-                    moveSet.push(nextTile);
-                    break;
-                }else{
-                    break;
-                }
-            }
-        }
-        //greater than vertical check
-        tileArray = tile.split('');
-        for(i = allVerticals.indexOf(tileArray[0]); i < 8; i++){
-            tileArray[0] = allVerticals[i];
-            let nextTile = tileArray.join('');
-            if(nextTile != tile){
-                if(isEmpty(nextTile)){
-                    moveSet.push(nextTile);               
-                }else if(canAttack(pieceId, nextTile)){
-                    moveSet.push(nextTile);
-                    break;
-                }else{
-                    break;
-                }
-            }
-        }
-        tileArray = tile.split('');
-        let vertical = allVerticals.indexOf(tileArray[0]);
-        let isDone = false;
-        //greater than right diagonal check (/) ->
-        for(i = tileArray[1]; i <= 8; i++){
-            tileArray[1] = i;
-            tileArray[0] = allVerticals[vertical];
-            vertical--;
-            let nextTile = tileArray.join('');
-            for(k = 0; k < allTiles.length; k++){
-                if(nextTile == allTiles[k]){
-                    if(nextTile != tile){
-                        if(isEmpty(nextTile)){
-                            moveSet.push(nextTile);               
-                        }else if(canAttack(pieceId, nextTile)){
-                            moveSet.push(nextTile);
-                            isDone = true;
-                            break;
-                        }else{
-                            isDone = true;
-                            break;
-                        }
-                    }  
-                }
-            }
-            if(isDone){
-                break;
-            } 
-        }
-        //less than right diagonal check (/) <-
-        tileArray = tile.split('');
-        vertical = allVerticals.indexOf(tileArray[0]);
-        tileArray[0] = allVerticals[vertical];
-        isDone = false;
-        for(i = tileArray[1]; i > 0; i--){
-            tileArray[1] = i;
-            tileArray[0] = allVerticals[vertical];
-            vertical++;
-            let nextTile = tileArray.join('');
-            for(k = 0; k < allTiles.length; k++){
-                if(nextTile == allTiles[k]){
-                    if(nextTile != tile){
-                        if(isEmpty(nextTile)){
-                            moveSet.push(nextTile);               
-                        }else if(canAttack(pieceId, nextTile)){
-                            moveSet.push(nextTile);
-                            isDone = true;
-                            break;
-                        }else{
-                            isDone = true;
-                            break;
-                        }
-                    }  
-                }
-            }
-            if(isDone){
-                break;
-            }  
-        }
-        //less than left diagonal check (\) <-
-        tileArray = tile.split('');
-        vertical = allVerticals.indexOf(tileArray[0]);
-        tileArray[0] = allVerticals[vertical];
-        isDone = false;
-        for(i = tileArray[1]; i > 0; i--){
-            tileArray[1] = i;
-            tileArray[0] = allVerticals[vertical];
-            vertical--;
-            let nextTile = tileArray.join('');
-            for(k = 0; k < allTiles.length; k++){
-                if(nextTile == allTiles[k]){
-                    if(nextTile != tile){
-                        if(isEmpty(nextTile)){
-                            moveSet.push(nextTile);               
-                        }else if(canAttack(pieceId, nextTile)){
-                            moveSet.push(nextTile);
-                            isDone = true;
-                            break;
-                        }else{
-                            isDone = true;
-                            break;
-                        }
-                    }  
-                }
-            }
-            if(isDone){
-                break;
-            }  
-        }
-        //greater than left diagonal check (\) ->
-        tileArray = tile.split('');
-        vertical = allVerticals.indexOf(tileArray[0]);
-        tileArray[0] = allVerticals[vertical];
-        isDone = false;
-        for(i = tileArray[1]; i <= 8; i++){
-            tileArray[1] = i;
-            tileArray[0] = allVerticals[vertical];
-            vertical++;
-            let nextTile = tileArray.join('');
-            for(k = 0; k < allTiles.length; k++){
-                if(nextTile == allTiles[k]){
-                    if(nextTile != tile){
-                        if(isEmpty(nextTile)){
-                            moveSet.push(nextTile);               
-                        }else if(canAttack(pieceId, nextTile)){
-                            moveSet.push(nextTile);
-                            isDone = true;
-                            break;
-                        }else{
-                            isDone = true;
-                            break;
-                        }
-                    }  
-                }
-            } 
-            if(isDone){
-                break;
-            } 
-        }
-        return moveSet;
-    }else if(pieceId == 'black-bishop-1'){
-        let moveSet = [];
-        let tileArray = tile.split('');
-        let vertical = allVerticals.indexOf(tileArray[0]);
-        let isDone = false;
-        //greater than right diagonal check (/) ->
-        for(i = tileArray[1]; i <= 8; i++){
-            tileArray[1] = i;
-            tileArray[0] = allVerticals[vertical];
-            vertical--;
-            let nextTile = tileArray.join('');
-            for(k = 0; k < allTiles.length; k++){
-                if(nextTile == allTiles[k]){
-                    if(nextTile != tile){
-                        if(isEmpty(nextTile)){
-                            moveSet.push(nextTile);               
-                        }else if(canAttack(pieceId, nextTile)){
-                            moveSet.push(nextTile);
-                            isDone = true;
-                            break;
-                        }else{
-                            isDone = true;
-                            break;
-                        }
-                    }  
-                }
-            }
-            if(isDone){
-                break;
-            } 
-        }
-        //less than right diagonal check (/) <-
-        tileArray = tile.split('');
-        vertical = allVerticals.indexOf(tileArray[0]);
-        tileArray[0] = allVerticals[vertical];
-        isDone = false;
-        for(i = tileArray[1]; i > 0; i--){
-            tileArray[1] = i;
-            tileArray[0] = allVerticals[vertical];
-            vertical++;
-            let nextTile = tileArray.join('');
-            for(k = 0; k < allTiles.length; k++){
-                if(nextTile == allTiles[k]){
-                    if(nextTile != tile){
-                        if(isEmpty(nextTile)){
-                            moveSet.push(nextTile);               
-                        }else if(canAttack(pieceId, nextTile)){
-                            moveSet.push(nextTile);
-                            isDone = true;
-                            break;
-                        }else{
-                            isDone = true;
-                            break;
-                        }
-                    }  
-                }
-            }
-            if(isDone){
-                break;
-            }  
-        }
-        //less than left diagonal check (\) <-
-        tileArray = tile.split('');
-        vertical = allVerticals.indexOf(tileArray[0]);
-        tileArray[0] = allVerticals[vertical];
-        isDone = false;
-        for(i = tileArray[1]; i > 0; i--){
-            tileArray[1] = i;
-            tileArray[0] = allVerticals[vertical];
-            vertical--;
-            let nextTile = tileArray.join('');
-            for(k = 0; k < allTiles.length; k++){
-                if(nextTile == allTiles[k]){
-                    if(nextTile != tile){
-                        if(isEmpty(nextTile)){
-                            moveSet.push(nextTile);               
-                        }else if(canAttack(pieceId, nextTile)){
-                            moveSet.push(nextTile);
-                            isDone = true;
-                            break;
-                        }else{
-                            isDone = true;
-                            break;
-                        }
-                    }  
-                }
-            }
-            if(isDone){
-                break;
-            }  
-        }
-        //greater than left diagonal check (\) ->
-        tileArray = tile.split('');
-        vertical = allVerticals.indexOf(tileArray[0]);
-        tileArray[0] = allVerticals[vertical];
-        isDone = false;
-        for(i = tileArray[1]; i <= 8; i++){
-            tileArray[1] = i;
-            tileArray[0] = allVerticals[vertical];
-            vertical++;
-            let nextTile = tileArray.join('');
-            for(k = 0; k < allTiles.length; k++){
-                if(nextTile == allTiles[k]){
-                    if(nextTile != tile){
-                        if(isEmpty(nextTile)){
-                            moveSet.push(nextTile);               
-                        }else if(canAttack(pieceId, nextTile)){
-                            moveSet.push(nextTile);
-                            isDone = true;
-                            break;
-                        }else{
-                            isDone = true;
-                            break;
-                        }
-                    }  
-                }
-            } 
-            if(isDone){
-                break;
-            } 
-        }
-        return moveSet;        
-    }else if(pieceId == 'black-bishop-2'){
-        let moveSet = [];
-        let tileArray = tile.split('');
-        let vertical = allVerticals.indexOf(tileArray[0]);
-        let isDone = false;
-        //greater than right diagonal check (/) ->
-        for(i = tileArray[1]; i <= 8; i++){
-            tileArray[1] = i;
-            tileArray[0] = allVerticals[vertical];
-            vertical--;
-            let nextTile = tileArray.join('');
-            for(k = 0; k < allTiles.length; k++){
-                if(nextTile == allTiles[k]){
-                    if(nextTile != tile){
-                        if(isEmpty(nextTile)){
-                            moveSet.push(nextTile);               
-                        }else if(canAttack(pieceId, nextTile)){
-                            moveSet.push(nextTile);
-                            isDone = true;
-                            break;
-                        }else{
-                            isDone = true;
-                            break;
-                        }
-                    }  
-                }
-            }
-            if(isDone){
-                break;
-            } 
-        }
-        //less than right diagonal check (/) <-
-        tileArray = tile.split('');
-        vertical = allVerticals.indexOf(tileArray[0]);
-        tileArray[0] = allVerticals[vertical];
-        isDone = false;
-        for(i = tileArray[1]; i > 0; i--){
-            tileArray[1] = i;
-            tileArray[0] = allVerticals[vertical];
-            vertical++;
-            let nextTile = tileArray.join('');
-            for(k = 0; k < allTiles.length; k++){
-                if(nextTile == allTiles[k]){
-                    if(nextTile != tile){
-                        if(isEmpty(nextTile)){
-                            moveSet.push(nextTile);               
-                        }else if(canAttack(pieceId, nextTile)){
-                            moveSet.push(nextTile);
-                            isDone = true;
-                            break;
-                        }else{
-                            isDone = true;
-                            break;
-                        }
-                    }  
-                }
-            }
-            if(isDone){
-                break;
-            }  
-        }
-        //less than left diagonal check (\) <-
-        tileArray = tile.split('');
-        vertical = allVerticals.indexOf(tileArray[0]);
-        tileArray[0] = allVerticals[vertical];
-        isDone = false;
-        for(i = tileArray[1]; i > 0; i--){
-            tileArray[1] = i;
-            tileArray[0] = allVerticals[vertical];
-            vertical--;
-            let nextTile = tileArray.join('');
-            for(k = 0; k < allTiles.length; k++){
-                if(nextTile == allTiles[k]){
-                    if(nextTile != tile){
-                        if(isEmpty(nextTile)){
-                            moveSet.push(nextTile);               
-                        }else if(canAttack(pieceId, nextTile)){
-                            moveSet.push(nextTile);
-                            isDone = true;
-                            break;
-                        }else{
-                            isDone = true;
-                            break;
-                        }
-                    }  
-                }
-            }
-            if(isDone){
-                break;
-            }  
-        }
-        //greater than left diagonal check (\) ->
-        tileArray = tile.split('');
-        vertical = allVerticals.indexOf(tileArray[0]);
-        tileArray[0] = allVerticals[vertical];
-        isDone = false;
-        for(i = tileArray[1]; i <= 8; i++){
-            tileArray[1] = i;
-            tileArray[0] = allVerticals[vertical];
-            vertical++;
-            let nextTile = tileArray.join('');
-            for(k = 0; k < allTiles.length; k++){
-                if(nextTile == allTiles[k]){
-                    if(nextTile != tile){
-                        if(isEmpty(nextTile)){
-                            moveSet.push(nextTile);               
-                        }else if(canAttack(pieceId, nextTile)){
-                            moveSet.push(nextTile);
-                            isDone = true;
-                            break;
-                        }else{
-                            isDone = true;
-                            break;
-                        }
-                    }  
-                }
-            } 
-            if(isDone){
-                break;
-            } 
-        }
-        return moveSet;        
-    }else if(pieceId == 'black-horse-1'){
-        let moveSet = [];
-        let tileArray = tile.split('');
-        //check top moves
-        let mover = allVerticals.indexOf(tileArray[0]);
-        mover = mover - 2;
-        tileArray[0] = allVerticals[mover];
-        tileArray[1] = parseInt(tileArray[1]) + 1;
-        let nextTile = tileArray.join('');
-        for(i = 0; i < allTiles.length; i++){
-            if(nextTile == allTiles[i]){
-                if(nextTile != tile){
-                    if(isEmpty(nextTile)){
-                        moveSet.push(nextTile);               
-                    }else if(canAttack(pieceId, nextTile)){
-                        moveSet.push(nextTile);
-                    }
-                }
-            }
-        }
-        tileArray[1] = parseInt(tileArray[1]) - 2;
-        nextTile = tileArray.join('');
-        for(i = 0; i < allTiles.length; i++){
-            if(nextTile == allTiles[i]){
-                if(nextTile != tile){
-                    if(isEmpty(nextTile)){
-                        moveSet.push(nextTile);               
-                    }else if(canAttack(pieceId, nextTile)){
-                        moveSet.push(nextTile);
-                    }
-                }
-            }
-        }
-        tileArray = tile.split('');
-        //check bottom moves
-        mover = allVerticals.indexOf(tileArray[0]);
-        mover = mover + 2;
-        tileArray[0] = allVerticals[mover];
-        tileArray[1] = parseInt(tileArray[1]) + 1;
-        nextTile = tileArray.join('');
-        for(i = 0; i < allTiles.length; i++){
-            if(nextTile == allTiles[i]){
-                if(nextTile != tile){
-                    if(isEmpty(nextTile)){
-                        moveSet.push(nextTile);               
-                    }else if(canAttack(pieceId, nextTile)){
-                        moveSet.push(nextTile);
-                    }
-                }
-            }
-        }
-        tileArray[1] = parseInt(tileArray[1]) - 2;
-        nextTile = tileArray.join('');
-        for(i = 0; i < allTiles.length; i++){
-            if(nextTile == allTiles[i]){
-                if(nextTile != tile){
-                    if(isEmpty(nextTile)){
-                        moveSet.push(nextTile);               
-                    }else if(canAttack(pieceId, nextTile)){
-                        moveSet.push(nextTile);
-                    }
-                }
-            }
-        }
-        tileArray = tile.split('');
-        //check left moves
-        tileArray[1] = tileArray[1] - 2;
-        mover = allVerticals.indexOf(tileArray[0]);
-        mover = mover - 1;
-        tileArray[0] = allVerticals[mover];
-        nextTile = tileArray.join('');
-        for(i = 0; i < allTiles.length; i++){
-            if(nextTile == allTiles[i]){
-                if(nextTile != tile){
-                    if(isEmpty(nextTile)){
-                        moveSet.push(nextTile);               
-                    }else if(canAttack(pieceId, nextTile)){
-                        moveSet.push(nextTile);
-                    }
-                }
-            }
-        }
-        tileArray[0] = allVerticals[mover + 2];
-        nextTile = tileArray.join('');
-        for(i = 0; i < allTiles.length; i++){
-            if(nextTile == allTiles[i]){
-                if(nextTile != tile){
-                    if(isEmpty(nextTile)){
-                        moveSet.push(nextTile);               
-                    }else if(canAttack(pieceId, nextTile)){
-                        moveSet.push(nextTile);
-                    }
-                }
-            }
-        }
-        tileArray = tile.split('');
-        //check right moves
-        tileArray[1] = parseInt(tileArray[1]) + 2;
-        mover = allVerticals.indexOf(tileArray[0]);
-        mover = mover - 1;
-        tileArray[0] = allVerticals[mover];
-        nextTile = tileArray.join('');
-        for(i = 0; i < allTiles.length; i++){
-            if(nextTile == allTiles[i]){
-                if(nextTile != tile){
-                    if(isEmpty(nextTile)){
-                        moveSet.push(nextTile);               
-                    }else if(canAttack(pieceId, nextTile)){
-                        moveSet.push(nextTile);
-                    }
-                }
-            }
-        }
-        tileArray[0] = allVerticals[mover + 2];
-        nextTile = tileArray.join('');
-        for(i = 0; i < allTiles.length; i++){
-            if(nextTile == allTiles[i]){
-                if(nextTile != tile){
-                    if(isEmpty(nextTile)){
-                        moveSet.push(nextTile);               
-                    }else if(canAttack(pieceId, nextTile)){
-                        moveSet.push(nextTile);
-                    }
-                }
-            }
-        }
-        return moveSet;
-    }else if(pieceId == 'black-horse-2'){
-        let moveSet = [];
-        let tileArray = tile.split('');
-        //check top moves
-        let mover = allVerticals.indexOf(tileArray[0]);
-        mover = mover - 2;
-        tileArray[0] = allVerticals[mover];
-        tileArray[1] = parseInt(tileArray[1]) + 1;
-        let nextTile = tileArray.join('');
-        for(i = 0; i < allTiles.length; i++){
-            if(nextTile == allTiles[i]){
-                if(nextTile != tile){
-                    if(isEmpty(nextTile)){
-                        moveSet.push(nextTile);               
-                    }else if(canAttack(pieceId, nextTile)){
-                        moveSet.push(nextTile);
-                    }
-                }
-            }
-        }
-        tileArray[1] = parseInt(tileArray[1]) - 2;
-        nextTile = tileArray.join('');
-        for(i = 0; i < allTiles.length; i++){
-            if(nextTile == allTiles[i]){
-                if(nextTile != tile){
-                    if(isEmpty(nextTile)){
-                        moveSet.push(nextTile);               
-                    }else if(canAttack(pieceId, nextTile)){
-                        moveSet.push(nextTile);
-                    }
-                }
-            }
-        }
-        tileArray = tile.split('');
-        //check bottom moves
-        mover = allVerticals.indexOf(tileArray[0]);
-        mover = mover + 2;
-        tileArray[0] = allVerticals[mover];
-        tileArray[1] = parseInt(tileArray[1]) + 1;
-        nextTile = tileArray.join('');
-        for(i = 0; i < allTiles.length; i++){
-            if(nextTile == allTiles[i]){
-                if(nextTile != tile){
-                    if(isEmpty(nextTile)){
-                        moveSet.push(nextTile);               
-                    }else if(canAttack(pieceId, nextTile)){
-                        moveSet.push(nextTile);
-                    }
-                }
-            }
-        }
-        tileArray[1] = parseInt(tileArray[1]) - 2;
-        nextTile = tileArray.join('');
-        for(i = 0; i < allTiles.length; i++){
-            if(nextTile == allTiles[i]){
-                if(nextTile != tile){
-                    if(isEmpty(nextTile)){
-                        moveSet.push(nextTile);               
-                    }else if(canAttack(pieceId, nextTile)){
-                        moveSet.push(nextTile);
-                    }
-                }
-            }
-        }
-        tileArray = tile.split('');
-        //check left moves
-        tileArray[1] = tileArray[1] - 2;
-        mover = allVerticals.indexOf(tileArray[0]);
-        mover = mover - 1;
-        tileArray[0] = allVerticals[mover];
-        nextTile = tileArray.join('');
-        for(i = 0; i < allTiles.length; i++){
-            if(nextTile == allTiles[i]){
-                if(nextTile != tile){
-                    if(isEmpty(nextTile)){
-                        moveSet.push(nextTile);               
-                    }else if(canAttack(pieceId, nextTile)){
-                        moveSet.push(nextTile);
-                    }
-                }
-            }
-        }
-        tileArray[0] = allVerticals[mover + 2];
-        nextTile = tileArray.join('');
-        for(i = 0; i < allTiles.length; i++){
-            if(nextTile == allTiles[i]){
-                if(nextTile != tile){
-                    if(isEmpty(nextTile)){
-                        moveSet.push(nextTile);               
-                    }else if(canAttack(pieceId, nextTile)){
-                        moveSet.push(nextTile);
-                    }
-                }
-            }
-        }
-        tileArray = tile.split('');
-        //check right moves
-        tileArray[1] = parseInt(tileArray[1]) + 2;
-        mover = allVerticals.indexOf(tileArray[0]);
-        mover = mover - 1;
-        tileArray[0] = allVerticals[mover];
-        nextTile = tileArray.join('');
-        for(i = 0; i < allTiles.length; i++){
-            if(nextTile == allTiles[i]){
-                if(nextTile != tile){
-                    if(isEmpty(nextTile)){
-                        moveSet.push(nextTile);               
-                    }else if(canAttack(pieceId, nextTile)){
-                        moveSet.push(nextTile);
-                    }
-                }
-            }
-        }
-        tileArray[0] = allVerticals[mover + 2];
-        nextTile = tileArray.join('');
-        for(i = 0; i < allTiles.length; i++){
-            if(nextTile == allTiles[i]){
-                if(nextTile != tile){
-                    if(isEmpty(nextTile)){
-                        moveSet.push(nextTile);               
-                    }else if(canAttack(pieceId, nextTile)){
-                        moveSet.push(nextTile);
-                    }
-                }
-            }
-        }
-        return moveSet;
-    }else if(pieceId == 'black-rook-1'){
-        let moveSet = [];
-        let tileArray = tile.split('');
-        //less than horizontal check
-        for(i = tileArray[1]; i > 0; i--){
-            tileArray[1] = i;
-            let nextTile = tileArray.join('');
-            if(nextTile != tile){
-                if(isEmpty(nextTile)){
-                    moveSet.push(nextTile);               
-                }else if(canAttack(pieceId, nextTile)){
-                    moveSet.push(nextTile);
-                    break;
-                }else{
-                    break;
-                }
-            }
-        }
-        //greater than horizontal check
-        tileArray = tile.split('');        
-        for(i = tileArray[1]; i <= 8; i++){
-            tileArray[1] = i;
-            let nextTile = tileArray.join('');
-            if(nextTile != tile){
-                if(isEmpty(nextTile)){
-                    moveSet.push(nextTile);               
-                }else if(canAttack(pieceId, nextTile)){
-                    moveSet.push(nextTile);
-                    break;
-                }else{
-                    break;
-                }
-            }
-        }
-        //less than vertical check
-        tileArray = tile.split('');
-        for(i = allVerticals.indexOf(tileArray[0]); i >= 0; i--){
-            tileArray[0] = allVerticals[i];
-            let nextTile = tileArray.join('');
-            if(nextTile != tile){
-                if(isEmpty(nextTile)){
-                    moveSet.push(nextTile);               
-                }else if(canAttack(pieceId, nextTile)){
-                    moveSet.push(nextTile);
-                    break;
-                }else{
-                    break;
-                }
-            }
-        }
-        //greater than vertical check
-        tileArray = tile.split('');
-        for(i = allVerticals.indexOf(tileArray[0]); i < 8; i++){
-            tileArray[0] = allVerticals[i];
-            let nextTile = tileArray.join('');
-            if(nextTile != tile){
-                if(isEmpty(nextTile)){
-                    moveSet.push(nextTile);               
-                }else if(canAttack(pieceId, nextTile)){
-                    moveSet.push(nextTile);
-                    break;
-                }else{
-                    break;
-                }
-            }
-        }
-        return moveSet;        
-    }else if(pieceId == 'black-rook-2'){
-        let moveSet = [];
-        let tileArray = tile.split('');
-        //less than horizontal check
-        for(i = tileArray[1]; i > 0; i--){
-            tileArray[1] = i;
-            let nextTile = tileArray.join('');
-            if(nextTile != tile){
-                if(isEmpty(nextTile)){
-                    moveSet.push(nextTile);               
-                }else if(canAttack(pieceId, nextTile)){
-                    moveSet.push(nextTile);
-                    break;
-                }else{
-                    break;
-                }
-            }
-        }
-        //greater than horizontal check
-        tileArray = tile.split('');        
-        for(i = tileArray[1]; i <= 8; i++){
-            tileArray[1] = i;
-            let nextTile = tileArray.join('');
-            if(nextTile != tile){
-                if(isEmpty(nextTile)){
-                    moveSet.push(nextTile);               
-                }else if(canAttack(pieceId, nextTile)){
-                    moveSet.push(nextTile);
-                    break;
-                }else{
-                    break;
-                }
-            }
-        }
-        //less than vertical check
-        tileArray = tile.split('');
-        for(i = allVerticals.indexOf(tileArray[0]); i >= 0; i--){
-            tileArray[0] = allVerticals[i];
-            let nextTile = tileArray.join('');
-            if(nextTile != tile){
-                if(isEmpty(nextTile)){
-                    moveSet.push(nextTile);               
-                }else if(canAttack(pieceId, nextTile)){
-                    moveSet.push(nextTile);
-                    break;
-                }else{
-                    break;
-                }
-            }
-        }
-        //greater than vertical check
-        tileArray = tile.split('');
-        for(i = allVerticals.indexOf(tileArray[0]); i < 8; i++){
-            tileArray[0] = allVerticals[i];
-            let nextTile = tileArray.join('');
-            if(nextTile != tile){
-                if(isEmpty(nextTile)){
-                    moveSet.push(nextTile);               
-                }else if(canAttack(pieceId, nextTile)){
-                    moveSet.push(nextTile);
-                    break;
-                }else{
-                    break;
-                }
-            }
-        }
-        return moveSet;        
+    
     }else if(pieceId == 'black-pawn-1'){
         let moveSet = [];
         //MoveSet for first move
@@ -3263,5 +2331,3 @@ function getRuleSet(pieceId, tile, check){
         //tile is empty
     }
 }
-
-//add another method that is the same as getRuleset() but this will only be called for checking isunderattack()

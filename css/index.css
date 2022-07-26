@@ -4,7 +4,7 @@
 }
 body{
     position: relative;
-
+    overflow-y: hidden;
 }
 .header{
     position: relative;
@@ -15,6 +15,10 @@ body{
 }
 #announcer{
     font-family: georgia, Arial, Helvetica, sans-serif;
+}
+#extraPieceStorage{
+    position: absolute;
+    visibility: hidden;
 }
 /* #white-collection-tray{
     position: absolute;
@@ -53,4 +57,39 @@ body{
 }
 .possibleMove{
     background-color: orange;
+}
+#promotionMenu{
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%,-50%);
+    height: 40vh;
+    width: 40vw;
+    visibility: hidden;
+    background-color: white;
+    color: black;
+    background-color: brown;
+    border: 10px rgb(63, 9, 9) outset;
+}
+#promotionMenu h1{
+    display: flex;
+    justify-content: center;    
+}
+#promotionMenu ul{
+    align-items: center;
+    list-style-type: none;
+    margin: 0;
+    overflow: hidden;
+    display: flex;
+    justify-content: space-evenly;
+    margin-top: 15%;
+}
+#promotionMenu li{
+    float: center;
+    align-items: center;
+    cursor: pointer;
+}
+#promotionMenu svg{
+    display: block;
+    text-align: center;
 }
