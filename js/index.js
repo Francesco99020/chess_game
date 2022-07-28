@@ -1,23 +1,21 @@
 /*
                                                                 ***Open Ticket list***
                                                             Ticket priority from top to bottom
-1. King does not seem to restrict moveset for promoted pieces
-
-2. fixes for kings moveset logic
+1. fixes for kings moveset logic
     a. Add a method to check if a king taking an enemy piece will put the king under attack.
     b. Add a method that checks if moving another (friendly) piece will result in the king being under attack
         I. prevent these moves from happening 
 
-3. Add "En passant" Basically if a pawn moves two squares on its starting move and is adjacent to another pawn
+2. Add "En passant" Basically if a pawn moves two squares on its starting move and is adjacent to another pawn
 the opposing pawn can make a diagonal move behind the pawn and capture it.
 
-4. Add "check" and "checkmate"
+3. Add "check" and "checkmate"
 
-5. Make a function that decideds who's turn it is
+4. Make a function that decideds who's turn it is
     a. should disable other player from making moves when not their turn
     b. The state of the board should be displayed by the announcer (ex: "white turn", "black turn", "white victory")
 
-6. Add a piece collection tray for "killed" pieces respectivly for their color
+5. Add a piece collection tray for "killed" pieces respectivly for their color
     a. white tray will display on the right side of board and left will display black
 */
 //Global variables
@@ -253,7 +251,7 @@ function checkPromotion(){
                 for(i = 16; i < 24; i++){
                     if(!isActive[i]){
                         var pieceHolder = document.getElementById(allPieces[i]).outerHTML;
-                        rookReservePiecePosition = document.getElementById(reservePieces.indexOf(allPieces[i])) + 1;
+                        rookReservePiecePosition = reservePieces.indexOf(allPieces[i]) + 1;
                         rookReservePiecePosition = 'storagePiece' + rookReservePiecePosition;
                         document.getElementById('rook').innerHTML = pieceHolder;
                         break;
@@ -262,7 +260,7 @@ function checkPromotion(){
                 for(i = 24; i < 32; i++){
                     if(!isActive[i]){
                         var pieceHolder = document.getElementById(allPieces[i]).outerHTML;
-                        horseReservePiecePosition = document.getElementById(reservePieces.indexOf(allPieces[i])) + 1;
+                        horseReservePiecePosition = reservePieces.indexOf(allPieces[i]) + 1;
                         horseReservePiecePosition = 'storagePiece' + horseReservePiecePosition;
                         document.getElementById('horse').innerHTML = pieceHolder;
                         break;
@@ -271,7 +269,7 @@ function checkPromotion(){
                 for(i = 32; i < 40; i++){
                     if(!isActive[i]){
                         var pieceHolder = document.getElementById(allPieces[i]).outerHTML;
-                        bishopReservePiecePosition = document.getElementById(reservePieces.indexOf(allPieces[i])) + 1;
+                        bishopReservePiecePosition = reservePieces.indexOf(allPieces[i]) + 1;
                         bishopReservePiecePosition = 'storagePiece' + bishopReservePiecePosition;
                         document.getElementById('bishop').innerHTML = pieceHolder;
                         break;
@@ -280,7 +278,7 @@ function checkPromotion(){
                 for(i = 40; i < 48; i++){
                     if(!isActive[i]){
                         var pieceHolder = document.getElementById(allPieces[i]).outerHTML;
-                        queenReservePiecePosition = document.getElementById(reservePieces.indexOf(allPieces[i])) + 1;
+                        queenReservePiecePosition = reservePieces.indexOf(allPieces[i]) + 1;
                         queenReservePiecePosition = 'storagePiece' + queenReservePiecePosition;
                         document.getElementById('queen').innerHTML = pieceHolder;
                         break;
@@ -291,7 +289,7 @@ function checkPromotion(){
                  for(i = 64; i < 72; i++){
                     if(!isActive[i]){
                         var pieceHolder = document.getElementById(allPieces[i]).outerHTML;
-                        rookReservePiecePosition = document.getElementById(reservePieces.indexOf(allPieces[i])) + 1;
+                        rookReservePiecePosition = reservePieces.indexOf(allPieces[i]) + 1;
                         rookReservePiecePosition = 'storagePiece' + rookReservePiecePosition;
                         document.getElementById('rook').innerHTML = pieceHolder;
                         break;
@@ -300,7 +298,7 @@ function checkPromotion(){
                 for(i = 72; i < 80; i++){
                     if(!isActive[i]){
                         var pieceHolder = document.getElementById(allPieces[i]).outerHTML;
-                        horseReservePiecePosition = document.getElementById(reservePieces.indexOf(allPieces[i])) + 1;
+                        horseReservePiecePosition = reservePieces.indexOf(allPieces[i]) + 1;
                         horseReservePiecePosition = 'storagePiece' + horseReservePiecePosition;
                         document.getElementById('horse').innerHTML = pieceHolder;
                         break;
@@ -309,7 +307,7 @@ function checkPromotion(){
                 for(i = 80; i < 88; i++){
                     if(!isActive[i]){
                         var pieceHolder = document.getElementById(allPieces[i]).outerHTML;
-                        bishopReservePiecePosition = document.getElementById(reservePieces.indexOf(allPieces[i])) + 1;
+                        bishopReservePiecePosition = reservePieces.indexOf(allPieces[i]) + 1;
                         bishopReservePiecePosition = 'storagePiece' + bishopReservePiecePosition;
                         document.getElementById('bishop').innerHTML = pieceHolder;
                         break;
@@ -318,7 +316,7 @@ function checkPromotion(){
                 for(i = 88; i < 96; i++){
                     if(!isActive[i]){
                         var pieceHolder = document.getElementById(allPieces[i]).outerHTML;
-                        queenReservePiecePosition = document.getElementById(reservePieces.indexOf(allPieces[i])) + 1;
+                        queenReservePiecePosition = reservePieces.indexOf(allPieces[i]) + 1;
                         queenReservePiecePosition = 'storagePiece' + queenReservePiecePosition;
                         document.getElementById('queen').innerHTML = pieceHolder;
                         break;
@@ -340,6 +338,7 @@ function promote(id){
         //updates isActive array
         updateIsActive(pawnToBePromoted, false);
         updateIsActive(newPiece ,true);
+        //deletes piece from storage
     }else if(id == 'horse'){
         document.getElementById(horseReservePiecePosition).innerHTML = '';
         document.getElementById(pawnToBePromoted).parentNode.innerHTML = document.getElementById('horse').innerHTML;
