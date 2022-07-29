@@ -1,20 +1,22 @@
 /*
                                                                 ***Open Ticket list***
                                                             Ticket priority from top to bottom
-1. fixes for kings moveset logic
+1. Fix bug where sometimes if 2 pieces can be taken by king, one of the pieces will change into the other one
+
+2. fixes for kings moveset logic
     a. Add a method that checks if moving another (friendly) piece will result in the king being under attack
         I. prevent these moves from happening 
 
-2. Add "En passant" Basically if a pawn moves two squares on its starting move and is adjacent to another pawn
+3. Add "En passant" Basically if a pawn moves two squares on its starting move and is adjacent to another pawn
 the opposing pawn can make a diagonal move behind the pawn and capture it.
 
-3. Add "check" and "checkmate"
+4. Add "check" and "checkmate"
 
-4. Make a function that decideds who's turn it is
+5. Make a function that decideds who's turn it is
     a. should disable other player from making moves when not their turn
     b. The state of the board should be displayed by the announcer (ex: "white turn", "black turn", "white victory")
 
-5. Add a piece collection tray for "killed" pieces respectivly for their color
+6. Add a piece collection tray for "killed" pieces respectivly for their color
     a. white tray will display on the right side of board and left will display black
 */
 //Global variables
@@ -533,7 +535,6 @@ function getRuleSet(pieceId, tile, check){
         let moveSet = [];
         let tileArray = tile.split('');
         let wasChecked = false;
-        let shouldRemoveTile = false;
         //check tile above
         let mover = allVerticals.indexOf(tileArray[0]);
         mover--;
@@ -545,31 +546,30 @@ function getRuleSet(pieceId, tile, check){
                     if(check && !wasChecked){
                         if(!isUnderAttack(pieceId, nextTile)){
                             moveSet.push(nextTile);
-                        }else{
-                            console.log(nextTile + ' is removed from moveset');
-                            shouldRemoveTile = true;
                         }
                     }else{
                         moveSet.push(nextTile);
                     }
-                    wasChecked = true;            
+                    wasChecked = true;
+                    break;            
                 }else if(canAttack(pieceId, nextTile)){
-                    //add method to check if king would be underattack if enemyy piece is taken
-                    if(!willBeUnderAttack(pieceId, nextTile)){
-                        moveSet.push(nextTile);
-                        break;
+                    wasChecked = false;
+                    if(check && !wasChecked){
+                        //add method to check if king would be underattack if enemyy piece is taken
+                        if(!willBeUnderAttack(pieceId, nextTile)){
+                            moveSet.push(nextTile);
+                            wasChecked = true;
+                            break;
+                        }else{
+                            wasChecked = true;
+                            break;
+                        }
                     }else{
-                        break;
+                        moveSet.push(nextTile);
                     }
                 }
             }
         }
-        if(shouldRemoveTile){
-
-            moveSet.splice(moveSet.indexOf(nextTile), 1);
-        }
-        console.log('checks reset');
-        shouldRemoveTile = false;
         wasChecked = false;
         //check tile below
         tileArray = tile.split('');
@@ -583,29 +583,30 @@ function getRuleSet(pieceId, tile, check){
                     if(check && !wasChecked){
                         if(!isUnderAttack(pieceId, nextTile)){
                             moveSet.push(nextTile);
-                        }else{
-                            console.log(nextTile + ' is removed from moveset');
-                            shouldRemoveTile = true;
                         }
                     }else{
                         moveSet.push(nextTile);
                     }
-                    wasChecked = true;            
+                    wasChecked = true;  
+                    break;          
                 }else if(canAttack(pieceId, nextTile)){
-                    if(!willBeUnderAttack(pieceId, nextTile)){
-                        moveSet.push(nextTile);
-                        break;
+                    wasChecked = false;
+                    if(check && !wasChecked){
+                        //add method to check if king would be underattack if enemyy piece is taken
+                        if(!willBeUnderAttack(pieceId, nextTile)){
+                            moveSet.push(nextTile);
+                            wasChecked = true;
+                            break;
+                        }else{
+                            wasChecked = true;
+                            break;
+                        }
                     }else{
-                        break;
+                        moveSet.push(nextTile);
                     }
                 }
             }
         }
-        if(shouldRemoveTile){
-            moveSet.splice(moveSet.indexOf(nextTile), 1);
-        }
-        console.log('checks reset');
-        shouldRemoveTile = false;
         wasChecked = false;
         //check tile to left
         tileArray = tile.split('');
@@ -619,29 +620,30 @@ function getRuleSet(pieceId, tile, check){
                     if(check && !wasChecked){
                         if(!isUnderAttack(pieceId, nextTile)){
                             moveSet.push(nextTile);
-                        }else{
-                            console.log(nextTile + ' is removed from moveset');
-                            shouldRemoveTile = true;
                         }
                     }else{
                         moveSet.push(nextTile);
                     }
-                    wasChecked = true;            
+                    wasChecked = true;       
+                    break;     
                 }else if(canAttack(pieceId, nextTile)){
-                    if(!willBeUnderAttack(pieceId, nextTile)){
-                        moveSet.push(nextTile);
-                        break;
+                    wasChecked = false;
+                    if(check && !wasChecked){
+                        //add method to check if king would be underattack if enemyy piece is taken
+                        if(!willBeUnderAttack(pieceId, nextTile)){
+                            moveSet.push(nextTile);
+                            wasChecked = true;
+                            break;
+                        }else{
+                            wasChecked = true;
+                            break;
+                        }
                     }else{
-                        break;
+                        moveSet.push(nextTile);
                     }
                 }
             }
         }
-        if(shouldRemoveTile){
-            moveSet.splice(moveSet.indexOf(nextTile), 1);
-        }
-        console.log('checks reset');
-        shouldRemoveTile = false;
         wasChecked = false;
         //check tile to right
         tileArray = tile.split('');
@@ -655,29 +657,30 @@ function getRuleSet(pieceId, tile, check){
                     if(check && !wasChecked){
                         if(!isUnderAttack(pieceId, nextTile)){
                             moveSet.push(nextTile);
-                        }else{
-                            console.log(nextTile + ' is removed from moveset');
-                            shouldRemoveTile = true;
                         }
                     }else{
                         moveSet.push(nextTile);
                     }
-                    wasChecked = true;            
+                    wasChecked = true;  
+                    break;          
                 }else if(canAttack(pieceId, nextTile)){
-                    if(!willBeUnderAttack(pieceId, nextTile)){
-                        moveSet.push(nextTile);
-                        break;
+                    wasChecked = false;
+                    if(check && !wasChecked){
+                        //add method to check if king would be underattack if enemyy piece is taken
+                        if(!willBeUnderAttack(pieceId, nextTile)){
+                            moveSet.push(nextTile);
+                            wasChecked = true;
+                            break;
+                        }else{
+                            wasChecked = true;
+                            break;
+                        }
                     }else{
-                        break;
+                        moveSet.push(nextTile);
                     }
                 }
             }
         }
-        if(shouldRemoveTile){
-            moveSet.splice(moveSet.indexOf(nextTile), 1);
-        }
-        console.log('checks reset');
-        shouldRemoveTile = false;
         wasChecked = false;
         //check tile top-left
         tileArray = tile.split('');
@@ -694,29 +697,30 @@ function getRuleSet(pieceId, tile, check){
                     if(check && !wasChecked){
                         if(!isUnderAttack(pieceId, nextTile)){
                             moveSet.push(nextTile);
-                        }else{
-                            console.log(nextTile + ' is removed from moveset');
-                            shouldRemoveTile = true;
                         }
                     }else{
                         moveSet.push(nextTile);
                     }
-                    wasChecked = true;            
+                    wasChecked = true;   
+                    break;         
                 }else if(canAttack(pieceId, nextTile)){
-                    if(!willBeUnderAttack(pieceId, nextTile)){
-                        moveSet.push(nextTile);
-                        break;
+                    wasChecked = false;
+                    if(check && !wasChecked){
+                        //add method to check if king would be underattack if enemyy piece is taken
+                        if(!willBeUnderAttack(pieceId, nextTile)){
+                            moveSet.push(nextTile);
+                            wasChecked = true;
+                            break;
+                        }else{
+                            wasChecked = true;
+                            break;
+                        }
                     }else{
-                        break;
+                        moveSet.push(nextTile);
                     }
                 }
             }
         }
-        if(shouldRemoveTile){
-            moveSet.splice(moveSet.indexOf(nextTile), 1);
-        }
-        console.log('checks reset');
-        shouldRemoveTile = false;
         wasChecked = false;
         //check tile top-right
         tileArray = tile.split('');
@@ -733,29 +737,30 @@ function getRuleSet(pieceId, tile, check){
                     if(check && !wasChecked){
                         if(!isUnderAttack(pieceId, nextTile)){
                             moveSet.push(nextTile);
-                        }else{
-                            console.log(nextTile + ' is removed from moveset');
-                            shouldRemoveTile = true;
                         }
                     }else{
                         moveSet.push(nextTile);
                     }
-                    wasChecked = true;            
+                    wasChecked = true;    
+                    break;        
                 }else if(canAttack(pieceId, nextTile)){
-                    if(!willBeUnderAttack(pieceId, nextTile)){
-                        moveSet.push(nextTile);
-                        break;
+                    wasChecked = false;
+                    if(check && !wasChecked){
+                        //add method to check if king would be underattack if enemyy piece is taken
+                        if(!willBeUnderAttack(pieceId, nextTile)){
+                            moveSet.push(nextTile);
+                            wasChecked = true;
+                            break;
+                        }else{
+                            wasChecked = true;
+                            break;
+                        }
                     }else{
-                        break;
+                        moveSet.push(nextTile);
                     }
                 }
             }
         }
-        if(shouldRemoveTile){
-            moveSet.splice(moveSet.indexOf(nextTile), 1);
-        }
-        console.log('checks reset');
-        shouldRemoveTile = false;
         wasChecked = false;
         //check tile bottom-left
         tileArray = tile.split('');
@@ -772,29 +777,30 @@ function getRuleSet(pieceId, tile, check){
                     if(check && !wasChecked){
                         if(!isUnderAttack(pieceId, nextTile)){
                             moveSet.push(nextTile);
-                        }else{
-                            console.log(nextTile + ' is removed from moveset');
-                            shouldRemoveTile = true;
                         }
                     }else{
                         moveSet.push(nextTile);
                     }
-                    wasChecked = true;            
+                    wasChecked = true;
+                    break;            
                 }else if(canAttack(pieceId, nextTile)){
-                    if(!willBeUnderAttack(pieceId, nextTile)){
-                        moveSet.push(nextTile);
-                        break;
+                    wasChecked = false;
+                    if(check && !wasChecked){
+                        //add method to check if king would be underattack if enemyy piece is taken
+                        if(!willBeUnderAttack(pieceId, nextTile)){
+                            moveSet.push(nextTile);
+                            wasChecked = true;
+                            break;
+                        }else{
+                            wasChecked = true;
+                            break;
+                        }
                     }else{
-                        break;
+                        moveSet.push(nextTile);
                     }
                 }
             }
         }
-        if(shouldRemoveTile){
-            moveSet.splice(moveSet.indexOf(nextTile), 1);
-        }
-        console.log('checks reset');
-        shouldRemoveTile = false;
         wasChecked = false;
         //check tile bottom-right
         tileArray = tile.split('');
@@ -811,29 +817,31 @@ function getRuleSet(pieceId, tile, check){
                     if(check && !wasChecked){
                         if(!isUnderAttack(pieceId, nextTile)){
                             moveSet.push(nextTile);
-                        }else{
-                            console.log(nextTile + ' is removed from moveset');
-                            shouldRemoveTile = true;
                         }
                     }else{
                         moveSet.push(nextTile);
                     }
-                    wasChecked = true;            
+                    wasChecked = true;   
+                    break;         
                 }else if(canAttack(pieceId, nextTile)){
-                    if(!willBeUnderAttack(pieceId, nextTile)){
-                        moveSet.push(nextTile);
-                        break;
+                    wasChecked = false;
+                    if(check && !wasChecked){
+                        //add method to check if king would be underattack if enemyy piece is taken
+                        if(!willBeUnderAttack(pieceId, nextTile)){
+                            moveSet.push(nextTile);
+                            wasChecked = true;
+                            break;
+                        }else{
+                            wasChecked = true;
+                            break;
+                        }
                     }else{
-                        break;
+                        moveSet.push(nextTile);
                     }
                 }
             }
         }
-        if(shouldRemoveTile){
-            moveSet.splice(moveSet.indexOf(nextTile), 1);
-        }
-        console.log('checks reset');
-        shouldRemoveTile = false;
+
         wasChecked = false;
         //check if castling can be preformed
         if(numOfWhiteKingMoves == 0 && numOfWhiteRook1Moves == 0 && isEmpty('h2') && isEmpty('h3') && isEmpty('h4') && !isUnderAttack(pieceId, 'h3')){
@@ -1740,30 +1748,31 @@ function getRuleSet(pieceId, tile, check){
                     if(check && !wasChecked){
                         if(!isUnderAttack(pieceId, nextTile)){
                             moveSet.push(nextTile);
-                        }else{
-                            console.log(nextTile + ' is removed from moveset');
-                            shouldRemoveTile = true;
                         }
                     }else{
                         moveSet.push(nextTile);
                     }
-                    wasChecked = true;            
+                    wasChecked = true;        
+                    break;    
                 }else if(canAttack(pieceId, nextTile)){
-                    if(!willBeUnderAttack(pieceId, nextTile)){
-                        moveSet.push(nextTile);
-                        break;
+                    wasChecked = false;
+                    if(check && !wasChecked){
+                        //add method to check if king would be underattack if enemyy piece is taken
+                        if(!willBeUnderAttack(pieceId, nextTile)){
+                            moveSet.push(nextTile);
+                            wasChecked = true;
+                            break;
+                        }else{
+                            wasChecked = true;
+                            break;
+                        }
                     }else{
-                        break;
+                        moveSet.push(nextTile);
                     }
                 }
             }
         }
-        if(shouldRemoveTile){
 
-            moveSet.splice(moveSet.indexOf(nextTile), 1);
-        }
-        console.log('checks reset');
-        shouldRemoveTile = false;
         wasChecked = false;
         //check tile below
         tileArray = tile.split('');
@@ -1777,30 +1786,32 @@ function getRuleSet(pieceId, tile, check){
                     if(check && !wasChecked){
                         if(!isUnderAttack(pieceId, nextTile)){
                             moveSet.push(nextTile);
-                        }else{
-                            console.log(nextTile + ' is removed from moveset');
-                            shouldRemoveTile = true;
+                            break;
                         }
                     }else{
                         moveSet.push(nextTile);
-                    }
-                    wasChecked = true;            
-                }else if(canAttack(pieceId, nextTile)){
-                    if(!willBeUnderAttack(pieceId, nextTile)){
-                        moveSet.push(nextTile);
                         break;
+                    }
+                    break;     
+                }else if(canAttack(pieceId, nextTile)){
+                    if(check && !wasChecked){
+                        //add method to check if king would be underattack if enemyy piece is taken
+                        if(!willBeUnderAttack(pieceId, nextTile)){
+                            moveSet.push(nextTile);
+                            wasChecked = true;
+                            break;
+                        }else{
+                            wasChecked = true;
+                            break;
+                        }
                     }else{
+                        moveSet.push(nextTile);
                         break;
                     }
                 }
             }
         }
-        if(shouldRemoveTile){
 
-            moveSet.splice(moveSet.indexOf(nextTile), 1);
-        }
-        console.log('checks reset');
-        shouldRemoveTile = false;
         wasChecked = false;
         //check tile to left
         tileArray = tile.split('');
@@ -1814,30 +1825,31 @@ function getRuleSet(pieceId, tile, check){
                     if(check && !wasChecked){
                         if(!isUnderAttack(pieceId, nextTile)){
                             moveSet.push(nextTile);
-                        }else{
-                            console.log(nextTile + ' is removed from moveset');
-                            shouldRemoveTile = true;
                         }
                     }else{
                         moveSet.push(nextTile);
                     }
-                    wasChecked = true;            
+                    wasChecked = true;
+                    break;            
                 }else if(canAttack(pieceId, nextTile)){
-                    if(!willBeUnderAttack(pieceId, nextTile)){
-                        moveSet.push(nextTile);
-                        break;
+                    wasChecked = false;
+                    if(check && !wasChecked){
+                        //add method to check if king would be underattack if enemyy piece is taken
+                        if(!willBeUnderAttack(pieceId, nextTile)){
+                            moveSet.push(nextTile);
+                            wasChecked = true;
+                            break;
+                        }else{
+                            wasChecked = true;
+                            break;
+                        }
                     }else{
-                        break;
+                        moveSet.push(nextTile);
                     }
                 }
             }
         }
-        if(shouldRemoveTile){
 
-            moveSet.splice(moveSet.indexOf(nextTile), 1);
-        }
-        console.log('checks reset');
-        shouldRemoveTile = false;
         wasChecked = false;
         //check tile to right
         tileArray = tile.split('');
@@ -1851,30 +1863,31 @@ function getRuleSet(pieceId, tile, check){
                     if(check && !wasChecked){
                         if(!isUnderAttack(pieceId, nextTile)){
                             moveSet.push(nextTile);
-                        }else{
-                            console.log(nextTile + ' is removed from moveset');
-                            shouldRemoveTile = true;
                         }
                     }else{
                         moveSet.push(nextTile);
                     }
-                    wasChecked = true;            
+                    wasChecked = true; 
+                    break;           
                 }else if(canAttack(pieceId, nextTile)){
-                    if(!willBeUnderAttack(pieceId, nextTile)){
-                        moveSet.push(nextTile);
-                        break;
+                    wasChecked = false;
+                    if(check && !wasChecked){
+                        //add method to check if king would be underattack if enemyy piece is taken
+                        if(!willBeUnderAttack(pieceId, nextTile)){
+                            moveSet.push(nextTile);
+                            wasChecked = true;
+                            break;
+                        }else{
+                            wasChecked = true;
+                            break;
+                        }
                     }else{
-                        break;
+                        moveSet.push(nextTile);
                     }
                 }
             }
         }
-        if(shouldRemoveTile){
 
-            moveSet.splice(moveSet.indexOf(nextTile), 1);
-        }
-        console.log('checks reset');
-        shouldRemoveTile = false;
         wasChecked = false;
         //check tile top-left
         tileArray = tile.split('');
@@ -1891,30 +1904,31 @@ function getRuleSet(pieceId, tile, check){
                     if(check && !wasChecked){
                         if(!isUnderAttack(pieceId, nextTile)){
                             moveSet.push(nextTile);
-                        }else{
-                            console.log(nextTile + ' is removed from moveset');
-                            shouldRemoveTile = true;
                         }
                     }else{
                         moveSet.push(nextTile);
                     }
-                    wasChecked = true;            
+                    wasChecked = true; 
+                    break;           
                 }else if(canAttack(pieceId, nextTile)){
-                    if(!willBeUnderAttack(pieceId, nextTile)){
-                        moveSet.push(nextTile);
-                        break;
+                    wasChecked = false;
+                    if(check && !wasChecked){
+                        //add method to check if king would be underattack if enemyy piece is taken
+                        if(!willBeUnderAttack(pieceId, nextTile)){
+                            moveSet.push(nextTile);
+                            wasChecked = true;
+                            break;
+                        }else{
+                            wasChecked = true;
+                            break;
+                        }
                     }else{
-                        break;
+                        moveSet.push(nextTile);
                     }
                 }
             }
         }
-        if(shouldRemoveTile){
 
-            moveSet.splice(moveSet.indexOf(nextTile), 1);
-        }
-        console.log('checks reset');
-        shouldRemoveTile = false;
         wasChecked = false;
         //check tile top-right
         tileArray = tile.split('');
@@ -1931,30 +1945,31 @@ function getRuleSet(pieceId, tile, check){
                     if(check && !wasChecked){
                         if(!isUnderAttack(pieceId, nextTile)){
                             moveSet.push(nextTile);
-                        }else{
-                            console.log(nextTile + ' is removed from moveset');
-                            shouldRemoveTile = true;
                         }
                     }else{
                         moveSet.push(nextTile);
                     }
-                    wasChecked = true;            
+                    wasChecked = true; 
+                    break;           
                 }else if(canAttack(pieceId, nextTile)){
-                    if(!willBeUnderAttack(pieceId, nextTile)){
-                        moveSet.push(nextTile);
-                        break;
+                    wasChecked = false;
+                    if(check && !wasChecked){
+                        //add method to check if king would be underattack if enemyy piece is taken
+                        if(!willBeUnderAttack(pieceId, nextTile)){
+                            moveSet.push(nextTile);
+                            wasChecked = true;
+                            break;
+                        }else{
+                            wasChecked = true;
+                            break;
+                        }
                     }else{
-                        break;
+                        moveSet.push(nextTile);
                     }
                 }
             }
         }
-        if(shouldRemoveTile){
 
-            moveSet.splice(moveSet.indexOf(nextTile), 1);
-        }
-        console.log('checks reset');
-        shouldRemoveTile = false;
         wasChecked = false;
         //check tile bottom-left
         tileArray = tile.split('');
@@ -1971,30 +1986,31 @@ function getRuleSet(pieceId, tile, check){
                     if(check && !wasChecked){
                         if(!isUnderAttack(pieceId, nextTile)){
                             moveSet.push(nextTile);
-                        }else{
-                            console.log(nextTile + ' is removed from moveset');
-                            shouldRemoveTile = true;
                         }
                     }else{
                         moveSet.push(nextTile);
                     }
-                    wasChecked = true;            
+                    wasChecked = true;
+                    break;            
                 }else if(canAttack(pieceId, nextTile)){
-                    if(!willBeUnderAttack(pieceId, nextTile)){
-                        moveSet.push(nextTile);
-                        break;
+                    wasChecked = false;
+                    if(check && !wasChecked){
+                        //add method to check if king would be underattack if enemyy piece is taken
+                        if(!willBeUnderAttack(pieceId, nextTile)){
+                            moveSet.push(nextTile);
+                            wasChecked = true;
+                            break;
+                        }else{
+                            wasChecked = true;
+                            break;
+                        }
                     }else{
-                        break;
+                        moveSet.push(nextTile);
                     }
                 }
             }
         }
-        if(shouldRemoveTile){
 
-            moveSet.splice(moveSet.indexOf(nextTile), 1);
-        }
-        console.log('checks reset');
-        shouldRemoveTile = false;
         wasChecked = false;
         //check tile bottom-right
         tileArray = tile.split('');
@@ -2011,30 +2027,31 @@ function getRuleSet(pieceId, tile, check){
                     if(check && !wasChecked){
                         if(!isUnderAttack(pieceId, nextTile)){
                             moveSet.push(nextTile);
-                        }else{
-                            console.log(nextTile + ' is removed from moveset');
-                            shouldRemoveTile = true;
                         }
                     }else{
                         moveSet.push(nextTile);
                     }
-                    wasChecked = true;            
+                    wasChecked = true;  
+                    break;          
                 }else if(canAttack(pieceId, nextTile)){
-                    if(!willBeUnderAttack(pieceId, nextTile)){
-                        moveSet.push(nextTile);
-                        break;
+                    wasChecked = false;
+                    if(check && !wasChecked){
+                        //add method to check if king would be underattack if enemyy piece is taken
+                        if(!willBeUnderAttack(pieceId, nextTile)){
+                            moveSet.push(nextTile);
+                            wasChecked = true;
+                            break;
+                        }else{
+                            wasChecked = true;
+                            break;
+                        }
                     }else{
-                        break;
+                        moveSet.push(nextTile);
                     }
                 }
             }
         }
-        if(shouldRemoveTile){
 
-            moveSet.splice(moveSet.indexOf(nextTile), 1);
-        }
-        console.log('checks reset');
-        shouldRemoveTile = false;
         wasChecked = false;
         //Checks for Castling
         if(numOfBlackKingMoves == 0 && numOfBlackRook1Moves == 0 && isEmpty('a2') && isEmpty('a3') && isEmpty('a4') && !isUnderAttack(pieceId, 'a3')){
