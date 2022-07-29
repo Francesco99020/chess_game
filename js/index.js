@@ -557,6 +557,7 @@ function getRuleSet(pieceId, tile, check){
                     //add method to check if king would be underattack if enemyy piece is taken
                     if(!willBeUnderAttack(pieceId, nextTile)){
                         moveSet.push(nextTile);
+                        break;
                     }else{
                         break;
                     }
@@ -593,6 +594,7 @@ function getRuleSet(pieceId, tile, check){
                 }else if(canAttack(pieceId, nextTile)){
                     if(!willBeUnderAttack(pieceId, nextTile)){
                         moveSet.push(nextTile);
+                        break;
                     }else{
                         break;
                     }
@@ -628,6 +630,7 @@ function getRuleSet(pieceId, tile, check){
                 }else if(canAttack(pieceId, nextTile)){
                     if(!willBeUnderAttack(pieceId, nextTile)){
                         moveSet.push(nextTile);
+                        break;
                     }else{
                         break;
                     }
@@ -663,6 +666,7 @@ function getRuleSet(pieceId, tile, check){
                 }else if(canAttack(pieceId, nextTile)){
                     if(!willBeUnderAttack(pieceId, nextTile)){
                         moveSet.push(nextTile);
+                        break;
                     }else{
                         break;
                     }
@@ -701,6 +705,7 @@ function getRuleSet(pieceId, tile, check){
                 }else if(canAttack(pieceId, nextTile)){
                     if(!willBeUnderAttack(pieceId, nextTile)){
                         moveSet.push(nextTile);
+                        break;
                     }else{
                         break;
                     }
@@ -739,6 +744,7 @@ function getRuleSet(pieceId, tile, check){
                 }else if(canAttack(pieceId, nextTile)){
                     if(!willBeUnderAttack(pieceId, nextTile)){
                         moveSet.push(nextTile);
+                        break;
                     }else{
                         break;
                     }
@@ -777,6 +783,7 @@ function getRuleSet(pieceId, tile, check){
                 }else if(canAttack(pieceId, nextTile)){
                     if(!willBeUnderAttack(pieceId, nextTile)){
                         moveSet.push(nextTile);
+                        break;
                     }else{
                         break;
                     }
@@ -815,6 +822,7 @@ function getRuleSet(pieceId, tile, check){
                 }else if(canAttack(pieceId, nextTile)){
                     if(!willBeUnderAttack(pieceId, nextTile)){
                         moveSet.push(nextTile);
+                        break;
                     }else{
                         break;
                     }
@@ -1743,6 +1751,7 @@ function getRuleSet(pieceId, tile, check){
                 }else if(canAttack(pieceId, nextTile)){
                     if(!willBeUnderAttack(pieceId, nextTile)){
                         moveSet.push(nextTile);
+                        break;
                     }else{
                         break;
                     }
@@ -1779,6 +1788,7 @@ function getRuleSet(pieceId, tile, check){
                 }else if(canAttack(pieceId, nextTile)){
                     if(!willBeUnderAttack(pieceId, nextTile)){
                         moveSet.push(nextTile);
+                        break;
                     }else{
                         break;
                     }
@@ -1815,6 +1825,7 @@ function getRuleSet(pieceId, tile, check){
                 }else if(canAttack(pieceId, nextTile)){
                     if(!willBeUnderAttack(pieceId, nextTile)){
                         moveSet.push(nextTile);
+                        break;
                     }else{
                         break;
                     }
@@ -1851,6 +1862,7 @@ function getRuleSet(pieceId, tile, check){
                 }else if(canAttack(pieceId, nextTile)){
                     if(!willBeUnderAttack(pieceId, nextTile)){
                         moveSet.push(nextTile);
+                        break;
                     }else{
                         break;
                     }
@@ -1890,6 +1902,7 @@ function getRuleSet(pieceId, tile, check){
                 }else if(canAttack(pieceId, nextTile)){
                     if(!willBeUnderAttack(pieceId, nextTile)){
                         moveSet.push(nextTile);
+                        break;
                     }else{
                         break;
                     }
@@ -1929,6 +1942,7 @@ function getRuleSet(pieceId, tile, check){
                 }else if(canAttack(pieceId, nextTile)){
                     if(!willBeUnderAttack(pieceId, nextTile)){
                         moveSet.push(nextTile);
+                        break;
                     }else{
                         break;
                     }
@@ -1968,6 +1982,7 @@ function getRuleSet(pieceId, tile, check){
                 }else if(canAttack(pieceId, nextTile)){
                     if(!willBeUnderAttack(pieceId, nextTile)){
                         moveSet.push(nextTile);
+                        break;
                     }else{
                         break;
                     }
@@ -2007,6 +2022,7 @@ function getRuleSet(pieceId, tile, check){
                 }else if(canAttack(pieceId, nextTile)){
                     if(!willBeUnderAttack(pieceId, nextTile)){
                         moveSet.push(nextTile);
+                        break;
                     }else{
                         break;
                     }
