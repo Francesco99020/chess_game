@@ -2,8 +2,7 @@
                                                                 ***Open Ticket list***
                                                             Ticket priority from top to bottom
 1. fixes for kings moveset logic
-    a. Add a method to check if a king taking an enemy piece will put the king under attack.
-    b. Add a method that checks if moving another (friendly) piece will result in the king being under attack
+    a. Add a method that checks if moving another (friendly) piece will result in the king being under attack
         I. prevent these moves from happening 
 
 2. Add "En passant" Basically if a pawn moves two squares on its starting move and is adjacent to another pawn
@@ -478,6 +477,23 @@ function isUnderAttack(pieceId, tile){
     return false;
 }
 
+//Checks if king will be under attack if it takes an enemy piece [True if tile is under attack]
+function willBeUnderAttack(pieceId, nextTile){
+    pieceHolder = document.getElementById(nextTile).innerHTML;
+     //temporarily changes isActive[]
+     updateIsActive(document.getElementById(nextTile).childNodes[0].id, false);
+    document.getElementById(nextTile).innerHTML = '';
+    if(isUnderAttack(pieceId, nextTile)){
+        document.getElementById(nextTile).innerHTML = pieceHolder;
+        updateIsActive(document.getElementById(nextTile).childNodes[0].id, true);
+        return true;
+    }else{
+        document.getElementById(nextTile).innerHTML = pieceHolder;
+        updateIsActive(document.getElementById(nextTile).childNodes[0].id, true);
+        return false;
+    }
+}
+
 //Checks if a piece can attack another piece [True if empty]
 function canAttack(pieceId, tileId){
     try{
@@ -538,7 +554,12 @@ function getRuleSet(pieceId, tile, check){
                     }
                     wasChecked = true;            
                 }else if(canAttack(pieceId, nextTile)){
-                    moveSet.push(nextTile);
+                    //add method to check if king would be underattack if enemyy piece is taken
+                    if(!willBeUnderAttack(pieceId, nextTile)){
+                        moveSet.push(nextTile);
+                    }else{
+                        break;
+                    }
                 }
             }
         }
@@ -570,7 +591,11 @@ function getRuleSet(pieceId, tile, check){
                     }
                     wasChecked = true;            
                 }else if(canAttack(pieceId, nextTile)){
-                    moveSet.push(nextTile);
+                    if(!willBeUnderAttack(pieceId, nextTile)){
+                        moveSet.push(nextTile);
+                    }else{
+                        break;
+                    }
                 }
             }
         }
@@ -601,7 +626,11 @@ function getRuleSet(pieceId, tile, check){
                     }
                     wasChecked = true;            
                 }else if(canAttack(pieceId, nextTile)){
-                    moveSet.push(nextTile);
+                    if(!willBeUnderAttack(pieceId, nextTile)){
+                        moveSet.push(nextTile);
+                    }else{
+                        break;
+                    }
                 }
             }
         }
@@ -632,7 +661,11 @@ function getRuleSet(pieceId, tile, check){
                     }
                     wasChecked = true;            
                 }else if(canAttack(pieceId, nextTile)){
-                    moveSet.push(nextTile);
+                    if(!willBeUnderAttack(pieceId, nextTile)){
+                        moveSet.push(nextTile);
+                    }else{
+                        break;
+                    }
                 }
             }
         }
@@ -666,7 +699,11 @@ function getRuleSet(pieceId, tile, check){
                     }
                     wasChecked = true;            
                 }else if(canAttack(pieceId, nextTile)){
-                    moveSet.push(nextTile);
+                    if(!willBeUnderAttack(pieceId, nextTile)){
+                        moveSet.push(nextTile);
+                    }else{
+                        break;
+                    }
                 }
             }
         }
@@ -700,7 +737,11 @@ function getRuleSet(pieceId, tile, check){
                     }
                     wasChecked = true;            
                 }else if(canAttack(pieceId, nextTile)){
-                    moveSet.push(nextTile);
+                    if(!willBeUnderAttack(pieceId, nextTile)){
+                        moveSet.push(nextTile);
+                    }else{
+                        break;
+                    }
                 }
             }
         }
@@ -734,7 +775,11 @@ function getRuleSet(pieceId, tile, check){
                     }
                     wasChecked = true;            
                 }else if(canAttack(pieceId, nextTile)){
-                    moveSet.push(nextTile);
+                    if(!willBeUnderAttack(pieceId, nextTile)){
+                        moveSet.push(nextTile);
+                    }else{
+                        break;
+                    }
                 }
             }
         }
@@ -768,7 +813,11 @@ function getRuleSet(pieceId, tile, check){
                     }
                     wasChecked = true;            
                 }else if(canAttack(pieceId, nextTile)){
-                    moveSet.push(nextTile);
+                    if(!willBeUnderAttack(pieceId, nextTile)){
+                        moveSet.push(nextTile);
+                    }else{
+                        break;
+                    }
                 }
             }
         }
@@ -1692,7 +1741,11 @@ function getRuleSet(pieceId, tile, check){
                     }
                     wasChecked = true;            
                 }else if(canAttack(pieceId, nextTile)){
-                    moveSet.push(nextTile);
+                    if(!willBeUnderAttack(pieceId, nextTile)){
+                        moveSet.push(nextTile);
+                    }else{
+                        break;
+                    }
                 }
             }
         }
@@ -1724,7 +1777,11 @@ function getRuleSet(pieceId, tile, check){
                     }
                     wasChecked = true;            
                 }else if(canAttack(pieceId, nextTile)){
-                    moveSet.push(nextTile);
+                    if(!willBeUnderAttack(pieceId, nextTile)){
+                        moveSet.push(nextTile);
+                    }else{
+                        break;
+                    }
                 }
             }
         }
@@ -1756,7 +1813,11 @@ function getRuleSet(pieceId, tile, check){
                     }
                     wasChecked = true;            
                 }else if(canAttack(pieceId, nextTile)){
-                    moveSet.push(nextTile);
+                    if(!willBeUnderAttack(pieceId, nextTile)){
+                        moveSet.push(nextTile);
+                    }else{
+                        break;
+                    }
                 }
             }
         }
@@ -1788,7 +1849,11 @@ function getRuleSet(pieceId, tile, check){
                     }
                     wasChecked = true;            
                 }else if(canAttack(pieceId, nextTile)){
-                    moveSet.push(nextTile);
+                    if(!willBeUnderAttack(pieceId, nextTile)){
+                        moveSet.push(nextTile);
+                    }else{
+                        break;
+                    }
                 }
             }
         }
@@ -1823,7 +1888,11 @@ function getRuleSet(pieceId, tile, check){
                     }
                     wasChecked = true;            
                 }else if(canAttack(pieceId, nextTile)){
-                    moveSet.push(nextTile);
+                    if(!willBeUnderAttack(pieceId, nextTile)){
+                        moveSet.push(nextTile);
+                    }else{
+                        break;
+                    }
                 }
             }
         }
@@ -1858,7 +1927,11 @@ function getRuleSet(pieceId, tile, check){
                     }
                     wasChecked = true;            
                 }else if(canAttack(pieceId, nextTile)){
-                    moveSet.push(nextTile);
+                    if(!willBeUnderAttack(pieceId, nextTile)){
+                        moveSet.push(nextTile);
+                    }else{
+                        break;
+                    }
                 }
             }
         }
@@ -1893,7 +1966,11 @@ function getRuleSet(pieceId, tile, check){
                     }
                     wasChecked = true;            
                 }else if(canAttack(pieceId, nextTile)){
-                    moveSet.push(nextTile);
+                    if(!willBeUnderAttack(pieceId, nextTile)){
+                        moveSet.push(nextTile);
+                    }else{
+                        break;
+                    }
                 }
             }
         }
@@ -1928,7 +2005,11 @@ function getRuleSet(pieceId, tile, check){
                     }
                     wasChecked = true;            
                 }else if(canAttack(pieceId, nextTile)){
-                    moveSet.push(nextTile);
+                    if(!willBeUnderAttack(pieceId, nextTile)){
+                        moveSet.push(nextTile);
+                    }else{
+                        break;
+                    }
                 }
             }
         }
