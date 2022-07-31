@@ -1,22 +1,17 @@
 /*
                                                                 ***Open Ticket list***
                                                             Ticket priority from top to bottom
-1. Fix bug where sometimes if 2 pieces can be taken by king, one of the pieces will change into the other one
 
-2. fixes for kings moveset logic
-    a. Add a method that checks if moving another (friendly) piece will result in the king being under attack
-        I. prevent these moves from happening 
-
-3. Add "En passant" Basically if a pawn moves two squares on its starting move and is adjacent to another pawn
+2. Add "En passant" Basically if a pawn moves two squares on its starting move and is adjacent to another pawn
 the opposing pawn can make a diagonal move behind the pawn and capture it.
 
-4. Add "check" and "checkmate"
+3. Add "check" and "checkmate"
 
-5. Make a function that decideds who's turn it is
+4. Make a function that decideds who's turn it is
     a. should disable other player from making moves when not their turn
     b. The state of the board should be displayed by the announcer (ex: "white turn", "black turn", "white victory")
 
-6. Add a piece collection tray for "killed" pieces respectivly for their color
+5. Add a piece collection tray for "killed" pieces respectivly for their color
     a. white tray will display on the right side of board and left will display black
 */
 //Global variables
@@ -58,6 +53,9 @@ var rookReservePiecePosition;
 var horseReservePiecePosition;
 var bishopReservePiecePosition;
 var queenReservePiecePosition;
+
+//For preventing check
+var iPreserver = 0;
 
 //Array of all tiles
 const allTiles = 
@@ -330,6 +328,7 @@ function checkPromotion(){
     }
 }
 
+//Promotion a piece
 function promote(id){
     //changes pawn out for promoted piece
     if(id == 'rook'){
@@ -370,6 +369,52 @@ function promote(id){
     document.getElementById('queen').innerHTML = '';
 }
 
+//Checks if a piece moves it puts the king under attack [true if yes]
+function indangersKings(pieceId, nextTile){
+    let king;
+    let tile;
+    if(pieceId.includes('white')){
+        king = 'white-king';
+        tile = document.getElementById(king).parentNode.id;
+    }else{
+        king = 'black-king';
+        tile = document.getElementById(king).parentNode.id;
+    }
+    attackedPiece = document.getElementById(nextTile).innerHTML;
+    originalTile = document.getElementById(pieceId).parentNode.id;
+    pieceMover = document.getElementById(pieceId).outerHTML;
+    document.getElementById(pieceId).parentNode.innerHTML = "";
+    //if move doesn't involve capturing a piece
+    if(attackedPiece == undefined || attackedPiece == null || attackedPiece == ''){
+        document.getElementById(nextTile).innerHTML = pieceMover;
+        if(isUnderAttack(king, tile)){
+            document.getElementById(nextTile).innerHTML = "";
+            document.getElementById(originalTile).innerHTML = pieceMover;
+            return true; 
+        }else{
+            document.getElementById(nextTile).innerHTML = "";
+            document.getElementById(originalTile).innerHTML = pieceMover;
+            return false
+        }
+    }else{
+        attackedPieceId = document.getElementById(nextTile).childNodes[0].id;
+        document.getElementById(nextTile).innerHTML = "";
+        //temporaraly change isActive
+        updateIsActive(attackedPieceId, false);
+        document.getElementById(nextTile).innerHTML = pieceMover;
+        if(isUnderAttack(king, tile)){
+            document.getElementById(nextTile).innerHTML = attackedPiece;
+            updateIsActive(attackedPieceId, true);
+            document.getElementById(originalTile).innerHTML = pieceMover;
+            return true;
+        }else{
+            document.getElementById(nextTile).innerHTML = attackedPiece;
+            updateIsActive(attackedPieceId, true);
+            document.getElementById(originalTile).innerHTML = pieceMover;
+            return false;
+        }
+    }
+}
  //Removes "getPlayerMove(id)" and adds "checkTileAndGetMoveSet(id)" on all tiles
 function resetVaildMoves(){
     for(i = 0; i < allTiles.length; i++){
@@ -1036,6 +1081,22 @@ function getRuleSet(pieceId, tile, check){
                 break;
             } 
         }
+        //restricts moveset to only allow moves that will get the kig out of check
+        if(check){
+            var correctMoveSet = moveSet.slice(0);
+            for(i = 0; i < moveSet.length; i++){
+                iPreserver = i;
+                if(indangersKings(pieceId, moveSet[i])){
+                    i = iPreserver;
+                    const index = correctMoveSet.indexOf(moveSet[i]);
+                    if(index > -1){
+                        correctMoveSet.splice(index, 1);
+                    }
+                }
+                i = iPreserver;
+            }
+            moveSet = correctMoveSet;
+        }
         return moveSet;      
     }else if(pieceId.includes('bishop')){
         let moveSet = [];
@@ -1157,6 +1218,22 @@ function getRuleSet(pieceId, tile, check){
             if(isDone){
                 break;
             } 
+        }
+        //restricts moveset to only allow moves that will get the kig out of check
+        if(check){
+            var correctMoveSet = moveSet.slice(0);
+            for(i = 0; i < moveSet.length; i++){
+                iPreserver = i;
+                if(indangersKings(pieceId, moveSet[i])){
+                    i = iPreserver;
+                    const index = correctMoveSet.indexOf(moveSet[i]);
+                    if(index > -1){
+                        correctMoveSet.splice(index, 1);
+                    }
+                }
+                i = iPreserver;
+            }
+            moveSet = correctMoveSet;
         }
         return moveSet;        
     }else if(pieceId.includes('horse')){
@@ -1285,8 +1362,23 @@ function getRuleSet(pieceId, tile, check){
                 }
             }
         }
+        //restricts moveset to only allow moves that will get the kig out of check
+        if(check){
+            var correctMoveSet = moveSet.slice(0);
+            for(i = 0; i < moveSet.length; i++){
+                iPreserver = i;
+                if(indangersKings(pieceId, moveSet[i])){
+                    i = iPreserver;
+                    const index = correctMoveSet.indexOf(moveSet[i]);
+                    if(index > -1){
+                        correctMoveSet.splice(index, 1);
+                    }
+                }
+                i = iPreserver;
+            }
+            moveSet = correctMoveSet;
+        }
         return moveSet;
-    
     }else if(pieceId.includes('rook')){
         let moveSet = [];
         let tileArray = tile.split('');
@@ -1353,8 +1445,23 @@ function getRuleSet(pieceId, tile, check){
                 }
             }
         }
+        //restricts moveset to only allow moves that will get the kig out of check
+        if(check){
+            var correctMoveSet = moveSet.slice(0);
+            for(i = 0; i < moveSet.length; i++){
+                iPreserver = i;
+                if(indangersKings(pieceId, moveSet[i])){
+                    i = iPreserver;
+                    const index = correctMoveSet.indexOf(moveSet[i]);
+                    if(index > -1){
+                        correctMoveSet.splice(index, 1);
+                    }
+                }
+                i = iPreserver;
+            }
+            moveSet = correctMoveSet;
+        }
         return moveSet;
-        
     }else if(pieceId == 'white-pawn-1'){
         let moveSet = [];
         //MoveSet for first move
@@ -1368,6 +1475,22 @@ function getRuleSet(pieceId, tile, check){
             if(!isEmpty('f2') && canAttack(pieceId, 'f2')){
                 moveSet.push('f2');
             }
+            //restricts moveset to only allow moves that will get the kig out of check
+        if(check){
+            var correctMoveSet = moveSet.slice(0);
+            for(i = 0; i < moveSet.length; i++){
+                iPreserver = i;
+                if(indangersKings(pieceId, moveSet[i])){
+                    i = iPreserver;
+                    const index = correctMoveSet.indexOf(moveSet[i]);
+                    if(index > -1){
+                        correctMoveSet.splice(index, 1);
+                    }
+                }
+                i = iPreserver;
+            }
+            moveSet = correctMoveSet;
+        }
             return moveSet;
         }else{
         //MoveSet for all other moves
@@ -1396,6 +1519,22 @@ function getRuleSet(pieceId, tile, check){
                     }
                 }
             }
+        }
+        //restricts moveset to only allow moves that will get the kig out of check
+        if(check){
+            var correctMoveSet = moveSet.slice(0);
+            for(i = 0; i < moveSet.length; i++){
+                iPreserver = i;
+                if(indangersKings(pieceId, moveSet[i])){
+                    i = iPreserver;
+                    const index = correctMoveSet.indexOf(moveSet[i]);
+                    if(index > -1){
+                        correctMoveSet.splice(index, 1);
+                    }
+                }
+                i = iPreserver;
+            }
+            moveSet = correctMoveSet;
         }
         return moveSet;
         }
@@ -1416,6 +1555,22 @@ function getRuleSet(pieceId, tile, check){
                 moveSet.push('f1');
             }
             currentMoveSet = moveSet;
+            //restricts moveset to only allow moves that will get the kig out of check
+        if(check){
+            var correctMoveSet = moveSet.slice(0);
+            for(i = 0; i < moveSet.length; i++){
+                iPreserver = i;
+                if(indangersKings(pieceId, moveSet[i])){
+                    i = iPreserver;
+                    const index = correctMoveSet.indexOf(moveSet[i]);
+                    if(index > -1){
+                        correctMoveSet.splice(index, 1);
+                    }
+                }
+                i = iPreserver;
+            }
+            moveSet = correctMoveSet;
+        }
             return moveSet;
         }else{
         //MoveSet for all other moves
@@ -1444,6 +1599,22 @@ function getRuleSet(pieceId, tile, check){
                     }
                 }
             }
+        }
+        //restricts moveset to only allow moves that will get the kig out of check
+        if(check){
+            var correctMoveSet = moveSet.slice(0);
+            for(i = 0; i < moveSet.length; i++){
+                iPreserver = i;
+                if(indangersKings(pieceId, moveSet[i])){
+                    i = iPreserver;
+                    const index = correctMoveSet.indexOf(moveSet[i]);
+                    if(index > -1){
+                        correctMoveSet.splice(index, 1);
+                    }
+                }
+                i = iPreserver;
+            }
+            moveSet = correctMoveSet;
         }
         return moveSet;
         }
@@ -1464,6 +1635,22 @@ function getRuleSet(pieceId, tile, check){
                 moveSet.push('f2');
             }
             currentMoveSet = moveSet;
+            //restricts moveset to only allow moves that will get the kig out of check
+        if(check){
+            var correctMoveSet = moveSet.slice(0);
+            for(i = 0; i < moveSet.length; i++){
+                iPreserver = i;
+                if(indangersKings(pieceId, moveSet[i])){
+                    i = iPreserver;
+                    const index = correctMoveSet.indexOf(moveSet[i]);
+                    if(index > -1){
+                        correctMoveSet.splice(index, 1);
+                    }
+                }
+                i = iPreserver;
+            }
+            moveSet = correctMoveSet;
+        }
             return moveSet;
         }else{
         //MoveSet for all other moves
@@ -1492,6 +1679,22 @@ function getRuleSet(pieceId, tile, check){
                     }
                 }
             }
+        }
+        //restricts moveset to only allow moves that will get the kig out of check
+        if(check){
+            var correctMoveSet = moveSet.slice(0);
+            for(i = 0; i < moveSet.length; i++){
+                iPreserver = i;
+                if(indangersKings(pieceId, moveSet[i])){
+                    i = iPreserver;
+                    const index = correctMoveSet.indexOf(moveSet[i]);
+                    if(index > -1){
+                        correctMoveSet.splice(index, 1);
+                    }
+                }
+                i = iPreserver;
+            }
+            moveSet = correctMoveSet;
         }
         return moveSet;
         }
@@ -1512,6 +1715,22 @@ function getRuleSet(pieceId, tile, check){
                 moveSet.push('f3');
             }
             currentMoveSet = moveSet;
+            //restricts moveset to only allow moves that will get the kig out of check
+        if(check){
+            var correctMoveSet = moveSet.slice(0);
+            for(i = 0; i < moveSet.length; i++){
+                iPreserver = i;
+                if(indangersKings(pieceId, moveSet[i])){
+                    i = iPreserver;
+                    const index = correctMoveSet.indexOf(moveSet[i]);
+                    if(index > -1){
+                        correctMoveSet.splice(index, 1);
+                    }
+                }
+                i = iPreserver;
+            }
+            moveSet = correctMoveSet;
+        }
             return moveSet;
         }else{
         //MoveSet for all other moves
@@ -1540,6 +1759,22 @@ function getRuleSet(pieceId, tile, check){
                     }
                 }
             }
+        }
+        //restricts moveset to only allow moves that will get the kig out of check
+        if(check){
+            var correctMoveSet = moveSet.slice(0);
+            for(i = 0; i < moveSet.length; i++){
+                iPreserver = i;
+                if(indangersKings(pieceId, moveSet[i])){
+                    i = iPreserver;
+                    const index = correctMoveSet.indexOf(moveSet[i]);
+                    if(index > -1){
+                        correctMoveSet.splice(index, 1);
+                    }
+                }
+                i = iPreserver;
+            }
+            moveSet = correctMoveSet;
         }
         return moveSet;        
         }
@@ -1560,6 +1795,22 @@ function getRuleSet(pieceId, tile, check){
                 moveSet.push('f4');
             }
             currentMoveSet = moveSet;
+            //restricts moveset to only allow moves that will get the kig out of check
+        if(check){
+            var correctMoveSet = moveSet.slice(0);
+            for(i = 0; i < moveSet.length; i++){
+                iPreserver = i;
+                if(indangersKings(pieceId, moveSet[i])){
+                    i = iPreserver;
+                    const index = correctMoveSet.indexOf(moveSet[i]);
+                    if(index > -1){
+                        correctMoveSet.splice(index, 1);
+                    }
+                }
+                i = iPreserver;
+            }
+            moveSet = correctMoveSet;
+        }
             return moveSet;
         }else{
         //MoveSet for all other moves
@@ -1588,6 +1839,22 @@ function getRuleSet(pieceId, tile, check){
                     }
                 }
             }
+        }
+        //restricts moveset to only allow moves that will get the kig out of check
+        if(check){
+            var correctMoveSet = moveSet.slice(0);
+            for(i = 0; i < moveSet.length; i++){
+                iPreserver = i;
+                if(indangersKings(pieceId, moveSet[i])){
+                    i = iPreserver;
+                    const index = correctMoveSet.indexOf(moveSet[i]);
+                    if(index > -1){
+                        correctMoveSet.splice(index, 1);
+                    }
+                }
+                i = iPreserver;
+            }
+            moveSet = correctMoveSet;
         }
         return moveSet;        
         }
@@ -1608,6 +1875,22 @@ function getRuleSet(pieceId, tile, check){
                 moveSet.push('f5');
             }
             currentMoveSet = moveSet;
+            //restricts moveset to only allow moves that will get the kig out of check
+        if(check){
+            var correctMoveSet = moveSet.slice(0);
+            for(i = 0; i < moveSet.length; i++){
+                iPreserver = i;
+                if(indangersKings(pieceId, moveSet[i])){
+                    i = iPreserver;
+                    const index = correctMoveSet.indexOf(moveSet[i]);
+                    if(index > -1){
+                        correctMoveSet.splice(index, 1);
+                    }
+                }
+                i = iPreserver;
+            }
+            moveSet = correctMoveSet;
+        }
             return moveSet;
         }else{
         //MoveSet for all other moves
@@ -1636,6 +1919,22 @@ function getRuleSet(pieceId, tile, check){
                     }
                 }
             }
+        }
+        //restricts moveset to only allow moves that will get the kig out of check
+        if(check){
+            var correctMoveSet = moveSet.slice(0);
+            for(i = 0; i < moveSet.length; i++){
+                iPreserver = i;
+                if(indangersKings(pieceId, moveSet[i])){
+                    i = iPreserver;
+                    const index = correctMoveSet.indexOf(moveSet[i]);
+                    if(index > -1){
+                        correctMoveSet.splice(index, 1);
+                    }
+                }
+                i = iPreserver;
+            }
+            moveSet = correctMoveSet;
         }
         return moveSet;
         }
@@ -1656,6 +1955,22 @@ function getRuleSet(pieceId, tile, check){
                 moveSet.push('f6');
             }
             currentMoveSet = moveSet;
+            //restricts moveset to only allow moves that will get the kig out of check
+        if(check){
+            var correctMoveSet = moveSet.slice(0);
+            for(i = 0; i < moveSet.length; i++){
+                iPreserver = i;
+                if(indangersKings(pieceId, moveSet[i])){
+                    i = iPreserver;
+                    const index = correctMoveSet.indexOf(moveSet[i]);
+                    if(index > -1){
+                        correctMoveSet.splice(index, 1);
+                    }
+                }
+                i = iPreserver;
+            }
+            moveSet = correctMoveSet;
+        }
             return moveSet;
         }else{
         //MoveSet for all other moves
@@ -1684,6 +1999,22 @@ function getRuleSet(pieceId, tile, check){
                     }
                 }
             }
+        }
+        //restricts moveset to only allow moves that will get the kig out of check
+        if(check){
+            var correctMoveSet = moveSet.slice(0);
+            for(i = 0; i < moveSet.length; i++){
+                iPreserver = i;
+                if(indangersKings(pieceId, moveSet[i])){
+                    i = iPreserver;
+                    const index = correctMoveSet.indexOf(moveSet[i]);
+                    if(index > -1){
+                        correctMoveSet.splice(index, 1);
+                    }
+                }
+                i = iPreserver;
+            }
+            moveSet = correctMoveSet;
         }
         return moveSet;
         }
@@ -1701,6 +2032,22 @@ function getRuleSet(pieceId, tile, check){
                 moveSet.push('f2');
             }
             currentMoveSet = moveSet;
+            //restricts moveset to only allow moves that will get the kig out of check
+        if(check){
+            var correctMoveSet = moveSet.slice(0);
+            for(i = 0; i < moveSet.length; i++){
+                iPreserver = i;
+                if(indangersKings(pieceId, moveSet[i])){
+                    i = iPreserver;
+                    const index = correctMoveSet.indexOf(moveSet[i]);
+                    if(index > -1){
+                        correctMoveSet.splice(index, 1);
+                    }
+                }
+                i = iPreserver;
+            }
+            moveSet = correctMoveSet;
+        }
             return moveSet;
         }else{
         //MoveSet for all other moves
@@ -1729,6 +2076,22 @@ function getRuleSet(pieceId, tile, check){
                     }
                 }
             }
+        }
+        //restricts moveset to only allow moves that will get the kig out of check
+        if(check){
+            var correctMoveSet = moveSet.slice(0);
+            for(i = 0; i < moveSet.length; i++){
+                iPreserver = i;
+                if(indangersKings(pieceId, moveSet[i])){
+                    i = iPreserver;
+                    const index = correctMoveSet.indexOf(moveSet[i]);
+                    if(index > -1){
+                        correctMoveSet.splice(index, 1);
+                    }
+                }
+                i = iPreserver;
+            }
+            moveSet = correctMoveSet;
         }
         return moveSet;        
         }
@@ -2076,6 +2439,22 @@ function getRuleSet(pieceId, tile, check){
                 moveSet.push('c2');
             }
             currentMoveSet = moveSet;
+            //restricts moveset to only allow moves that will get the kig out of check
+        if(check){
+            var correctMoveSet = moveSet.slice(0);
+            for(i = 0; i < moveSet.length; i++){
+                iPreserver = i;
+                if(indangersKings(pieceId, moveSet[i])){
+                    i = iPreserver;
+                    const index = correctMoveSet.indexOf(moveSet[i]);
+                    if(index > -1){
+                        correctMoveSet.splice(index, 1);
+                    }
+                }
+                i = iPreserver;
+            }
+            moveSet = correctMoveSet;
+        }
             return moveSet;
         }else{
         //MoveSet for all other moves
@@ -2104,6 +2483,22 @@ function getRuleSet(pieceId, tile, check){
                     }
                 }
             }
+        }
+        //restricts moveset to only allow moves that will get the kig out of check
+        if(check){
+            var correctMoveSet = moveSet.slice(0);
+            for(i = 0; i < moveSet.length; i++){
+                iPreserver = i;
+                if(indangersKings(pieceId, moveSet[i])){
+                    i = iPreserver;
+                    const index = correctMoveSet.indexOf(moveSet[i]);
+                    if(index > -1){
+                        correctMoveSet.splice(index, 1);
+                    }
+                }
+                i = iPreserver;
+            }
+            moveSet = correctMoveSet;
         }
         return moveSet;        
         }
@@ -2124,6 +2519,22 @@ function getRuleSet(pieceId, tile, check){
                 moveSet.push('c1');
             }
             currentMoveSet = moveSet;
+            //restricts moveset to only allow moves that will get the kig out of check
+        if(check){
+            var correctMoveSet = moveSet.slice(0);
+            for(i = 0; i < moveSet.length; i++){
+                iPreserver = i;
+                if(indangersKings(pieceId, moveSet[i])){
+                    i = iPreserver;
+                    const index = correctMoveSet.indexOf(moveSet[i]);
+                    if(index > -1){
+                        correctMoveSet.splice(index, 1);
+                    }
+                }
+                i = iPreserver;
+            }
+            moveSet = correctMoveSet;
+        }
             return moveSet;
         }else{
         //MoveSet for all other moves
@@ -2152,6 +2563,22 @@ function getRuleSet(pieceId, tile, check){
                     }
                 }
             }
+        }
+        //restricts moveset to only allow moves that will get the kig out of check
+        if(check){
+            var correctMoveSet = moveSet.slice(0);
+            for(i = 0; i < moveSet.length; i++){
+                iPreserver = i;
+                if(indangersKings(pieceId, moveSet[i])){
+                    i = iPreserver;
+                    const index = correctMoveSet.indexOf(moveSet[i]);
+                    if(index > -1){
+                        correctMoveSet.splice(index, 1);
+                    }
+                }
+                i = iPreserver;
+            }
+            moveSet = correctMoveSet;
         }
         return moveSet;
         }
@@ -2172,6 +2599,22 @@ function getRuleSet(pieceId, tile, check){
                 moveSet.push('c2');
             }
             currentMoveSet = moveSet;
+            //restricts moveset to only allow moves that will get the kig out of check
+        if(check){
+            var correctMoveSet = moveSet.slice(0);
+            for(i = 0; i < moveSet.length; i++){
+                iPreserver = i;
+                if(indangersKings(pieceId, moveSet[i])){
+                    i = iPreserver;
+                    const index = correctMoveSet.indexOf(moveSet[i]);
+                    if(index > -1){
+                        correctMoveSet.splice(index, 1);
+                    }
+                }
+                i = iPreserver;
+            }
+            moveSet = correctMoveSet;
+        }
             return moveSet;
         }else{
         //MoveSet for all other moves
@@ -2200,6 +2643,22 @@ function getRuleSet(pieceId, tile, check){
                     }
                 }
             }
+        }
+        //restricts moveset to only allow moves that will get the kig out of check
+        if(check){
+            var correctMoveSet = moveSet.slice(0);
+            for(i = 0; i < moveSet.length; i++){
+                iPreserver = i;
+                if(indangersKings(pieceId, moveSet[i])){
+                    i = iPreserver;
+                    const index = correctMoveSet.indexOf(moveSet[i]);
+                    if(index > -1){
+                        correctMoveSet.splice(index, 1);
+                    }
+                }
+                i = iPreserver;
+            }
+            moveSet = correctMoveSet;
         }
         return moveSet;        
         }
@@ -2220,6 +2679,22 @@ function getRuleSet(pieceId, tile, check){
                 moveSet.push('c3');
             }
             currentMoveSet = moveSet;
+            //restricts moveset to only allow moves that will get the kig out of check
+        if(check){
+            var correctMoveSet = moveSet.slice(0);
+            for(i = 0; i < moveSet.length; i++){
+                iPreserver = i;
+                if(indangersKings(pieceId, moveSet[i])){
+                    i = iPreserver;
+                    const index = correctMoveSet.indexOf(moveSet[i]);
+                    if(index > -1){
+                        correctMoveSet.splice(index, 1);
+                    }
+                }
+                i = iPreserver;
+            }
+            moveSet = correctMoveSet;
+        }
             return moveSet;
         }else{
         //MoveSet for all other moves
@@ -2248,6 +2723,22 @@ function getRuleSet(pieceId, tile, check){
                     }
                 }
             }
+        }
+        //restricts moveset to only allow moves that will get the kig out of check
+        if(check){
+            var correctMoveSet = moveSet.slice(0);
+            for(i = 0; i < moveSet.length; i++){
+                iPreserver = i;
+                if(indangersKings(pieceId, moveSet[i])){
+                    i = iPreserver;
+                    const index = correctMoveSet.indexOf(moveSet[i]);
+                    if(index > -1){
+                        correctMoveSet.splice(index, 1);
+                    }
+                }
+                i = iPreserver;
+            }
+            moveSet = correctMoveSet;
         }
         return moveSet;
         }
@@ -2268,6 +2759,22 @@ function getRuleSet(pieceId, tile, check){
                 moveSet.push('c4');
             }
             currentMoveSet = moveSet;
+            //restricts moveset to only allow moves that will get the kig out of check
+        if(check){
+            var correctMoveSet = moveSet.slice(0);
+            for(i = 0; i < moveSet.length; i++){
+                iPreserver = i;
+                if(indangersKings(pieceId, moveSet[i])){
+                    i = iPreserver;
+                    const index = correctMoveSet.indexOf(moveSet[i]);
+                    if(index > -1){
+                        correctMoveSet.splice(index, 1);
+                    }
+                }
+                i = iPreserver;
+            }
+            moveSet = correctMoveSet;
+        }
             return moveSet;
         }else{
         //MoveSet for all other moves
@@ -2296,6 +2803,22 @@ function getRuleSet(pieceId, tile, check){
                     }
                 }
             }
+        }
+        //restricts moveset to only allow moves that will get the kig out of check
+        if(check){
+            var correctMoveSet = moveSet.slice(0);
+            for(i = 0; i < moveSet.length; i++){
+                iPreserver = i;
+                if(indangersKings(pieceId, moveSet[i])){
+                    i = iPreserver;
+                    const index = correctMoveSet.indexOf(moveSet[i]);
+                    if(index > -1){
+                        correctMoveSet.splice(index, 1);
+                    }
+                }
+                i = iPreserver;
+            }
+            moveSet = correctMoveSet;
         }
         return moveSet;
         }
@@ -2316,6 +2839,22 @@ function getRuleSet(pieceId, tile, check){
                 moveSet.push('c5');
             }
             currentMoveSet = moveSet;
+            //restricts moveset to only allow moves that will get the kig out of check
+        if(check){
+            var correctMoveSet = moveSet.slice(0);
+            for(i = 0; i < moveSet.length; i++){
+                iPreserver = i;
+                if(indangersKings(pieceId, moveSet[i])){
+                    i = iPreserver;
+                    const index = correctMoveSet.indexOf(moveSet[i]);
+                    if(index > -1){
+                        correctMoveSet.splice(index, 1);
+                    }
+                }
+                i = iPreserver;
+            }
+            moveSet = correctMoveSet;
+        }
             return moveSet;
         }else{
         //MoveSet for all other moves
@@ -2344,6 +2883,22 @@ function getRuleSet(pieceId, tile, check){
                     }
                 }
             }
+        }
+        //restricts moveset to only allow moves that will get the kig out of check
+        if(check){
+            var correctMoveSet = moveSet.slice(0);
+            for(i = 0; i < moveSet.length; i++){
+                iPreserver = i;
+                if(indangersKings(pieceId, moveSet[i])){
+                    i = iPreserver;
+                    const index = correctMoveSet.indexOf(moveSet[i]);
+                    if(index > -1){
+                        correctMoveSet.splice(index, 1);
+                    }
+                }
+                i = iPreserver;
+            }
+            moveSet = correctMoveSet;
         }
         return moveSet;        
         }
@@ -2364,6 +2919,22 @@ function getRuleSet(pieceId, tile, check){
                 moveSet.push('c6');
             }
             currentMoveSet = moveSet;
+            //restricts moveset to only allow moves that will get the kig out of check
+        if(check){
+            var correctMoveSet = moveSet.slice(0);
+            for(i = 0; i < moveSet.length; i++){
+                iPreserver = i;
+                if(indangersKings(pieceId, moveSet[i])){
+                    i = iPreserver;
+                    const index = correctMoveSet.indexOf(moveSet[i]);
+                    if(index > -1){
+                        correctMoveSet.splice(index, 1);
+                    }
+                }
+                i = iPreserver;
+            }
+            moveSet = correctMoveSet;
+        }
             return moveSet;
         }else{
         //MoveSet for all other moves
@@ -2392,6 +2963,22 @@ function getRuleSet(pieceId, tile, check){
                     }
                 }
             }
+        }
+        //restricts moveset to only allow moves that will get the kig out of check
+        if(check){
+            var correctMoveSet = moveSet.slice(0);
+            for(i = 0; i < moveSet.length; i++){
+                iPreserver = i;
+                if(indangersKings(pieceId, moveSet[i])){
+                    i = iPreserver;
+                    const index = correctMoveSet.indexOf(moveSet[i]);
+                    if(index > -1){
+                        correctMoveSet.splice(index, 1);
+                    }
+                }
+                i = iPreserver;
+            }
+            moveSet = correctMoveSet;
         }
         return moveSet;        
         }
@@ -2409,6 +2996,22 @@ function getRuleSet(pieceId, tile, check){
                 moveSet.push('c7');
             }
             currentMoveSet = moveSet;
+            //restricts moveset to only allow moves that will get the kig out of check
+        if(check){
+            var correctMoveSet = moveSet.slice(0);
+            for(i = 0; i < moveSet.length; i++){
+                iPreserver = i;
+                if(indangersKings(pieceId, moveSet[i])){
+                    i = iPreserver;
+                    const index = correctMoveSet.indexOf(moveSet[i]);
+                    if(index > -1){
+                        correctMoveSet.splice(index, 1);
+                    }
+                }
+                i = iPreserver;
+            }
+            moveSet = correctMoveSet;
+        }
             return moveSet;
         }else{
         //MoveSet for all other moves
@@ -2437,6 +3040,22 @@ function getRuleSet(pieceId, tile, check){
                     }
                 }
             }
+        }
+        //restricts moveset to only allow moves that will get the kig out of check
+        if(check){
+            var correctMoveSet = moveSet.slice(0);
+            for(i = 0; i < moveSet.length; i++){
+                iPreserver = i;
+                if(indangersKings(pieceId, moveSet[i])){
+                    i = iPreserver;
+                    const index = correctMoveSet.indexOf(moveSet[i]);
+                    if(index > -1){
+                        correctMoveSet.splice(index, 1);
+                    }
+                }
+                i = iPreserver;
+            }
+            moveSet = correctMoveSet;
         }
         return moveSet;        
         }
