@@ -12,9 +12,14 @@ body{
     clear: left;
     height: auto;
     text-align: center;
+    min-height: 30px;
+    max-height: 30px;
 }
 #announcer{
     font-family: georgia, Arial, Helvetica, sans-serif;
+}
+#sub-announcer{
+
 }
 #extraPieceStorage{
     position: absolute;

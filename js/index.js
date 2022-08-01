@@ -2,22 +2,21 @@
                                                                 ***Open Ticket list***
                                                             Ticket priority from top to bottom
 
-2. Add "En passant" Basically if a pawn moves two squares on its starting move and is adjacent to another pawn
+1. Add "En passant" Basically if a pawn moves two squares on its starting move and is adjacent to another pawn
 the opposing pawn can make a diagonal move behind the pawn and capture it.
 
-3. Add "check" and "checkmate"
+2. Add a Screen to select to reset the board
 
-4. Make a function that decideds who's turn it is
-    a. should disable other player from making moves when not their turn
-    b. The state of the board should be displayed by the announcer (ex: "white turn", "black turn", "white victory")
+3. Add a score counter that doesn't reset on restart
 
-5. Add a piece collection tray for "killed" pieces respectivly for their color
+4. Add a piece collection tray for "killed" pieces respectivly for their color
     a. white tray will display on the right side of board and left will display black
 */
 //Global variables
 var currentMoveSet;
 var currenttile;
 var currentPieceSelected;
+var isWhiteTurn = true;
 
 //For Castling
 var numOfWhiteKingMoves = 0;
@@ -225,9 +224,68 @@ function makeMove(playerMove){
     if(piece[0].id == 'black-pawn-8'){
         blackPawn8Moves++;
     }
+    document.getElementById('sub-announcer').innerHTML = '';
+    if(isWhiteTurn){
+        isWhiteTurn = false;
+        document.getElementById('announcer').innerHTML = "Black's turn"
+        //add a function to check for check and chechmate
+        isCheck('black-king');
+        isCheckmate('black-king');
+    }else{
+        isWhiteTurn = true;
+        document.getElementById('announcer').innerHTML = "White's turn"
+        //add a function to check for check and chechmate
+        isCheck('white-king');
+        isCheckmate('white-king');
+    }
     resetVaildMoves();
     checkPromotion();
-    //make a call to check for promotion
+}
+
+//Checks for checkmate
+function isCheckmate(king){
+    let checkArray = [];
+    let message;
+    let tile = document.getElementById(king).parentNode.id;
+    if(king.includes('white')){
+        message = 'Black Wins!';
+    }else{
+        message = 'White Wins!';
+    }
+    //if in check sees if any other friendly tile can prevent checkmate
+    if(isUnderAttack(king, tile) && getRuleSet(king, tile, true) == 0){
+        for(i = 0; i < allPieces.length; i++){
+            if(king.includes('white') && allPieces[i].includes('white') && isActive[i]){
+                checkArray.push(allPieces[i]);
+            }else if(king.includes('black') && allPieces[i].includes('black') && isActive[i]){
+                checkArray.push(allPieces[i]);
+            }
+        }
+        let checkArrayTile;
+        for(p = 0; p < checkArray.length; p++){
+            checkArrayTile = document.getElementById(checkArray[p]).parentNode.id;
+            if(getRuleSet(checkArray[p], checkArrayTile, true).length > 0){
+                return false;
+            }
+        }
+        document.getElementById('announcer').innerHTML = 'Checkmate'
+        document.getElementById('sub-announcer').innerHTML = message;
+    }
+    
+}
+
+//checks for check
+function isCheck(king){
+    let message;
+    let tile = document.getElementById(king).parentNode.id;
+    if(king.includes('white')){
+        message = 'White king is currently in check'
+    }else{
+        message = 'Black king is currently in check'
+    }
+    if(isUnderAttack(king, tile)){
+        document.getElementById('sub-announcer').innerHTML = message;
+    }
 }
 
 //checks if pawn can be promoted
@@ -557,6 +615,9 @@ function canAttack(pieceId, tileId){
 
 } 
 
+//Acts as a gateway and only lets the appropriate side make their turn
+
+
 //Checks what piece is on a tile, then calls "getRuleSet()" and passes the output as a parameter to "displayValidMoves()" 
 function checkTileAndGetMoveSet(id){
     try{
@@ -565,7 +626,11 @@ function checkTileAndGetMoveSet(id){
     currenttile = tile;
     console.log('clicked tile contains piece ' + pieceId[0].id);
     currentPieceSelected = pieceId[0].id;
-    displayValidMoves(getRuleSet(pieceId[0].id, tile, true));
+    if(isWhiteTurn && pieceId[0].id.includes('white')){
+        displayValidMoves(getRuleSet(pieceId[0].id, tile, true));
+    }else if(!isWhiteTurn && pieceId[0].id.includes('black')){
+        displayValidMoves(getRuleSet(pieceId[0].id, tile, true));
+    }
     }catch(err){
         console.log('tile is empty')
     }
@@ -1469,7 +1534,7 @@ function getRuleSet(pieceId, tile, check){
             if(isEmpty('f1') && canAttack(pieceId, 'f1')){
                 moveSet.push('f1');
                 if(isEmpty('e1') && canAttack(pieceId, 'e1')){
-                    moveSet.push('e1');                                                
+                    moveSet.push('e1');                                            
                 }
             }
             if(!isEmpty('f2') && canAttack(pieceId, 'f2')){
@@ -1520,6 +1585,8 @@ function getRuleSet(pieceId, tile, check){
                 }
             }
         }
+        //Add additional logic to see if En Peasent should be added to the moveset
+
         //restricts moveset to only allow moves that will get the kig out of check
         if(check){
             var correctMoveSet = moveSet.slice(0);
