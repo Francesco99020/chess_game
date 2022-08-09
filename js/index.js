@@ -1128,10 +1128,10 @@ function getRuleSet(pieceId, tile, check){
 
         wasChecked = false;
         //check if castling can be preformed
-        if(numOfWhiteKingMoves == 0 && numOfWhiteRook1Moves == 0 && isActive[8] && isEmpty('h2') && isEmpty('h3') && isEmpty('h4') && !isUnderAttack(pieceId, 'h3')){
+        if(numOfWhiteKingMoves == 0 && numOfWhiteRook1Moves == 0 && isActive[8] && isEmpty('h2') && isEmpty('h3') && isEmpty('h4') && !isUnderAttack(pieceId, 'h3') && !isUnderAttack(pieceId, 'h5')){
             moveSet.push('h3');
         }
-        if(numOfWhiteKingMoves == 0 && numOfWhiteRook2Moves == 0 && isActive[9] && isEmpty('h6') && isEmpty('h7') && !isUnderAttack(pieceId, 'h7')){
+        if(numOfWhiteKingMoves == 0 && numOfWhiteRook2Moves == 0 && isActive[9] && isEmpty('h6') && isEmpty('h7') && !isUnderAttack(pieceId, 'h7') && !isUnderAttack(pieceId, 'h5')){
             moveSet.push('h7');
         }
         return moveSet;
@@ -2992,10 +2992,10 @@ function getRuleSet(pieceId, tile, check){
 
         wasChecked = false;
         //Checks for Castling
-        if(numOfBlackKingMoves == 0 && numOfBlackRook1Moves == 0 && isActive[56] && isEmpty('a2') && isEmpty('a3') && isEmpty('a4') && !isUnderAttack(pieceId, 'a3')){
+        if(numOfBlackKingMoves == 0 && numOfBlackRook1Moves == 0 && isActive[56] && isEmpty('a2') && isEmpty('a3') && isEmpty('a4') && !isUnderAttack(pieceId, 'a3') && !isUnderAttack(pieceId, 'a5')){
             moveSet.push('a3');
         }
-        if(numOfBlackKingMoves == 0 && numOfBlackRook2Moves == 0 && isActive[55] && isEmpty('a6') && isEmpty('a7') && !isUnderAttack(pieceId, 'a7')){
+        if(numOfBlackKingMoves == 0 && numOfBlackRook2Moves == 0 && isActive[55] && isEmpty('a6') && isEmpty('a7') && !isUnderAttack(pieceId, 'a7') && !isUnderAttack(pieceId, 'a5')){
             moveSet.push('a7');
         }
         return moveSet;                
