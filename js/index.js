@@ -1,16 +1,3 @@
-/*
-                                                                ***Open Ticket list***
-                                                            Ticket priority from top to bottom
-
-2. Add additional logic to castling so king cannot use castling to escape or enter check
-
-3. Add a Screen to select to reset the board
-
-4. Add a score counter that doesn't reset on restart
-
-5. Add a piece collection tray for "killed" pieces respectivly for their color
-    a. white tray will display on the right side of board and left will display black
-*/
 //Global variables
 var currentMoveSet;
 var currenttile;
@@ -232,14 +219,16 @@ function makeMove(playerMove){
         isWhiteTurn = false;
         document.getElementById('announcer').innerHTML = "Black's turn";
         isCheck('black-king');
-        isCheckmate('black-king');
-        isStalemate('black-king');
+        if(!isCheckmate('black-king')){
+            isStalemate('black-king');
+        }
     }else{
         isWhiteTurn = true;
         document.getElementById('announcer').innerHTML = "White's turn";
         isCheck('white-king');
-        isCheckmate('white-king');
-        isStalemate('white-king');
+        if(!isCheckmate('white-king')){
+            isStalemate('white-king');
+        }
     }
     resetVaildMoves();
     checkPromotion();
@@ -336,6 +325,7 @@ function isCheckmate(king){
         }
         document.getElementById('announcer').innerHTML = 'Checkmate'
         document.getElementById('sub-announcer').innerHTML = message;
+        return true;
     }
     
 }
