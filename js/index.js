@@ -2,14 +2,13 @@
                                                                 ***Open Ticket list***
                                                             Ticket priority from top to bottom
 
-1. Add "En passant" Basically if a pawn moves two squares on its starting move and is adjacent to another pawn
-the opposing pawn can make a diagonal move behind the pawn and capture it.
+2. Add additional logic to castling so king cannot use castling to escape or enter check
 
-2. Add a Screen to select to reset the board
+3. Add a Screen to select to reset the board
 
-3. Add a score counter that doesn't reset on restart
+4. Add a score counter that doesn't reset on restart
 
-4. Add a piece collection tray for "killed" pieces respectivly for their color
+5. Add a piece collection tray for "killed" pieces respectivly for their color
     a. white tray will display on the right side of board and left will display black
 */
 //Global variables
@@ -17,6 +16,7 @@ var currentMoveSet;
 var currenttile;
 var currentPieceSelected;
 var isWhiteTurn = true;
+var totalMoveCounter = 0;
 
 //For Castling
 var numOfWhiteKingMoves = 0;
@@ -27,23 +27,21 @@ var numOfBlackRook1Moves = 0;
 var numOfBlackRook2Moves = 0;
 
 //For En passant
-var whitePawn1Moves = 0;
-var whitePawn2Moves = 0;
-var whitePawn3Moves = 0;
-var whitePawn4Moves = 0;
-var whitePawn5Moves = 0;
-var whitePawn6Moves = 0;
-var whitePawn7Moves = 0;
-var whitePawn8Moves = 0;
+const listOfAllPawns = 
+['white-pawn-1', 'white-pawn-2', 'white-pawn-3', 'white-pawn-4', 'white-pawn-5', 'white-pawn-6', 'white-pawn-7', 'white-pawn-8', 
+'black-pawn-1', 'black-pawn-2', 'black-pawn-3', 'black-pawn-4', 'black-pawn-5', 'black-pawn-6', 'black-pawn-7', 'black-pawn-8'];
 
-var blackPawn1Moves = 0;
-var blackPawn2Moves = 0;
-var blackPawn3Moves = 0;
-var blackPawn4Moves = 0;
-var blackPawn5Moves = 0;
-var blackPawn6Moves = 0;
-var blackPawn7Moves = 0;
-var blackPawn8Moves = 0;
+const canBeEnPassented = 
+[false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false];
+
+const canEnPassent = 
+[false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false];
+
+const numOfPawnMoves = 
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+const turnEnPassantCanBePlayed = 
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
 //For Promotion
 var pawnToBePromoted;
@@ -177,69 +175,137 @@ function makeMove(playerMove){
         numOfBlackKingMoves++;
     }
     if(piece[0].id == 'white-pawn-1'){
-        whitePawn1Moves++;
+        numOfPawnMoves[0]++;
     }
     if(piece[0].id == 'white-pawn-2'){
-        whitePawn2Moves++;
+        numOfPawnMoves[1]++;
     }
     if(piece[0].id == 'white-pawn-3'){
-        whitePawn3Moves++;
+        numOfPawnMoves[2]++;
     }
     if(piece[0].id == 'white-pawn-4'){
-        whitePawn4Moves++;
+        numOfPawnMoves[3]++;
     }
     if(piece[0].id == 'white-pawn-5'){
-        whitePawn5Moves++;
+        numOfPawnMoves[4]++;
     }
     if(piece[0].id == 'white-pawn-6'){
-        whitePawn6Moves++;
+        numOfPawnMoves[5]++;
     }
     if(piece[0].id == 'white-pawn-7'){
-        whitePawn7Moves++;
+        numOfPawnMoves[6]++;
     }
     if(piece[0].id == 'white-pawn-8'){
-        whitePawn8Moves++;
+        numOfPawnMoves[7]++;
     }
     if(piece[0].id == 'black-pawn-1'){
-        blackPawn1Moves++;
+        numOfPawnMoves[8]++;
     }
     if(piece[0].id == 'black-pawn-2'){
-        blackPawn2Moves++;
+        numOfPawnMoves[9]++;
     }
     if(piece[0].id == 'black-pawn-3'){
-        blackPawn3Moves++;
+        numOfPawnMoves[10]++;
     }
     if(piece[0].id == 'black-pawn-4'){
-        blackPawn4Moves++;
+        numOfPawnMoves[11]++;
     }
     if(piece[0].id == 'black-pawn-5'){
-        blackPawn5Moves++;
+        numOfPawnMoves[12]++;
     }
     if(piece[0].id == 'black-pawn-6'){
-        blackPawn6Moves++;
+        numOfPawnMoves[13]++;
     }
     if(piece[0].id == 'black-pawn-7'){
-        blackPawn7Moves++;
+        numOfPawnMoves[14]++;
     }
     if(piece[0].id == 'black-pawn-8'){
-        blackPawn8Moves++;
+        numOfPawnMoves[15]++;
     }
+    //if En Passent was played
+    checkIfEnPassentWasPlayed();
+    //checks if any pawns can be En Passented
+    checkEnPassent();
+
     document.getElementById('sub-announcer').innerHTML = '';
     if(isWhiteTurn){
         isWhiteTurn = false;
-        document.getElementById('announcer').innerHTML = "Black's turn"
-        //add a function to check for check and chechmate
+        document.getElementById('announcer').innerHTML = "Black's turn";
         isCheck('black-king');
         isCheckmate('black-king');
+        isStalemate('black-king');
     }else{
         isWhiteTurn = true;
-        document.getElementById('announcer').innerHTML = "White's turn"
-        //add a function to check for check and chechmate
+        document.getElementById('announcer').innerHTML = "White's turn";
         isCheck('white-king');
         isCheckmate('white-king');
+        isStalemate('white-king');
     }
     resetVaildMoves();
     checkPromotion();
+    totalMoveCounter++;
+}
+
+//Checks if En Passent was played and removes appropriate pawn
+function checkIfEnPassentWasPlayed(){
+    let preserveI;
+    for(i = 0; i < listOfAllPawns.length; i++){
+        preserveI = i;
+        //checks if pawn is active and can be En Passented
+        if(isActive[allPieces.indexOf(listOfAllPawns[i])] && canBeEnPassented[i]){
+            //checks if enemy pawn is behind pawn
+            if(listOfAllPawns[i].includes('white')){
+            let allVerticals = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+            let tile = document.getElementById(listOfAllPawns[i]).parentNode.id;
+            let tileArray = tile.split('');
+            let index = allVerticals.indexOf(tileArray[0]);
+            index = index + 1;
+            tileArray[0] = allVerticals[index];
+            tile = tileArray.join('');
+                try{
+                    if(document.getElementById(tile).childNodes[0].id.includes('black-pawn')){
+                        //checks if enemy pawn has canEnPassent as true
+                        let checkPiece = document.getElementById(tile).childNodes[0].id;
+                        let checkPieceForEnPassent = canEnPassent[listOfAllPawns.indexOf(checkPiece)];
+                        if(checkPieceForEnPassent){
+                            //set piece to inactive and remove piece from board
+                            updateIsActive(listOfAllPawns[i], false);
+                            document.getElementById(listOfAllPawns[i]).parentNode.innerHTML = '';
+                        }
+
+                    }
+                }catch(err){
+
+                }
+            }
+        //checks if enemy pawn is behind pawn
+        if(listOfAllPawns[i].includes('black')){
+            let allVerticals = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+            let tile = document.getElementById(listOfAllPawns[i]).parentNode.id;
+            let tileArray = tile.split('');
+            let index = allVerticals.indexOf(tileArray[0]);
+            index = index - 1;
+            tileArray[0] = allVerticals[index];
+            tile = tileArray.join('');
+                try{
+                    if(document.getElementById(tile).childNodes[0].id.includes('white-pawn')){
+                        //checks if enemy pawn has canEnPassent as true
+                        let checkPiece = document.getElementById(tile).childNodes[0].id;
+                        let checkPieceForEnPassent = canEnPassent[listOfAllPawns.indexOf(checkPiece)];
+                        if(checkPieceForEnPassent){
+                            //set piece to inactive and remove piece from board
+                            updateIsActive(listOfAllPawns[i], false);
+                            i = preserveI;
+                            document.getElementById(listOfAllPawns[i]).parentNode.innerHTML = '';
+                        }
+
+                    }
+                }catch(err){
+                    
+                }
+            }
+        }
+    }
 }
 
 //Checks for checkmate
@@ -274,7 +340,7 @@ function isCheckmate(king){
     
 }
 
-//checks for check
+//Checks for check
 function isCheck(king){
     let message;
     let tile = document.getElementById(king).parentNode.id;
@@ -285,6 +351,38 @@ function isCheck(king){
     }
     if(isUnderAttack(king, tile)){
         document.getElementById('sub-announcer').innerHTML = message;
+    }
+}
+
+//Checks for stalemate
+function isStalemate(king){
+    let tile = document.getElementById(king).parentNode.id;
+    //Might need to change to false
+    if(!isCheck(king) && getRuleSet(king, tile, true) == 0){
+        //gets array of all friendly pieces
+        let checkArray = [];
+        for(i = 0; i < allPieces.length; i++){
+            if(king.includes('white')){
+                if(allPieces[i].includes('white') && isActive[i]){
+                    checkArray.push(allPieces[i]);
+                }
+            }else{
+                if(allPieces[i].includes('black') && isActive[i]){
+                    checkArray.push(allPieces[i]);
+                }
+            }
+        }
+        //gets movesets for all friendly pieces
+        for(i = 0; i < checkArray.length; i++){
+            let checkTile = document.getElementById(checkArray[i]).parentNode.id;
+            //Might need to change to false
+            if(getRuleSet(checkArray[i], checkTile, true).length > 0){
+                return false;                
+            }
+        }
+        //Stalemate has occured
+        document.getElementById('announcer').innerHTML = 'Stalemate'
+        document.getElementById('sub-announcer').innerHTML = 'Game has ended in a draw';
     }
 }
 
@@ -386,6 +484,86 @@ function checkPromotion(){
     }
 }
 
+//Checks if pawn can be En Passented
+function checkEnPassent(){
+    //get array of all pawns
+    let checkArray = [];
+    let checkArrayWhite = [];
+    let checkArrayBlack = [];
+    for(i = 0; i < allPieces.length; i++){
+        if(allPieces[i].includes('pawn')){
+            checkArray.push(allPieces[i]);
+        }
+    }
+    for(i = 0; i < checkArray.length; i++){
+        if(checkArray[i].includes('white')){
+            checkArrayWhite.push(checkArray[i]);
+        }else{
+            checkArrayBlack.push(checkArray[i]);
+        }
+    }
+    //Checks if pawn is in En Passent
+    for(e = 0; e < checkArrayWhite.length; e++){
+        let checkTile = 'e' + (1+e);
+        let checkTileRight = 'e' + (2+e);
+        let checkTileLeft = 'e' + e;
+        //check if pawn is active
+        if(isActive[allPieces.indexOf(checkArrayWhite[e])]){
+            if(document.getElementById(checkArrayWhite[e]).parentNode.id == checkTile && numOfPawnMoves[e] == 1 && turnEnPassantCanBePlayed[e] == 0){
+                try{
+                    if(document.getElementById(checkTileLeft).childNodes[0].id.includes('black-pawn')){
+                        canBeEnPassented[e] = true;
+                        turnEnPassantCanBePlayed[e] = totalMoveCounter++;
+                        canEnPassent[listOfAllPawns.indexOf(document.getElementById(checkTileLeft).childNodes[0].id)] = true;
+                    }
+                }catch(err){
+
+                }
+                try{
+                    if(document.getElementById(checkTileRight).childNodes[0].id.includes('black-pawn')){
+                        canBeEnPassented[e] = true;
+                        turnEnPassantCanBePlayed[e] = totalMoveCounter++;
+                        canEnPassent[listOfAllPawns.indexOf(document.getElementById(checkTileRight).childNodes[0].id)] = true;
+                    }
+                }catch(err){
+
+                }            
+            }else{
+                canBeEnPassented[e] = false;
+            }
+        }
+    }
+    //check if pawn is active
+    for(i = 0; i < checkArrayBlack.length; i++){
+        let checkTile = 'd' + (1+i);
+        let checkTileRight = 'd' + (2+i);
+        let checkTileLeft = 'd' + (i);
+        if(isActive[allPieces.indexOf(checkArrayBlack[i])]){
+            if(document.getElementById(checkArrayBlack[i]).parentNode.id == checkTile && numOfPawnMoves[(i + 8)] == 1 && turnEnPassantCanBePlayed[(i + 8)] == 0){
+                try{
+                    if(document.getElementById(checkTileLeft).childNodes[0].id.includes('white-pawn')){
+                        canBeEnPassented[(i + 8)] = true;
+                        turnEnPassantCanBePlayed[(i + 8)] = totalMoveCounter++;
+                        canEnPassent[listOfAllPawns.indexOf(document.getElementById(checkTileLeft).childNodes[0].id)] = true;
+                    }
+                }catch(err){
+
+                }
+                try{
+                    if(document.getElementById(checkTileRight).childNodes[0].id.includes('white-pawn')){
+                        canBeEnPassented[(i + 8)] = true;
+                        turnEnPassantCanBePlayed[(i + 8)] = totalMoveCounter++;
+                        canEnPassent[listOfAllPawns.indexOf(document.getElementById(checkTileRight).childNodes[0].id)] = true;
+                    }
+                }catch(err){
+
+                }            
+            }else{
+                canBeEnPassented[(i + 8)] = false;
+            }
+        }
+    }
+}
 //Promotion a piece
 function promote(id){
     //changes pawn out for promoted piece
@@ -433,10 +611,8 @@ function indangersKings(pieceId, nextTile){
     let tile;
     if(pieceId.includes('white')){
         king = 'white-king';
-        tile = document.getElementById(king).parentNode.id;
     }else{
         king = 'black-king';
-        tile = document.getElementById(king).parentNode.id;
     }
     attackedPiece = document.getElementById(nextTile).innerHTML;
     originalTile = document.getElementById(pieceId).parentNode.id;
@@ -445,6 +621,7 @@ function indangersKings(pieceId, nextTile){
     //if move doesn't involve capturing a piece
     if(attackedPiece == undefined || attackedPiece == null || attackedPiece == ''){
         document.getElementById(nextTile).innerHTML = pieceMover;
+        tile = document.getElementById(king).parentNode.id;
         if(isUnderAttack(king, tile)){
             document.getElementById(nextTile).innerHTML = "";
             document.getElementById(originalTile).innerHTML = pieceMover;
@@ -459,6 +636,7 @@ function indangersKings(pieceId, nextTile){
         document.getElementById(nextTile).innerHTML = "";
         //temporaraly change isActive
         updateIsActive(attackedPieceId, false);
+        tile = document.getElementById(king).parentNode.id;
         document.getElementById(nextTile).innerHTML = pieceMover;
         if(isUnderAttack(king, tile)){
             document.getElementById(nextTile).innerHTML = attackedPiece;
@@ -615,9 +793,6 @@ function canAttack(pieceId, tileId){
 
 } 
 
-//Acts as a gateway and only lets the appropriate side make their turn
-
-
 //Checks what piece is on a tile, then calls "getRuleSet()" and passes the output as a parameter to "displayValidMoves()" 
 function checkTileAndGetMoveSet(id){
     try{
@@ -654,7 +829,7 @@ function getRuleSet(pieceId, tile, check){
             if(nextTile == allTiles[i]){
                 if(isEmpty(nextTile)){
                     if(check && !wasChecked){
-                        if(!isUnderAttack(pieceId, nextTile)){
+                        if(!isUnderAttack(pieceId, nextTile) && !indangersKings(pieceId, nextTile)){
                             moveSet.push(nextTile);
                         }
                     }else{
@@ -665,7 +840,6 @@ function getRuleSet(pieceId, tile, check){
                 }else if(canAttack(pieceId, nextTile)){
                     wasChecked = false;
                     if(check && !wasChecked){
-                        //add method to check if king would be underattack if enemyy piece is taken
                         if(!willBeUnderAttack(pieceId, nextTile)){
                             moveSet.push(nextTile);
                             wasChecked = true;
@@ -691,7 +865,7 @@ function getRuleSet(pieceId, tile, check){
             if(nextTile == allTiles[i]){
                 if(isEmpty(nextTile)){
                     if(check && !wasChecked){
-                        if(!isUnderAttack(pieceId, nextTile)){
+                        if(!isUnderAttack(pieceId, nextTile) && !indangersKings(pieceId, nextTile)){
                             moveSet.push(nextTile);
                         }
                     }else{
@@ -728,7 +902,7 @@ function getRuleSet(pieceId, tile, check){
             if(nextTile == allTiles[i]){
                 if(isEmpty(nextTile)){
                     if(check && !wasChecked){
-                        if(!isUnderAttack(pieceId, nextTile)){
+                        if(!isUnderAttack(pieceId, nextTile) && !indangersKings(pieceId, nextTile)){
                             moveSet.push(nextTile);
                         }
                     }else{
@@ -765,7 +939,7 @@ function getRuleSet(pieceId, tile, check){
             if(nextTile == allTiles[i]){
                 if(isEmpty(nextTile)){
                     if(check && !wasChecked){
-                        if(!isUnderAttack(pieceId, nextTile)){
+                        if(!isUnderAttack(pieceId, nextTile) && !indangersKings(pieceId, nextTile)){
                             moveSet.push(nextTile);
                         }
                     }else{
@@ -805,7 +979,7 @@ function getRuleSet(pieceId, tile, check){
             if(nextTile == allTiles[i]){
                 if(isEmpty(nextTile)){
                     if(check && !wasChecked){
-                        if(!isUnderAttack(pieceId, nextTile)){
+                        if(!isUnderAttack(pieceId, nextTile) && !indangersKings(pieceId, nextTile)){
                             moveSet.push(nextTile);
                         }
                     }else{
@@ -845,7 +1019,7 @@ function getRuleSet(pieceId, tile, check){
             if(nextTile == allTiles[i]){
                 if(isEmpty(nextTile)){
                     if(check && !wasChecked){
-                        if(!isUnderAttack(pieceId, nextTile)){
+                        if(!isUnderAttack(pieceId, nextTile) && !indangersKings(pieceId, nextTile)){
                             moveSet.push(nextTile);
                         }
                     }else{
@@ -885,7 +1059,7 @@ function getRuleSet(pieceId, tile, check){
             if(nextTile == allTiles[i]){
                 if(isEmpty(nextTile)){
                     if(check && !wasChecked){
-                        if(!isUnderAttack(pieceId, nextTile)){
+                        if(!isUnderAttack(pieceId, nextTile) && !indangersKings(pieceId, nextTile)){
                             moveSet.push(nextTile);
                         }
                     }else{
@@ -925,7 +1099,7 @@ function getRuleSet(pieceId, tile, check){
             if(nextTile == allTiles[i]){
                 if(isEmpty(nextTile)){
                     if(check && !wasChecked){
-                        if(!isUnderAttack(pieceId, nextTile)){
+                        if(!isUnderAttack(pieceId, nextTile) && !indangersKings(pieceId, nextTile)){
                             moveSet.push(nextTile);
                         }
                     }else{
@@ -954,10 +1128,10 @@ function getRuleSet(pieceId, tile, check){
 
         wasChecked = false;
         //check if castling can be preformed
-        if(numOfWhiteKingMoves == 0 && numOfWhiteRook1Moves == 0 && isEmpty('h2') && isEmpty('h3') && isEmpty('h4') && !isUnderAttack(pieceId, 'h3')){
+        if(numOfWhiteKingMoves == 0 && numOfWhiteRook1Moves == 0 && isActive[8] && isEmpty('h2') && isEmpty('h3') && isEmpty('h4') && !isUnderAttack(pieceId, 'h3')){
             moveSet.push('h3');
         }
-        if(numOfWhiteKingMoves == 0 && numOfWhiteRook2Moves == 0 && isEmpty('h6') && isEmpty('h7') && !isUnderAttack(pieceId, 'h7')){
+        if(numOfWhiteKingMoves == 0 && numOfWhiteRook2Moves == 0 && isActive[9] && isEmpty('h6') && isEmpty('h7') && !isUnderAttack(pieceId, 'h7')){
             moveSet.push('h7');
         }
         return moveSet;
@@ -1586,8 +1760,48 @@ function getRuleSet(pieceId, tile, check){
             }
         }
         //Add additional logic to see if En Peasent should be added to the moveset
+        if(canEnPassent[0] == true){
+            let allVerticals3 = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+            //checks tile to the left
+            tileArray = tile.split('');
+            tileArray[1] = (parseInt(tileArray[1])-1);
+            if(tileArray[1] > 0){
+                try{
+                    let checkTile = tileArray.join('');
+                    let checkPiece = document.getElementById(checkTile).childNodes[0].id;
+                    let canPreformSpecialMove = canBeEnPassented[listOfAllPawns.indexOf(checkPiece)];
+                    if(checkPiece.includes('black-pawn') && canPreformSpecialMove){
+                        //gets move behind pawn that can be En Passented
+                        let index = allVerticals.indexOf(tileArray[0]) - 1;
+                        tileArray[0] = allVerticals3[index];
+                        checkTile = tileArray.join('');
+                        moveSet.push(checkTile);
+                    }
+                }catch(err){
 
-        //restricts moveset to only allow moves that will get the kig out of check
+                }
+            }
+            //checks tile to the right
+            tileArray = tile.split('');
+            tileArray[1] = (parseInt(tileArray[1])+1);
+            if(tileArray[1] < 9){
+                try{
+                    let checkTile = tileArray.join('');
+                    let checkPiece = document.getElementById(checkTile).childNodes[0].id;
+                    let canPreformSpecialMove = canBeEnPassented[listOfAllPawns.indexOf(checkPiece)];
+                    if(checkPiece.includes('black-pawn') && canPreformSpecialMove){
+                        //gets move behind pawn that can be En Passented
+                        let index = allVerticals.indexOf(tileArray[0]) - 1;
+                        tileArray[0] = allVerticals3[index];
+                        checkTile = tileArray.join('');
+                        moveSet.push(checkTile);
+                    }
+                }catch(err){
+
+                }
+            }
+        }
+        //restricts moveset to only allow moves that will get the king out of check
         if(check){
             var correctMoveSet = moveSet.slice(0);
             for(i = 0; i < moveSet.length; i++){
@@ -1664,6 +1878,48 @@ function getRuleSet(pieceId, tile, check){
                     if(canAttack(pieceId, diagonalMoveL)){
                         moveSet.push(diagonalMoveL);
                     }
+                }
+            }
+        }
+        //Add additional logic to see if En Peasent should be added to the moveset
+        if(canEnPassent[1] == true){
+            let allVerticals3 = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+            //checks tile to the left
+            tileArray = tile.split('');
+            tileArray[1] = (parseInt(tileArray[1])-1);
+            if(tileArray[1] > 0){
+                try{
+                    let checkTile = tileArray.join('');
+                    let checkPiece = document.getElementById(checkTile).childNodes[0].id;
+                    let canPreformSpecialMove = canBeEnPassented[listOfAllPawns.indexOf(checkPiece)];
+                    if(checkPiece.includes('black-pawn') && canPreformSpecialMove){
+                        //gets move behind pawn that can be En Passented
+                        let index = allVerticals.indexOf(tileArray[0]) - 1;
+                        tileArray[0] = allVerticals3[index];
+                        checkTile = tileArray.join('');
+                        moveSet.push(checkTile);
+                    }
+                }catch(err){
+
+                }
+            }
+            //checks tile to the right
+            tileArray = tile.split('');
+            tileArray[1] = (parseInt(tileArray[1])+1);
+            if(tileArray[1] < 9){
+                try{
+                    let checkTile = tileArray.join('');
+                    let checkPiece = document.getElementById(checkTile).childNodes[0].id;
+                    let canPreformSpecialMove = canBeEnPassented[listOfAllPawns.indexOf(checkPiece)];
+                    if(checkPiece.includes('black-pawn') && canPreformSpecialMove){
+                        //gets move behind pawn that can be En Passented
+                        let index = allVerticals.indexOf(tileArray[0]) - 1;
+                        tileArray[0] = allVerticals3[index];
+                        checkTile = tileArray.join('');
+                        moveSet.push(checkTile);
+                    }
+                }catch(err){
+
                 }
             }
         }
@@ -1747,6 +2003,48 @@ function getRuleSet(pieceId, tile, check){
                 }
             }
         }
+        //Add additional logic to see if En Peasent should be added to the moveset
+        if(canEnPassent[2] == true){
+            let allVerticals3 = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+            //checks tile to the left
+            tileArray = tile.split('');
+            tileArray[1] = (parseInt(tileArray[1])-1);
+            if(tileArray[1] > 0){
+                try{
+                    let checkTile = tileArray.join('');
+                    let checkPiece = document.getElementById(checkTile).childNodes[0].id;
+                    let canPreformSpecialMove = canBeEnPassented[listOfAllPawns.indexOf(checkPiece)];
+                    if(checkPiece.includes('black-pawn') && canPreformSpecialMove){
+                        //gets move behind pawn that can be En Passented
+                        let index = allVerticals.indexOf(tileArray[0]) - 1;
+                        tileArray[0] = allVerticals3[index];
+                        checkTile = tileArray.join('');
+                        moveSet.push(checkTile);
+                    }
+                }catch(err){
+
+                }
+            }
+            //checks tile to the right
+            tileArray = tile.split('');
+            tileArray[1] = (parseInt(tileArray[1])+1);
+            if(tileArray[1] < 9){
+                try{
+                    let checkTile = tileArray.join('');
+                    let checkPiece = document.getElementById(checkTile).childNodes[0].id;
+                    let canPreformSpecialMove = canBeEnPassented[listOfAllPawns.indexOf(checkPiece)];
+                    if(checkPiece.includes('black-pawn') && canPreformSpecialMove){
+                        //gets move behind pawn that can be En Passented
+                        let index = allVerticals.indexOf(tileArray[0]) - 1;
+                        tileArray[0] = allVerticals3[index];
+                        checkTile = tileArray.join('');
+                        moveSet.push(checkTile);
+                    }
+                }catch(err){
+
+                }
+            }
+        }
         //restricts moveset to only allow moves that will get the kig out of check
         if(check){
             var correctMoveSet = moveSet.slice(0);
@@ -1824,6 +2122,48 @@ function getRuleSet(pieceId, tile, check){
                     if(canAttack(pieceId, diagonalMoveL)){
                         moveSet.push(diagonalMoveL);
                     }
+                }
+            }
+        }
+        //Add additional logic to see if En Peasent should be added to the moveset
+        if(canEnPassent[3] == true){
+            let allVerticals3 = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+            //checks tile to the left
+            tileArray = tile.split('');
+            tileArray[1] = (parseInt(tileArray[1])-1);
+            if(tileArray[1] > 0){
+                try{
+                    let checkTile = tileArray.join('');
+                    let checkPiece = document.getElementById(checkTile).childNodes[0].id;
+                    let canPreformSpecialMove = canBeEnPassented[listOfAllPawns.indexOf(checkPiece)];
+                    if(checkPiece.includes('black-pawn') && canPreformSpecialMove){
+                        //gets move behind pawn that can be En Passented
+                        let index = allVerticals.indexOf(tileArray[0]) - 1;
+                        tileArray[0] = allVerticals3[index];
+                        checkTile = tileArray.join('');
+                        moveSet.push(checkTile);
+                    }
+                }catch(err){
+
+                }
+            }
+            //checks tile to the right
+            tileArray = tile.split('');
+            tileArray[1] = (parseInt(tileArray[1])+1);
+            if(tileArray[1] < 9){
+                try{
+                    let checkTile = tileArray.join('');
+                    let checkPiece = document.getElementById(checkTile).childNodes[0].id;
+                    let canPreformSpecialMove = canBeEnPassented[listOfAllPawns.indexOf(checkPiece)];
+                    if(checkPiece.includes('black-pawn') && canPreformSpecialMove){
+                        //gets move behind pawn that can be En Passented
+                        let index = allVerticals.indexOf(tileArray[0]) - 1;
+                        tileArray[0] = allVerticals3[index];
+                        checkTile = tileArray.join('');
+                        moveSet.push(checkTile);
+                    }
+                }catch(err){
+
                 }
             }
         }
@@ -1907,6 +2247,48 @@ function getRuleSet(pieceId, tile, check){
                 }
             }
         }
+        //Add additional logic to see if En Peasent should be added to the moveset
+        if(canEnPassent[4] == true){
+            let allVerticals3 = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+            //checks tile to the left
+            tileArray = tile.split('');
+            tileArray[1] = (parseInt(tileArray[1])-1);
+            if(tileArray[1] > 0){
+                try{
+                    let checkTile = tileArray.join('');
+                    let checkPiece = document.getElementById(checkTile).childNodes[0].id;
+                    let canPreformSpecialMove = canBeEnPassented[listOfAllPawns.indexOf(checkPiece)];
+                    if(checkPiece.includes('black-pawn') && canPreformSpecialMove){
+                        //gets move behind pawn that can be En Passented
+                        let index = allVerticals.indexOf(tileArray[0]) - 1;
+                        tileArray[0] = allVerticals3[index];
+                        checkTile = tileArray.join('');
+                        moveSet.push(checkTile);
+                    }
+                }catch(err){
+
+                }
+            }
+            //checks tile to the right
+            tileArray = tile.split('');
+            tileArray[1] = (parseInt(tileArray[1])+1);
+            if(tileArray[1] < 9){
+                try{
+                    let checkTile = tileArray.join('');
+                    let checkPiece = document.getElementById(checkTile).childNodes[0].id;
+                    let canPreformSpecialMove = canBeEnPassented[listOfAllPawns.indexOf(checkPiece)];
+                    if(checkPiece.includes('black-pawn') && canPreformSpecialMove){
+                        //gets move behind pawn that can be En Passented
+                        let index = allVerticals.indexOf(tileArray[0]) - 1;
+                        tileArray[0] = allVerticals3[index];
+                        checkTile = tileArray.join('');
+                        moveSet.push(checkTile);
+                    }
+                }catch(err){
+
+                }
+            }
+        }
         //restricts moveset to only allow moves that will get the kig out of check
         if(check){
             var correctMoveSet = moveSet.slice(0);
@@ -1984,6 +2366,48 @@ function getRuleSet(pieceId, tile, check){
                     if(canAttack(pieceId, diagonalMoveL)){
                         moveSet.push(diagonalMoveL);
                     }
+                }
+            }
+        }
+        //Add additional logic to see if En Peasent should be added to the moveset
+        if(canEnPassent[5] == true){
+            let allVerticals3 = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+            //checks tile to the left
+            tileArray = tile.split('');
+            tileArray[1] = (parseInt(tileArray[1])-1);
+            if(tileArray[1] > 0){
+                try{
+                    let checkTile = tileArray.join('');
+                    let checkPiece = document.getElementById(checkTile).childNodes[0].id;
+                    let canPreformSpecialMove = canBeEnPassented[listOfAllPawns.indexOf(checkPiece)];
+                    if(checkPiece.includes('black-pawn') && canPreformSpecialMove){
+                        //gets move behind pawn that can be En Passented
+                        let index = allVerticals.indexOf(tileArray[0]) - 1;
+                        tileArray[0] = allVerticals3[index];
+                        checkTile = tileArray.join('');
+                        moveSet.push(checkTile);
+                    }
+                }catch(err){
+
+                }
+            }
+            //checks tile to the right
+            tileArray = tile.split('');
+            tileArray[1] = (parseInt(tileArray[1])+1);
+            if(tileArray[1] < 9){
+                try{
+                    let checkTile = tileArray.join('');
+                    let checkPiece = document.getElementById(checkTile).childNodes[0].id;
+                    let canPreformSpecialMove = canBeEnPassented[listOfAllPawns.indexOf(checkPiece)];
+                    if(checkPiece.includes('black-pawn') && canPreformSpecialMove){
+                        //gets move behind pawn that can be En Passented
+                        let index = allVerticals.indexOf(tileArray[0]) - 1;
+                        tileArray[0] = allVerticals3[index];
+                        checkTile = tileArray.join('');
+                        moveSet.push(checkTile);
+                    }
+                }catch(err){
+
                 }
             }
         }
@@ -2067,6 +2491,48 @@ function getRuleSet(pieceId, tile, check){
                 }
             }
         }
+        //Add additional logic to see if En Peasent should be added to the moveset
+        if(canEnPassent[6] == true){
+            let allVerticals3 = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+            //checks tile to the left
+            tileArray = tile.split('');
+            tileArray[1] = (parseInt(tileArray[1])-1);
+            if(tileArray[1] > 0){
+                try{
+                    let checkTile = tileArray.join('');
+                    let checkPiece = document.getElementById(checkTile).childNodes[0].id;
+                    let canPreformSpecialMove = canBeEnPassented[listOfAllPawns.indexOf(checkPiece)];
+                    if(checkPiece.includes('black-pawn') && canPreformSpecialMove){
+                        //gets move behind pawn that can be En Passented
+                        let index = allVerticals.indexOf(tileArray[0]) - 1;
+                        tileArray[0] = allVerticals3[index];
+                        checkTile = tileArray.join('');
+                        moveSet.push(checkTile);
+                    }
+                }catch(err){
+
+                }
+            }
+            //checks tile to the right
+            tileArray = tile.split('');
+            tileArray[1] = (parseInt(tileArray[1])+1);
+            if(tileArray[1] < 9){
+                try{
+                    let checkTile = tileArray.join('');
+                    let checkPiece = document.getElementById(checkTile).childNodes[0].id;
+                    let canPreformSpecialMove = canBeEnPassented[listOfAllPawns.indexOf(checkPiece)];
+                    if(checkPiece.includes('black-pawn') && canPreformSpecialMove){
+                        //gets move behind pawn that can be En Passented
+                        let index = allVerticals.indexOf(tileArray[0]) - 1;
+                        tileArray[0] = allVerticals3[index];
+                        checkTile = tileArray.join('');
+                        moveSet.push(checkTile);
+                    }
+                }catch(err){
+
+                }
+            }
+        }
         //restricts moveset to only allow moves that will get the kig out of check
         if(check){
             var correctMoveSet = moveSet.slice(0);
@@ -2144,6 +2610,48 @@ function getRuleSet(pieceId, tile, check){
                 }
             }
         }
+        //Add additional logic to see if En Peasent should be added to the moveset
+        if(canEnPassent[7] == true){
+            let allVerticals3 = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+            //checks tile to the left
+            tileArray = tile.split('');
+            tileArray[1] = (parseInt(tileArray[1])-1);
+            if(tileArray[1] > 0){
+                try{
+                    let checkTile = tileArray.join('');
+                    let checkPiece = document.getElementById(checkTile).childNodes[0].id;
+                    let canPreformSpecialMove = canBeEnPassented[listOfAllPawns.indexOf(checkPiece)];
+                    if(checkPiece.includes('black-pawn') && canPreformSpecialMove){
+                        //gets move behind pawn that can be En Passented
+                        let index = allVerticals.indexOf(tileArray[0]) - 1;
+                        tileArray[0] = allVerticals3[index];
+                        checkTile = tileArray.join('');
+                        moveSet.push(checkTile);
+                    }
+                }catch(err){
+
+                }
+            }
+            //checks tile to the right
+            tileArray = tile.split('');
+            tileArray[1] = (parseInt(tileArray[1])+1);
+            if(tileArray[1] < 9){
+                try{
+                    let checkTile = tileArray.join('');
+                    let checkPiece = document.getElementById(checkTile).childNodes[0].id;
+                    let canPreformSpecialMove = canBeEnPassented[listOfAllPawns.indexOf(checkPiece)];
+                    if(checkPiece.includes('black-pawn') && canPreformSpecialMove){
+                        //gets move behind pawn that can be En Passented
+                        let index = allVerticals.indexOf(tileArray[0]) - 1;
+                        tileArray[0] = allVerticals3[index];
+                        checkTile = tileArray.join('');
+                        moveSet.push(checkTile);
+                    }
+                }catch(err){
+
+                }
+            }
+        }
         //restricts moveset to only allow moves that will get the kig out of check
         if(check){
             var correctMoveSet = moveSet.slice(0);
@@ -2176,7 +2684,7 @@ function getRuleSet(pieceId, tile, check){
             if(nextTile == allTiles[i]){
                 if(isEmpty(nextTile)){
                     if(check && !wasChecked){
-                        if(!isUnderAttack(pieceId, nextTile)){
+                        if(!isUnderAttack(pieceId, nextTile) && !indangersKings(pieceId, nextTile)){
                             moveSet.push(nextTile);
                         }
                     }else{
@@ -2214,7 +2722,7 @@ function getRuleSet(pieceId, tile, check){
             if(nextTile == allTiles[i]){
                 if(isEmpty(nextTile)){
                     if(check && !wasChecked){
-                        if(!isUnderAttack(pieceId, nextTile)){
+                        if(!isUnderAttack(pieceId, nextTile) && !indangersKings(pieceId, nextTile)){
                             moveSet.push(nextTile);
                             break;
                         }
@@ -2253,7 +2761,7 @@ function getRuleSet(pieceId, tile, check){
             if(nextTile == allTiles[i]){
                 if(isEmpty(nextTile)){
                     if(check && !wasChecked){
-                        if(!isUnderAttack(pieceId, nextTile)){
+                        if(!isUnderAttack(pieceId, nextTile) && !indangersKings(pieceId, nextTile)){
                             moveSet.push(nextTile);
                         }
                     }else{
@@ -2291,7 +2799,7 @@ function getRuleSet(pieceId, tile, check){
             if(nextTile == allTiles[i]){
                 if(isEmpty(nextTile)){
                     if(check && !wasChecked){
-                        if(!isUnderAttack(pieceId, nextTile)){
+                        if(!isUnderAttack(pieceId, nextTile) && !indangersKings(pieceId, nextTile)){
                             moveSet.push(nextTile);
                         }
                     }else{
@@ -2332,7 +2840,7 @@ function getRuleSet(pieceId, tile, check){
             if(nextTile == allTiles[i]){
                 if(isEmpty(nextTile)){
                     if(check && !wasChecked){
-                        if(!isUnderAttack(pieceId, nextTile)){
+                        if(!isUnderAttack(pieceId, nextTile) && !indangersKings(pieceId, nextTile)){
                             moveSet.push(nextTile);
                         }
                     }else{
@@ -2373,7 +2881,7 @@ function getRuleSet(pieceId, tile, check){
             if(nextTile == allTiles[i]){
                 if(isEmpty(nextTile)){
                     if(check && !wasChecked){
-                        if(!isUnderAttack(pieceId, nextTile)){
+                        if(!isUnderAttack(pieceId, nextTile) && !indangersKings(pieceId, nextTile)){
                             moveSet.push(nextTile);
                         }
                     }else{
@@ -2414,7 +2922,7 @@ function getRuleSet(pieceId, tile, check){
             if(nextTile == allTiles[i]){
                 if(isEmpty(nextTile)){
                     if(check && !wasChecked){
-                        if(!isUnderAttack(pieceId, nextTile)){
+                        if(!isUnderAttack(pieceId, nextTile) && !indangersKings(pieceId, nextTile)){
                             moveSet.push(nextTile);
                         }
                     }else{
@@ -2455,7 +2963,7 @@ function getRuleSet(pieceId, tile, check){
             if(nextTile == allTiles[i]){
                 if(isEmpty(nextTile)){
                     if(check && !wasChecked){
-                        if(!isUnderAttack(pieceId, nextTile)){
+                        if(!isUnderAttack(pieceId, nextTile) && !indangersKings(pieceId, nextTile)){
                             moveSet.push(nextTile);
                         }
                     }else{
@@ -2484,10 +2992,10 @@ function getRuleSet(pieceId, tile, check){
 
         wasChecked = false;
         //Checks for Castling
-        if(numOfBlackKingMoves == 0 && numOfBlackRook1Moves == 0 && isEmpty('a2') && isEmpty('a3') && isEmpty('a4') && !isUnderAttack(pieceId, 'a3')){
+        if(numOfBlackKingMoves == 0 && numOfBlackRook1Moves == 0 && isActive[56] && isEmpty('a2') && isEmpty('a3') && isEmpty('a4') && !isUnderAttack(pieceId, 'a3')){
             moveSet.push('a3');
         }
-        if(numOfBlackKingMoves == 0 && numOfBlackRook2Moves == 0 && isEmpty('a6') && isEmpty('a7') && !isUnderAttack(pieceId, 'a7')){
+        if(numOfBlackKingMoves == 0 && numOfBlackRook2Moves == 0 && isActive[55] && isEmpty('a6') && isEmpty('a7') && !isUnderAttack(pieceId, 'a7')){
             moveSet.push('a7');
         }
         return moveSet;                
@@ -2548,6 +3056,48 @@ function getRuleSet(pieceId, tile, check){
                     if(canAttack(pieceId, diagonalMoveL)){
                         moveSet.push(diagonalMoveL);
                     }
+                }
+            }
+        }
+        //Add additional logic to see if En Peasent should be added to the moveset
+        if(canEnPassent[8] == true){
+            let allVerticals3 = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+            //checks tile to the left
+            tileArray = tile.split('');
+            tileArray[1] = (parseInt(tileArray[1])-1);
+            if(tileArray[1] > 0){
+                try{
+                    let checkTile = tileArray.join('');
+                    let checkPiece = document.getElementById(checkTile).childNodes[0].id;
+                    let canPreformSpecialMove = canBeEnPassented[listOfAllPawns.indexOf(checkPiece)];
+                    if(checkPiece.includes('white-pawn') && canPreformSpecialMove){
+                        //gets move behind pawn that can be En Passented
+                        let index = allVerticals.indexOf(tileArray[0]) + 1;
+                        tileArray[0] = allVerticals3[index];
+                        checkTile = tileArray.join('');
+                        moveSet.push(checkTile);
+                    }
+                }catch(err){
+
+                }
+            }
+            //checks tile to the right
+            tileArray = tile.split('');
+            tileArray[1] = (parseInt(tileArray[1])+1);
+            if(tileArray[1] < 9){
+                try{
+                    let checkTile = tileArray.join('');
+                    let checkPiece = document.getElementById(checkTile).childNodes[0].id;
+                    let canPreformSpecialMove = canBeEnPassented[listOfAllPawns.indexOf(checkPiece)];
+                    if(checkPiece.includes('white-pawn') && canPreformSpecialMove){
+                        //gets move behind pawn that can be En Passented
+                        let index = allVerticals.indexOf(tileArray[0]) + 1;
+                        tileArray[0] = allVerticals3[index];
+                        checkTile = tileArray.join('');
+                        moveSet.push(checkTile);
+                    }
+                }catch(err){
+
                 }
             }
         }
@@ -2631,6 +3181,48 @@ function getRuleSet(pieceId, tile, check){
                 }
             }
         }
+        //Add additional logic to see if En Peasent should be added to the moveset
+        if(canEnPassent[9] == true){
+            let allVerticals3 = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+            //checks tile to the left
+            tileArray = tile.split('');
+            tileArray[1] = (parseInt(tileArray[1])-1);
+            if(tileArray[1] > 0){
+                try{
+                    let checkTile = tileArray.join('');
+                    let checkPiece = document.getElementById(checkTile).childNodes[0].id;
+                    let canPreformSpecialMove = canBeEnPassented[listOfAllPawns.indexOf(checkPiece)];
+                    if(checkPiece.includes('white-pawn') && canPreformSpecialMove){
+                        //gets move behind pawn that can be En Passented
+                        let index = allVerticals.indexOf(tileArray[0]) + 1;
+                        tileArray[0] = allVerticals3[index];
+                        checkTile = tileArray.join('');
+                        moveSet.push(checkTile);
+                    }
+                }catch(err){
+
+                }
+            }
+            //checks tile to the right
+            tileArray = tile.split('');
+            tileArray[1] = (parseInt(tileArray[1])+1);
+            if(tileArray[1] < 9){
+                try{
+                    let checkTile = tileArray.join('');
+                    let checkPiece = document.getElementById(checkTile).childNodes[0].id;
+                    let canPreformSpecialMove = canBeEnPassented[listOfAllPawns.indexOf(checkPiece)];
+                    if(checkPiece.includes('white-pawn') && canPreformSpecialMove){
+                        //gets move behind pawn that can be En Passented
+                        let index = allVerticals.indexOf(tileArray[0]) + 1;
+                        tileArray[0] = allVerticals3[index];
+                        checkTile = tileArray.join('');
+                        moveSet.push(checkTile);
+                    }
+                }catch(err){
+
+                }
+            }
+        }
         //restricts moveset to only allow moves that will get the kig out of check
         if(check){
             var correctMoveSet = moveSet.slice(0);
@@ -2708,6 +3300,48 @@ function getRuleSet(pieceId, tile, check){
                     if(canAttack(pieceId, diagonalMoveL)){
                         moveSet.push(diagonalMoveL);
                     }
+                }
+            }
+        }
+        //Add additional logic to see if En Peasent should be added to the moveset
+        if(canEnPassent[10] == true){
+            let allVerticals3 = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+            //checks tile to the left
+            tileArray = tile.split('');
+            tileArray[1] = (parseInt(tileArray[1])-1);
+            if(tileArray[1] > 0){
+                try{
+                    let checkTile = tileArray.join('');
+                    let checkPiece = document.getElementById(checkTile).childNodes[0].id;
+                    let canPreformSpecialMove = canBeEnPassented[listOfAllPawns.indexOf(checkPiece)];
+                    if(checkPiece.includes('white-pawn') && canPreformSpecialMove){
+                        //gets move behind pawn that can be En Passented
+                        let index = allVerticals.indexOf(tileArray[0]) + 1;
+                        tileArray[0] = allVerticals3[index];
+                        checkTile = tileArray.join('');
+                        moveSet.push(checkTile);
+                    }
+                }catch(err){
+
+                }
+            }
+            //checks tile to the right
+            tileArray = tile.split('');
+            tileArray[1] = (parseInt(tileArray[1])+1);
+            if(tileArray[1] < 9){
+                try{
+                    let checkTile = tileArray.join('');
+                    let checkPiece = document.getElementById(checkTile).childNodes[0].id;
+                    let canPreformSpecialMove = canBeEnPassented[listOfAllPawns.indexOf(checkPiece)];
+                    if(checkPiece.includes('white-pawn') && canPreformSpecialMove){
+                        //gets move behind pawn that can be En Passented
+                        let index = allVerticals.indexOf(tileArray[0]) + 1;
+                        tileArray[0] = allVerticals3[index];
+                        checkTile = tileArray.join('');
+                        moveSet.push(checkTile);
+                    }
+                }catch(err){
+
                 }
             }
         }
@@ -2791,6 +3425,48 @@ function getRuleSet(pieceId, tile, check){
                 }
             }
         }
+        //Add additional logic to see if En Peasent should be added to the moveset
+        if(canEnPassent[11] == true){
+            let allVerticals3 = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+            //checks tile to the left
+            tileArray = tile.split('');
+            tileArray[1] = (parseInt(tileArray[1])-1);
+            if(tileArray[1] > 0){
+                try{
+                    let checkTile = tileArray.join('');
+                    let checkPiece = document.getElementById(checkTile).childNodes[0].id;
+                    let canPreformSpecialMove = canBeEnPassented[listOfAllPawns.indexOf(checkPiece)];
+                    if(checkPiece.includes('white-pawn') && canPreformSpecialMove){
+                        //gets move behind pawn that can be En Passented
+                        let index = allVerticals.indexOf(tileArray[0]) + 1;
+                        tileArray[0] = allVerticals3[index];
+                        checkTile = tileArray.join('');
+                        moveSet.push(checkTile);
+                    }
+                }catch(err){
+
+                }
+            }
+            //checks tile to the right
+            tileArray = tile.split('');
+            tileArray[1] = (parseInt(tileArray[1])+1);
+            if(tileArray[1] < 9){
+                try{
+                    let checkTile = tileArray.join('');
+                    let checkPiece = document.getElementById(checkTile).childNodes[0].id;
+                    let canPreformSpecialMove = canBeEnPassented[listOfAllPawns.indexOf(checkPiece)];
+                    if(checkPiece.includes('white-pawn') && canPreformSpecialMove){
+                        //gets move behind pawn that can be En Passented
+                        let index = allVerticals.indexOf(tileArray[0]) + 1;
+                        tileArray[0] = allVerticals3[index];
+                        checkTile = tileArray.join('');
+                        moveSet.push(checkTile);
+                    }
+                }catch(err){
+
+                }
+            }
+        }
         //restricts moveset to only allow moves that will get the kig out of check
         if(check){
             var correctMoveSet = moveSet.slice(0);
@@ -2868,6 +3544,48 @@ function getRuleSet(pieceId, tile, check){
                     if(canAttack(pieceId, diagonalMoveL)){
                         moveSet.push(diagonalMoveL);
                     }
+                }
+            }
+        }
+        //Add additional logic to see if En Peasent should be added to the moveset
+        if(canEnPassent[12] == true){
+            let allVerticals3 = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+            //checks tile to the left
+            tileArray = tile.split('');
+            tileArray[1] = (parseInt(tileArray[1])-1);
+            if(tileArray[1] > 0){
+                try{
+                    let checkTile = tileArray.join('');
+                    let checkPiece = document.getElementById(checkTile).childNodes[0].id;
+                    let canPreformSpecialMove = canBeEnPassented[listOfAllPawns.indexOf(checkPiece)];
+                    if(checkPiece.includes('white-pawn') && canPreformSpecialMove){
+                        //gets move behind pawn that can be En Passented
+                        let index = allVerticals.indexOf(tileArray[0]) + 1;
+                        tileArray[0] = allVerticals3[index];
+                        checkTile = tileArray.join('');
+                        moveSet.push(checkTile);
+                    }
+                }catch(err){
+
+                }
+            }
+            //checks tile to the right
+            tileArray = tile.split('');
+            tileArray[1] = (parseInt(tileArray[1])+1);
+            if(tileArray[1] < 9){
+                try{
+                    let checkTile = tileArray.join('');
+                    let checkPiece = document.getElementById(checkTile).childNodes[0].id;
+                    let canPreformSpecialMove = canBeEnPassented[listOfAllPawns.indexOf(checkPiece)];
+                    if(checkPiece.includes('white-pawn') && canPreformSpecialMove){
+                        //gets move behind pawn that can be En Passented
+                        let index = allVerticals.indexOf(tileArray[0]) + 1;
+                        tileArray[0] = allVerticals3[index];
+                        checkTile = tileArray.join('');
+                        moveSet.push(checkTile);
+                    }
+                }catch(err){
+
                 }
             }
         }
@@ -2951,6 +3669,48 @@ function getRuleSet(pieceId, tile, check){
                 }
             }
         }
+        //Add additional logic to see if En Peasent should be added to the moveset
+        if(canEnPassent[13] == true){
+            let allVerticals3 = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+            //checks tile to the left
+            tileArray = tile.split('');
+            tileArray[1] = (parseInt(tileArray[1])-1);
+            if(tileArray[1] > 0){
+                try{
+                    let checkTile = tileArray.join('');
+                    let checkPiece = document.getElementById(checkTile).childNodes[0].id;
+                    let canPreformSpecialMove = canBeEnPassented[listOfAllPawns.indexOf(checkPiece)];
+                    if(checkPiece.includes('white-pawn') && canPreformSpecialMove){
+                        //gets move behind pawn that can be En Passented
+                        let index = allVerticals.indexOf(tileArray[0]) + 1;
+                        tileArray[0] = allVerticals3[index];
+                        checkTile = tileArray.join('');
+                        moveSet.push(checkTile);
+                    }
+                }catch(err){
+
+                }
+            }
+            //checks tile to the right
+            tileArray = tile.split('');
+            tileArray[1] = (parseInt(tileArray[1])+1);
+            if(tileArray[1] < 9){
+                try{
+                    let checkTile = tileArray.join('');
+                    let checkPiece = document.getElementById(checkTile).childNodes[0].id;
+                    let canPreformSpecialMove = canBeEnPassented[listOfAllPawns.indexOf(checkPiece)];
+                    if(checkPiece.includes('white-pawn') && canPreformSpecialMove){
+                        //gets move behind pawn that can be En Passented
+                        let index = allVerticals.indexOf(tileArray[0]) + 1;
+                        tileArray[0] = allVerticals3[index];
+                        checkTile = tileArray.join('');
+                        moveSet.push(checkTile);
+                    }
+                }catch(err){
+
+                }
+            }
+        }
         //restricts moveset to only allow moves that will get the kig out of check
         if(check){
             var correctMoveSet = moveSet.slice(0);
@@ -3031,6 +3791,48 @@ function getRuleSet(pieceId, tile, check){
                 }
             }
         }
+        //Add additional logic to see if En Peasent should be added to the moveset
+        if(canEnPassent[14] == true){
+            let allVerticals3 = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+            //checks tile to the left
+            tileArray = tile.split('');
+            tileArray[1] = (parseInt(tileArray[1])-1);
+            if(tileArray[1] > 0){
+                try{
+                    let checkTile = tileArray.join('');
+                    let checkPiece = document.getElementById(checkTile).childNodes[0].id;
+                    let canPreformSpecialMove = canBeEnPassented[listOfAllPawns.indexOf(checkPiece)];
+                    if(checkPiece.includes('white-pawn') && canPreformSpecialMove){
+                        //gets move behind pawn that can be En Passented
+                        let index = allVerticals.indexOf(tileArray[0]) + 1;
+                        tileArray[0] = allVerticals3[index];
+                        checkTile = tileArray.join('');
+                        moveSet.push(checkTile);
+                    }
+                }catch(err){
+
+                }
+            }
+            //checks tile to the right
+            tileArray = tile.split('');
+            tileArray[1] = (parseInt(tileArray[1])+1);
+            if(tileArray[1] < 9){
+                try{
+                    let checkTile = tileArray.join('');
+                    let checkPiece = document.getElementById(checkTile).childNodes[0].id;
+                    let canPreformSpecialMove = canBeEnPassented[listOfAllPawns.indexOf(checkPiece)];
+                    if(checkPiece.includes('white-pawn') && canPreformSpecialMove){
+                        //gets move behind pawn that can be En Passented
+                        let index = allVerticals.indexOf(tileArray[0]) + 1;
+                        tileArray[0] = allVerticals3[index];
+                        checkTile = tileArray.join('');
+                        moveSet.push(checkTile);
+                    }
+                }catch(err){
+
+                }
+            }
+        }
         //restricts moveset to only allow moves that will get the kig out of check
         if(check){
             var correctMoveSet = moveSet.slice(0);
@@ -3108,6 +3910,48 @@ function getRuleSet(pieceId, tile, check){
                 }
             }
         }
+        //Add additional logic to see if En Peasent should be added to the moveset
+        if(canEnPassent[15] == true){
+            let allVerticals3 = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+            //checks tile to the left
+            tileArray = tile.split('');
+            tileArray[1] = (parseInt(tileArray[1])-1);
+            if(tileArray[1] > 0){
+                try{
+                    let checkTile = tileArray.join('');
+                    let checkPiece = document.getElementById(checkTile).childNodes[0].id;
+                    let canPreformSpecialMove = canBeEnPassented[listOfAllPawns.indexOf(checkPiece)];
+                    if(checkPiece.includes('white-pawn') && canPreformSpecialMove){
+                        //gets move behind pawn that can be En Passented
+                        let index = allVerticals.indexOf(tileArray[0]) + 1;
+                        tileArray[0] = allVerticals3[index];
+                        checkTile = tileArray.join('');
+                        moveSet.push(checkTile);
+                    }
+                }catch(err){
+
+                }
+            }
+            //checks tile to the right
+            tileArray = tile.split('');
+            tileArray[1] = (parseInt(tileArray[1])+1);
+            if(tileArray[1] < 9){
+                try{
+                    let checkTile = tileArray.join('');
+                    let checkPiece = document.getElementById(checkTile).childNodes[0].id;
+                    let canPreformSpecialMove = canBeEnPassented[listOfAllPawns.indexOf(checkPiece)];
+                    if(checkPiece.includes('white-pawn') && canPreformSpecialMove){
+                        //gets move behind pawn that can be En Passented
+                        let index = allVerticals.indexOf(tileArray[0]) + 1;
+                        tileArray[0] = allVerticals3[index];
+                        checkTile = tileArray.join('');
+                        moveSet.push(checkTile);
+                    }
+                }catch(err){
+
+                }
+            }
+        }
         //restricts moveset to only allow moves that will get the kig out of check
         if(check){
             var correctMoveSet = moveSet.slice(0);
@@ -3126,7 +3970,5 @@ function getRuleSet(pieceId, tile, check){
         }
         return moveSet;        
         }
-    }else{
-        //tile is empty
     }
 }
